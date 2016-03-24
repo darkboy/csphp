@@ -335,7 +335,7 @@ asset use
 =====
 <pre><code>
 
-//前端资源,解释多机部署，域名分离，无逢上线问题
+//前端资源,解决多机部署，域名分离，灰度上线问题
 Csp::asset($fRroute, $hostKey);
 $cfg['asset']=array(
     'base_path'=>'/',
