@@ -22,7 +22,7 @@ Csp::createApp($cfg)->run();
 ------------------------------------------------------------------
 
 
-err handle eg: param err 404 401 syserr
+exception handle for param 404 401 err
 =====
 <pre><code>
 
