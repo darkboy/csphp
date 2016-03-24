@@ -22,7 +22,7 @@ Csp::createApp($cfg)->run();
 ------------------------------------------------------------------
 
 
-errorCtrl eg: param err 
+err handle eg: param err 404 401 syserr
 =====
 <pre><code>
 
@@ -100,8 +100,10 @@ $cfg['ajax_flag_vr'] =array('g:_', 'p:_' );
 $cfg['api_flag_vr']  =array('h:csp-api');
 
 //检查当前请求是否符合条件
-Csp::request()->isMatch($cond);
-$cond=array('domain'=>'*',          //当前域名
+Csp::isMatch($reqCond);
+Csp::request()->isMatch($reqCond);
+$reqCond=array(
+			'domain'=>'*',          //当前域名
             'router_prefix'=>'*',   //路由前缀
             'request_method'=>'*',  //HTTP 请求方法 GET POST PUT
             'router_suffix'=>'*',   //路由后缀
@@ -153,6 +155,14 @@ url constructor
 
 //url构造器
 Csp::url($r, $paramArrOrStr, $anchor, $hostKey='_default');
+$cfg['host_keys'] = array(
+	'_default'	=>'http://www.domain.com/',
+	'home'		=>'http://www.domain.com/',
+	'admin'		=>'http://admin.domain.com/',
+	'statics'	=>'http://admin.domain.com/',
+	'api'		=>'http://api.domain.com/',
+	
+);
 
 </code></pre>
 
@@ -240,7 +250,7 @@ $fRoute='@static/a/b/c.css'; //应用静态文件
 
 ------------------------------------------------------------------
 
-comp cfg and use
+Components feature
 =====
 <pre><code>
 
@@ -269,9 +279,6 @@ Filters  feature
 
 Csp::runFilters($fRoute, $cfg=null);
 
-Csp::fireEvent($eventName, $senderObj, $data=null);
-Csp::on($eventName, $eventCbFunc);
-
 </code></pre>
 
 ------------------------------------------------------------------
@@ -280,10 +287,8 @@ hooks  feature
 =====
 <pre><code>
 
-Csp::runFilters($fRoute, $cfg=null);
-
-Csp::fireEvent($eventName, $senderObj, $data=null);
-Csp::on($eventName, $eventCbFunc);
+Csp::doHooks();
+Csp::hook($hookName, $eventCbFunc);
 
 </code></pre>
 
@@ -292,8 +297,6 @@ Csp::on($eventName, $eventCbFunc);
 event  feature
 =====
 <pre><code>
-
-Csp::runFilters($fRoute, $cfg=null);
 
 Csp::fireEvent($eventName, $senderObj, $data=null);
 Csp::on($eventName, $eventCbFunc);
