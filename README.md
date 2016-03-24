@@ -1,4 +1,4 @@
 Csphp
 =====
 
-Csphp  a  Concise but not Simple PHP framework 
+A Concise but not Simple PHP framework 
