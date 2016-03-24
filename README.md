@@ -1,21 +1,30 @@
-Csphp
+Csphp Framework
 =====
 
 A Concise but not Simple PHP framework 
 
-Framework Summary feature list
+------------------------------------------------------------------
+
+Framework feature Summary
 =====
 
 
 Startup
 =====
 
+<pre><code>
+
 //启动应用程序 程序只有一个入口配置
 Csp::createApp($cfg)->run();
+
+</code></pre>
+
+------------------------------------------------------------------
 
 
 errorCtrl eg: param err 
 =====
+<pre><code>
 
 //err 不同的参数错误使用统一的处理方法 并且可以由用户配置
 CspErrorHandle::cliParamError();
@@ -38,9 +47,13 @@ $cfg['error_handle']=array(
     'error'             =>'CspErrorHandle::error',
 );
 
+</code></pre>
 
-use input from request 
+------------------------------------------------------------------
+
+get input from request 
 =====
+<pre><code>
 
 //request input
 Csp::request()->param($kr,$def,$rule,$tips='',$errHandle);
@@ -63,8 +76,13 @@ Csp::request()->getHost();
 Csp::request()->uri();
 Csp::request()->lastViewUrl();//用户最后一次浏览的 url
 
+</code></pre>
+
+------------------------------------------------------------------
+
 chk request type
 =====
+<pre><code>
 
 //请求性质判断
 Csp::request()->isApi();
@@ -92,9 +110,14 @@ $cond=array('domain'=>'*',          //当前域名
             'user_cond'=>'abc::abc',//用户自定义规则,是一个可调用的 回调或者服务定义器
 );
 
+</code></pre>
 
-get var via var route
+------------------------------------------------------------------
+
+get var by vroute
 =====
+<pre><code>
+
 //use input 获取 用户输入
 Csp::v($vr,$def,$rule,$errHandle);
 //vr 规则，变量路由
@@ -109,21 +132,35 @@ $vr='v:a/b/c';//var from route parse
 $vr='h:a/b/c';//header
 $vr='a:a/b/c';// value in v or r
 
+</code></pre>
+
+------------------------------------------------------------------
+
 set or get data in page live time 
 =====
+<pre><code>
+
 Csp::data($k,$v);//for set
 Csp::data($k);   //for get
 
+</code></pre>
+
+------------------------------------------------------------------
 
 url constructor 
 =====
+<pre><code>
 
 //url构造器
 Csp::url($r, $paramArrOrStr, $anchor, $hostKey='_default');
 
+</code></pre>
 
-url response feature 
+------------------------------------------------------------------
+
+response feature 
 =====
+<pre><code>
 
 Csp::response()->httpCode=200;
 Csp::response()->bodyData=null;//array or str
@@ -136,9 +173,13 @@ Csp::response()->redirect($url,$type);
 Csp::response()->setBody($strOrArray);
 Csp::response()->send();
 
+</code></pre>
+
+------------------------------------------------------------------
 
 log and debug func 
 =====
+<pre><code>
 
 //调试与日志
 Csp::logInfo($cateGory='sys',$msg);
@@ -153,9 +194,13 @@ Csp::bmkStart($labelKey);
 Csp::bmkEnd($labelKey);
 Csp::halt();//alias for exit
 
+</code></pre>
+
+------------------------------------------------------------------
 
 load file or instantiate obj
 =====
+<pre><code>
 
 //对象加载与实例化
 Csp::getPathByRoute($fRoute);
@@ -169,9 +214,14 @@ Csp::cls();
 Csp::ext();
 Csp::comp();
 
+</code></pre>
+
+------------------------------------------------------------------
 
 file route rule
 =====
+<pre><code>
+
 //类文件 与 对象 别名定位规则，类文件路由
 $fRoute='@com/a/b/c'; //优先从应用目录查找
 $fRoute='@f-com/a/b/c';//框架系统组件
@@ -186,9 +236,14 @@ $fRoute='@a-ext/a/b/c'; //应用扩展类
 $fRoute='@static/a/b/c.js';  //应用静态文件,应包含扩展名
 $fRoute='@static/a/b/c.css'; //应用静态文件
 
+</code></pre>
+
+------------------------------------------------------------------
 
 comp cfg and use
 =====
+<pre><code>
+
 //组件的使用
 Csp::comp($comRoute, $cfg, $accessKey='')->anyMethod();
 $cfg['compents']=array(
@@ -204,18 +259,52 @@ $cfg['compents']=array(
 
 Csp::comp($accessKey)->anyMethod();
 
+</code></pre>
 
+------------------------------------------------------------------
 
-Filters and event
+Filters  feature
 =====
+<pre><code>
+
 Csp::runFilters($fRoute, $cfg=null);
 
 Csp::fireEvent($eventName, $senderObj, $data=null);
 Csp::on($eventName, $eventCbFunc);
 
+</code></pre>
+
+------------------------------------------------------------------
+
+hooks  feature
+=====
+<pre><code>
+
+Csp::runFilters($fRoute, $cfg=null);
+
+Csp::fireEvent($eventName, $senderObj, $data=null);
+Csp::on($eventName, $eventCbFunc);
+
+</code></pre>
+
+------------------------------------------------------------------
+
+event  feature
+=====
+<pre><code>
+
+Csp::runFilters($fRoute, $cfg=null);
+
+Csp::fireEvent($eventName, $senderObj, $data=null);
+Csp::on($eventName, $eventCbFunc);
+
+</code></pre>
+
+------------------------------------------------------------------
 
 Tpl and controler
 =====
+<pre><code>
 
 Csp::$tplVars = array();
 Csp::controler()->assign($k, $v);
@@ -235,9 +324,13 @@ Csp::tpl()->render();
 Csp::tpl()->layout();
 Csp::tpl()->widget();
 
+</code></pre>
+
+------------------------------------------------------------------
 
 asset use
 =====
+<pre><code>
 
 //前端资源,解释多机部署，域名分离，无逢上线问题
 Csp::asset($fRroute, $hostKey);
@@ -246,9 +339,14 @@ $cfg['asset']=array(
     'publish_path'=>'',
 );
 
+</code></pre>
+
+------------------------------------------------------------------
 
 route feature
 =====
+<pre><code>
+
 //初始化路由信息 解释 路由配置
 Csp::router()->init();
 //动态添加路由配置
@@ -278,10 +376,13 @@ Csp::router()->controler();//ctr obj
 Csp::router()->getAction();//str action method name
 
 Csp::doAction();
+</code></pre>
 
+------------------------------------------------------------------
 
 common functions
 =====
+<pre><code>
 
 //common functions
 Csp::toolkit()->xxx();
@@ -296,8 +397,13 @@ $cfg['hosts']=array(
     'sub2'  =>'http://sub2.domain.com/',
 );
 
+</code></pre>
+
+------------------------------------------------------------------
+
 autoload files
 =====
+<pre><code>
 
 //在框架引导期间 会自动加载的目录或者文件，值为加载的目录深度,如果加载目录为文件则后面的值无效，始终为 0
 $cfg['auto_include_path']=array(
@@ -306,10 +412,13 @@ $cfg['auto_include_path']=array(
   'path2'   =>2,
 );
 
+</code></pre>
 
+------------------------------------------------------------------
 
 modelbase feature
 =====
+<pre><code>
 
 //配置主键与表名，在子类的 构造器中执行
 ModelBase::$tableName   = 'table1';
@@ -340,9 +449,14 @@ ModelBase::formatGet($fk, $pkOrCond);
 ModelBase::formatGets($fk, $pks);
 ModelBase::formatData($fk, $data, $isMultiRow=false);
 
+</code></pre>
+
+------------------------------------------------------------------
 
 db feature
 =====
+<pre><code>
+
 //自定义SQL拼接
 ModelBase::db()->sql($sqlTpl, $dataMap)->fetchOne($sql=null);  //执行查询 返回一条数据 1维
 ModelBase::db()->sql($sqlTpl, $dataMap)->fetchRows($sql=null); //执行查询 返回多行数据 2维
@@ -369,4 +483,7 @@ ModelBase::db()->queryCmd()
     ->limit()
     ->exec();
 
+</code></pre>
+
+------------------------------------------------------------------
 
