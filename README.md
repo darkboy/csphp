@@ -1,4 +1,4 @@
 csphp
 =====
 
-csphp  a  Contracted but not simple PHP framework 
+Csphp  a  Contracted but not Simple PHP framework 
