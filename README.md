@@ -103,13 +103,13 @@ $cfg['api_flag_vr']  =array('h:csp-api');
 Csp::isMatch($reqCond);
 Csp::request()->isMatch($reqCond);
 $reqCond=array(
-			'domain'=>'*',          //当前域名
-            'router_prefix'=>'*',   //路由前缀
-            'request_method'=>'*',  //HTTP 请求方法 GET POST PUT
-            'router_suffix'=>'*',   //路由后缀
-            'entry_name'=>'*',      //入口名称
-            'header_send'=>'headerkey,value',     //发送了某个头信息 value 可选
-            'user_cond'=>'abc::abc',//用户自定义规则,是一个可调用的 回调或者服务定义器
+    'domain'=>'*',          //当前域名
+    'router_prefix'=>'*',   //路由前缀
+    'request_method'=>'*',  //HTTP 请求方法 GET POST PUT CLI
+    'router_suffix'=>'*',   //路由后缀
+    'entry_name'=>'*',      //入口名称
+    'header_send'=>'headerkey,value',     //发送了某个头信息 value 可选
+    'user_cond'=>'abc::abc',//用户自定义规则,是一个可调用的 回调或者服务定义器
 );
 
 </code></pre>
@@ -356,8 +356,8 @@ Csp::router()->init();
 Csp::router()->runTimeRouteRegister();
 Csp::router()->parse($req);
 $routeInfo = array(
-    'req_route'=>'a/b/classname/actionMethod/vn1-v1/vn2-v2',
-    'clean_route'=>'a/b/classname/actionMethod',//清除变量后的路由
+    'req_route'=>'a/b/CtrlclassName/actionMethod/vn1-v1/vn2-v2',
+    'clean_route'=>'a/b/CtrlclassName/actionMethod',//清除变量后的路由
     'hit_rule'  =>'',   //命中中的 路由规则，可能是系统或者用户定义的: sys::xxxx, user::
     'real_rule'  =>'',  //最终要执行的 路由
     'ctrl_obj'  =>$ctrlObj,     //ctrl obj
@@ -367,7 +367,26 @@ $routeInfo = array(
         'vn2'=>'v2',
     )
 );
-Csp::router()->findRoute();//从路由配置中查找符合条件的规则
+
+//解释URL上的参数 如 .../vn-1/vn2-2 将产生 {vn:1,vn2:2} 的路由参数
+Csp::router()->cleanRoute();
+
+//从路由配置中查找符合条件的规则
+Csp::router()->findRoute();
+//路由配置规则 示例
+$cfg['router'][] = array(
+    //触发条件 参见 $reqCond 描述
+    'req_cond'      =>$reqCond,
+    //一些前置后置选项，主要是删除/增加， 前缀，后缀
+    'pre_action'    =>array('delSuffix'=>'', 'delPrefix'=>'', 'addSuffix'=>'', 'addPrefix'=>''),
+    //路由规则
+    'rules' =>array(
+        'user/{uid}'        =>'user/info',
+        'user/post/{uid}'   =>'user/post',
+        'user/get'          =>'user/info',
+    )
+);
+
 
 
 Csp::$vr = array();
