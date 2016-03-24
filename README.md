@@ -427,7 +427,9 @@ modelbase feature
 ModelBase::$tableName   = 'table1';
 ModelBase::$pkName      = 'id';
 ModelBase::$dbObj       = null;
-ModelBase::initModule($pkName, $tbName, $dbName, $useCache);
+ModelBase::initModel($pkName, $tbName, $dbName, $useCache);
+ModelBase::getModel($pkName, $tbName, $dbName, $useCache);
+ModelBase::validate();
 
 ModelBase::db();                      //获取DB数据库操作客户端实例
 ModelBase::dbError();                 //获取错误信息
@@ -435,7 +437,7 @@ ModelBase::dbError();                 //获取错误信息
 ModelBase::create($data);             //给定K V数组，生成一行记录
 ModelBase::update($data,$pkOrCond);   //给定K V数组，条件，更新记录,慎用批量更新条件，
 ModelBase::get($pkOrCond);            //给定一个主键值，或者 条件，获取一行记录
-ModelBase::gets($ids);                //给定一个主键值数组，获取N行记录
+ModelBase::gets($pks);                //给定一个主键值数组，获取N行记录
 ModelBase::delete($pkOrCond);         //给定一个主键值，或者 条件，删除记录，慎用批量删除条件
 ModelBase::deletes($pks);             //给定一个主键值数组，删除N行记录
 ModelBase::count($cond);              //根据条件，统计记录数量
@@ -459,6 +461,26 @@ ModelBase::formatData($fk, $data, $isMultiRow=false);
 db feature
 =====
 <pre><code>
+
+$cfg['dbName']=array(
+	'host'	 => DB_HOST_W,
+	'port'	 => DB_PORT,
+	'user'	 => DB_USER,
+	'pwd'	 => DB_PASSWD,
+	'charset'=> DB_CHARSET,
+	'tbpre'	 => DB_PREFIX,
+	'dbName' => DB_NAME,
+	'slaves' => array(
+		array(
+			'host'	 => DB_HOST_R1
+		),
+		array(
+			'host'	 => DB_HOST_R2
+		),
+
+	)
+
+);
 
 //自定义SQL拼接
 ModelBase::db()->sql($sqlTpl, $dataMap)->fetchOne($sql=null);  //执行查询 返回一条数据 1维
