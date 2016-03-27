@@ -15,7 +15,7 @@ use Csp\core\CspValidator   as CspValidator;
 use Csp\core\CspException   as CspException;
 
 //设置当前的运行环境
-defined('CSPPHP_ENV_TYPE') or define('CSPPHP_ENV_TYPE', Csphp::ENV_TYPE_PROD);
+defined('CSPHP_ENV_TYPE') or define('CSPHP_ENV_TYPE', Csphp::ENV_TYPE_PROD);
 
 class Csphp {
     const ENV_TYPE_PROD = 'prod';
@@ -31,20 +31,46 @@ class Csphp {
      */
     public static $coreRootPath = null;
 
+    /**
+     * 应用配置
+     * @var array
+     */
     public static $appCfg = null;
+    /**
+     * 系统配置
+     * @var array
+     */
     public static $sysCfg = null;
 
     //挂载的 核心 对象
     private $coreObjs = array(
         'request'   =>null,
         'response'  =>null,
-        'route'     =>null,
         'log'       =>null,
-        'event'     =>null,
         'validator' =>null,
     );
+
+    /**
+     * 系统别名 字典，可以在配置路径的时候，使用 @aliasname 代表相应的目录
+     * @var array
+     */
+    public static $aliasPathMap = array();
+    /**
+     * 组件对象
+     * @var array
+     */
+    private static $componentObjs = array();
     public function __construct($appCfg=null){
 
+        $this->initConfig($appCfg);
+
+    }
+
+    /**
+     * 初始化应用 与 系统配置
+     * @param $appCfg
+     */
+    private function initConfig($appCfg){
         self::$appStartTime = microtime(true);
 
         if($appCfg!=null && is_array($appCfg)){
@@ -62,35 +88,229 @@ class Csphp {
                 self::$sysCfg[$k] = $v;
             }
         }
+
+        self::initAliasPathMap();
     }
+
+    /**
+     * 初始化系统路径别名,所有路径 不以 / 结尾
+     */
+    private static function initAliasPathMap(){
+        $appRoot = self::appCfg('app_base_path');
+        $sysRoot = self::sysCfg('system_base_path');
+        self::$aliasPathMap['@app'] = $appRoot;
+        self::$aliasPathMap['@sys'] = $sysRoot;
+
+        self::$aliasPathMap['@comp']    = $appRoot.'/components';
+        self::$aliasPathMap['@cfg']     = $appRoot.'/config';
+        self::$aliasPathMap['@ctrl']    = $appRoot.'/controlers';
+        self::$aliasPathMap['@ext']     = $appRoot.'/exts';
+        self::$aliasPathMap['@view']    = $appRoot.'/views';
+        self::$aliasPathMap['@tpl']     = $appRoot.'/views';
+        self::$aliasPathMap['@mod']     = $appRoot.'/models';
+        self::$aliasPathMap['@pub']     = $appRoot.'/../public';
+        self::$aliasPathMap['@log']     = $appRoot.'/var/log';
+        self::$aliasPathMap['@upload']  = $appRoot.'/../public/upload';
+
+        self::$aliasPathMap['@f-comp']  = $sysRoot.'/comp';
+        self::$aliasPathMap['@f-ext']   = $sysRoot.'/ext';
+
+        //把用户定义的路径加载进来, 可以覆盖以上的内容路径
+        foreach(self::$appCfg['alias_path_config'] as $aliasName=>$pathTpl){
+            self::$aliasPathMap[$aliasName] = self::getPathByRoute($pathTpl);
+        }
+    }
+
     /**
      * start a applatection
      */
     public function run(){
+        //初始化核心对象
         $this->initCoreObjs();
         $this->registerShutDown();
         self::tmp();
     }
 
+    /**
+     * 初始化所有的组件
+     */
+    public function initComponentChain(){
+
+        foreach(self::$sysCfg['components'] as $compCfg){
+
+        }
+
+        foreach(self::$appCfg['components'] as $compCfg){
+
+        }
+    }
+
+    /**
+     * 传递一个参数时，为直接引用对象，传弟2-3个参数时，为初始化组件
+     * Csphp::comp($comRoute, $cfg, $accessKey='')->anyMethod();
+     * $cfg['components']=array(
+            //这个key是访问名称
+            'access_key'=> array(
+                'filter'=>$requestFilter,//什么条件下加载组件
+                //对象定位路由,可以定位组件对象
+                'comp'  =>$fRoute,
+                //组合配置字典 中的每一项都将设置为组件的属性 即 comp->cfgname = $value
+                'cfg'   =>array(
+                    'cfgname'=>$value
+                )
+        )
+        );
+     */
+    public static function comp($comRoute, $cfg=null, $accessKey=null){
+        if(func_num_args()==1){
+            if(isset(self::$componentObjs[$comRoute])){
+
+            }else{
+                return self::$componentObjs[$comRoute];
+            }
+        }else{
+            if($accessKey===null){
+                $accessKey = $comRoute;
+            }
+
+        }
+    }
+
+    /**
+     * 通过对象路由表达式，获取路径
+     * @param $oRoute
+     * 类文件 与 对象 别名定位规则,如能是由下值之一
+     *      @view/user/index.php 使用别名，可用的 别名 见 self::initAliasPathMap
+     *      /user/abc   linux 下的绝对路径
+     *      c:\\xxxx    windows 下的 绝对路径
+     *      user/index  默认为 app 路径下
+     */
+    public static function getPathByRoute($oRoute){
+        $oRoute = trim($oRoute);
+        $oRoute = rtrim($oRoute, '/');
+
+        $firstChar = substr($oRoute,0,1);
+        $rs = explode('/', $oRoute);
+
+        if($firstChar==='@'){
+            $rs[0] = self::getAliasPath($rs[0]);
+            return join(DIRECTORY_SEPARATOR, $rs);
+        }else{
+            if($firstChar=='/' || substr($oRoute,1,1)===':'){
+                return $oRoute;
+            }else{
+                return self::appCfg('app_base_path').'/'.$oRoute;
+            }
+        }
+    }
+
+    /**
+     * 通过对象路由表达式，获取命名空间 或者 类名
+     * @param $oRoute
+     * 类文件 与 对象 别名定位规则,如能是由下值之一
+     *      @view/user/index.php 使用别名，可用的 别名 见 self::initAliasPathMap
+     *      /user/abc   linux 下的绝对路径
+     *      c:\\xxxx    windows 下的 绝对路径
+     *      user/index  默认为 app 路径下
+     */
+    public static function getNamespaceByRoute($oRoute){
+        $oRoute = trim($oRoute);
+        $oRoute = rtrim($oRoute, '/\\');
+
+        $firstChar = substr($oRoute,0,1);
+        if($firstChar==='@'){
+            $rs = explode('\\', $oRoute);
+            $rs[0] = self::getAliasNamespace($rs[0]);
+            return join('\\', $rs);
+        }else{
+            if($firstChar=='\\'){
+                return $oRoute;
+            }else{
+                return self::appCfg('app_namespace').'\\'.$oRoute;
+            }
+        }
+    }
+
+
+        /**
+     * 返回 别名 的实际路径
+     * @param $aliasName 以 @ 开头的别名字符串
+     */
+    public static function getAliasPath($aliasName){
+        $aliasName = trim($aliasName);
+        return self::$aliasPathMap[$aliasName];
+    }
+
+    /**
+     * 获取别名 对应的 命名空间 前缀
+     * @param $aliasName
+     * @return mixed
+     */
+    public static function getAliasNamespace($aliasName){
+        $aliasName = trim($aliasName);
+        return self::$aliasPathMap[$aliasName];
+    }
+
+    /**
+     * 加载一个文件
+     * @param $oRoute   可以包含别名前缀
+     * @return mixed
+     */
+    public static function loadFile($oRoute){
+        $realRoute = self::getPathByRoute($oRoute);
+        if(!strtolower(substr($realRoute,-4))===".php"){
+            $realRoute.='.php';
+        }
+        if(!file_exists($realRoute)){
+            throw new CspException("Can not load file , Error fRoute  $oRoute after parse is  : ".$realRoute);
+        }
+        return require($realRoute);
+    }
+
+    /**
+     * 实例化一个对象
+     * @param $oRoute
+     * @param null $cfg
+     */
+    public static function newClass($oRoute, $cfg=null, $isSingleton=true){
+        static $objs = array();
+        if($isSingleton && isset($objs[$oRoute])){
+            return $objs[$oRoute];
+        }
+        $realNamespace = self::getPathByRoute($oRoute);
+
+    }
+    public static function ctrl($route, $cfg=null, $isSingleton=true){
+        $route = ltrim($route, ' /');
+        return self::newClass('@ctrl/'.$route, $cfg, $isSingleton);
+    }
+    public static function mod($route, $cfg=null, $isSingleton=true){
+        $route = ltrim($route, ' /');
+        return self::newClass('@mod/'.$route, $cfg, $isSingleton);
+    }
+    public static function ext($route, $cfg=null, $isSingleton=true){
+        $route = ltrim($route, ' /');
+        return self::newClass('@ext/'.$route, $cfg, $isSingleton);
+    }
+
+    /**
+     * 应用退出
+     */
     public static function exitApp(){
         self::app()->response()->send();
     }
 
-    public static function tmp(){
-        $v = Csphp::V('-:demo_key1/demo_key2','', 'num:1-3');
-        self::dump($v);
-    }
 
 
     /**
      * 统一规范 rest 接口，ajax ,以及 jsonp 接口 数据格式
      * @param $rst
      * @param int $code
-     * @param $msg
+     * @param string $msg
      * @param string $tips
-     * @return string
+     * @return string jsonString
      */
-    public static function warpJsonApiData($rst, $code=0, $msg, $tips=''){
+    public static function warpJsonApiData($rst, $code=0, $msg='OK', $tips=''){
         //header('Content-type: application/json');
         $r = array(
             'status'=>array(
@@ -116,10 +336,9 @@ class Csphp {
     private function initCoreObjs(){
         $this->coreObjs['request']  = new CspRequest();
         $this->coreObjs['response'] = new CspResponse();
-        $this->coreObjs['router']   = new CspRouter();
         $this->coreObjs['log']      = new CspLog();
-        $this->coreObjs['validator']= new CspValidator();
         $this->coreObjs['tpl']      = new CspTemplate();
+        $this->coreObjs['validator']= new CspValidator();
     }
     private function registerShutDown(){
     }
@@ -153,7 +372,7 @@ class Csphp {
      * @return CspRouter
      */
     public function router(){
-        return $this->coreObjs['router'];
+        return $this->request()->router();
     }
     /**
      * @return CspValidator
@@ -218,14 +437,21 @@ class Csphp {
         //提取变量的路径，即第3个字符之后
         $vPath= substr($vr,2);
         $vKes = explode('/', $vPath);
-        //所有输入
-        $inputCache = array(
-            'C'=>&$_COOKIE, 'G'=>&$_GET,	'P'=>&$_POST,'R'=>&$_REQUEST,
-            'F'=>&$_FILES,	'S'=>&$_SERVER,	'E'=>&$_ENV,
-            '-'=>&self::$appCfg
-        );
-        if (empty($inputCache['R'])) {
+        //初始化所有输入
+        if(empty($inputCache)){
+            $inputCache = array(
+                'C'=>&$_COOKIE, 'G'=>&$_GET,	'P'=>&$_POST,'R'=>&$_REQUEST,
+                'F'=>&$_FILES,	'S'=>&$_SERVER,	'E'=>&$_ENV,
+                '-'=>&self::$appCfg
+            );
+        }
+
+        if ($vType==='R' && empty($inputCache['R'])) {
             $inputCache['R'] = array_merge($_COOKIE, $_GET, $_POST);
+        }
+
+        if($vType==='H' && !isset($inputCache['H'])){
+            $inputCache['H'] = http_get_request_headers();
         }
 
         $v  = null;
@@ -294,21 +520,21 @@ class Csphp {
      * @return bool
      */
     public static function isProdEnv(){
-        return CSPPHP_ENV_TYPE === self::ENV_TYPE_PROD;
+        return CSPHP_ENV_TYPE === self::ENV_TYPE_PROD;
     }
     /**
      * 判断当前是否运行在测试环境
      * @return bool
      */
     public static function isTestEnv(){
-        return CSPPHP_ENV_TYPE === self::ENV_TYPE_TEST;
+        return CSPHP_ENV_TYPE === self::ENV_TYPE_TEST;
     }
     /**
      * 判断当前是否运行在开发环境
      * @return bool
      */
     public static function isDevEnv(){
-        return CSPPHP_ENV_TYPE === self::ENV_TYPE_DEV;
+        return CSPHP_ENV_TYPE === self::ENV_TYPE_DEV;
     }
 
     /**
@@ -470,9 +696,14 @@ class Csphp {
      * @param $eventListenerCallback    事件处理器，func($eventDdata, eventSender=null){}
      */
     public static function listen($eventName, $eventListenerCallback){
-
+        CspEvent::on($eventName, $eventListenerCallback);
     }
 
     public function cls(){}
+
+
+    public static function tmp(){
+        echo '<pre>';print_r($_SERVER);
+    }
 }
 

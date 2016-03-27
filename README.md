@@ -257,7 +257,7 @@ Components feature
 
 //组件的使用
 Csp::comp($comRoute, $cfg, $accessKey='')->anyMethod();
-$cfg['somponents']=array(
+$cfg['components']=array(
     //这个key是访问名称
     'access_key'=> array(
         'cond'  =>$reqCond,//什么条件下加载组件

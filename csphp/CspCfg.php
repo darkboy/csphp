@@ -1,15 +1,35 @@
 <?php
 //系统配置文件
 $systemConfig=array(
-    'app_start_time'=>microtime(true),
+    'app_start_time'    =>microtime(true),
+    //框架所在目录
+    'system_base_path'  =>__DIR__,
 
     //是否开启调试
     'is_debug'      =>false,
 
-    //请求性质判断的条件
-    'jsonp_flag_vr' =>array('g:cspcallback', 'p:cspcallback'),
-    'ajax_flag_vr'  =>array('g:_', 'p:_'),
-    'api_flag_vr'   =>array('h:csp-api'),
+
+    //请求类型的判断条件 配置项 是一个 $requestFilter 过滤器条件
+    'is_jsonp_req' =>array(
+        //输入过滤器，有一个输入即通过
+        'inputOne'=>array(
+            array('g:cspCallback'),
+            array('p:cspCallback'),
+        )
+    ),
+    'is_ajax_req'  =>array(
+        //输入过滤器，有一个输入即通过
+        'inputOne'=>array(
+            array('S:HTTP_X_REQUESTED_WITH', 'XMLHttpRequest', 'ci'),
+        )
+    ),
+    'is_api_req'  =>array(
+        //输入过滤器，有一个输入即通过
+        'inputOne'=>array(
+            array('H:csphp-api', 'csphp', 'ci'),
+        )
+    ),
+
 
     //日志相关
     'log_key_separator'=>'#####',

@@ -1,9 +1,35 @@
 <?php
+namespace app;
 //配置示例
 $appConfig = array(
-    'demo_key'=>array(
-        'demo_key1'=>time()
+    //应用名称
+    'app_name'    =>'demo app',
+    //应用的版本号 规则为 Ymd.no.svnno
+    'app_version' =>'20160301.01.xxxx',
+    //应用的根目录
+    'app_base_path'=>dirname(__DIR__),
+    //应用命名空间
+    'app_namespace'=>__NAMESPACE__,
+    //在框架引导期间 会自动加载的目录或者文件，文件或者目录为key 值为加载的目录深度,如果加载目录为文件则后面的值无效，始终为 0
+    'auto_include_path'=>array(
+        //fileOrDir=>level
     ),
+    //应用所用的host url 前缀，用于组装URL，拼接静态文件，等
+    'host_key'=>array(
+        '_default'	=>'http://www.domain.com/',
+        'home'		=>'http://www.domain.com/',
+        'admin'		=>'http://admin.domain.com/',
+        'statics'	=>'http://admin.domain.com/',
+        'api'		=>'http://api.domain.com/',
+
+    ),
+    //路径别名配置
+    'alias_path_config'=>array(
+        //@aliasname=>path
+        '@demo'=>'@app/demo',
+    ),
+
+
 
 
 
@@ -13,9 +39,38 @@ $appConfig = array(
 
 //可以重写覆盖系统配置
 $systemCfg = array(
-    'jsonp_flag_vr' =>array('g:cspcallback', 'p:cspcallback'),
-    'ajax_flag_vr'  =>array('g:_', 'p:_'),
-    'api_flag_vr'   =>array('h:csp-api'),
+
+    //请求类型的判断条件 配置项 是一个 $requestFilter 过滤器条件
+    'is_jsonp_req' =>array(
+        //输入过滤器，有一个输入即通过
+        'inputOne'=>array(
+            array('g:cspCallback'),
+            array('p:cspCallback'),
+        )
+    ),
+    'is_ajax_req'  =>array(
+        //输入过滤器，有一个输入即通过
+        'inputOne'=>array(
+            array('S:HTTP_X_REQUESTED_WITH', 'XMLHttpRequest', 'ci'),
+        )
+    ),
+    'is_api_req'  =>array(
+        //输入过滤器，有一个输入即通过
+        'inputOne'=>array(
+            array('H:csphp-api', 'csphp', 'ci'),
+        )
+    ),
+
+    //日志相关
+    'log_key_separator'=>'#####',
+    'log_base_path'    =>__DIR__,
+    'log_stay_days'    =>7,
+    'is_log_info'      =>true,
+    'is_log_debug'     =>true,
+    'is_log_warning'   =>true,
+    'is_log_error'     =>true,
+
+
 );
 
 //以下配置将会 覆盖 系统配置
