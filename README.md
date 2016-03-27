@@ -192,9 +192,10 @@ log and debug func
 <pre><code>
 
 //调试与日志
-Csp::logInfo($cateGory='sys',$msg);
-Csp::logError($cateGory='sys',$msg);
-Csp::logWarning($cateGory='sys',$msg);
+Csp::logDebug($cateGory='sys',$msg);	//DEBUG打开时，开启，用于调试
+Csp::logInfo($cateGory='sys',$msg);	//常规dump信息 如 accesslog
+Csp::logError($cateGory='sys',$msg);	//严重错误
+Csp::logWarning($cateGory='sys',$msg); //一般错误，暂不影响使用，如 rpc slow
 $cfg['log_fromat']= "{time}\t{uri}:{route}\t{msg}";
 
 Csp::dump($msg);
@@ -256,7 +257,7 @@ Components feature
 
 //组件的使用
 Csp::comp($comRoute, $cfg, $accessKey='')->anyMethod();
-$cfg['compents']=array(
+$cfg['somponents']=array(
     //这个key是访问名称
     'access_key'=> array(
         'cond'  =>$reqCond,//什么条件下加载组件
@@ -267,7 +268,13 @@ $cfg['compents']=array(
     )
 );
 
-Csp::comp($accessKey)->anyMethod();
+//组件的生命周期
+Csp::comp($accessKey)->start();
+Csp::comp($accessKey)->alterStart();
+//php shutdown 的时候执行
+Csp::comp($accessKey)->stop();
+
+Csp::comp($accessKey)->anyOtherMethod();
 
 </code></pre>
 
