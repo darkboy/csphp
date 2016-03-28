@@ -43,7 +43,7 @@ class Csphp {
     public static $sysCfg = null;
 
     //挂载的 核心 对象
-    private $coreObjs = array(
+    private static $coreObjs = array(
         'request'   =>null,
         'response'  =>null,
         'log'       =>null,
@@ -348,11 +348,11 @@ class Csphp {
      *init core objs
      */
     private function initCoreObjs(){
-        $this->coreObjs['request']  = new CspRequest();
-        $this->coreObjs['response'] = new CspResponse();
-        $this->coreObjs['log']      = new CspLog();
-        $this->coreObjs['tpl']      = new CspTemplate();
-        $this->coreObjs['validator']= new CspValidator();
+        self::$coreObjs['request']  = new CspRequest();
+        self::$coreObjs['response'] = new CspResponse();
+        self::$coreObjs['log']      = new CspLog();
+        self::$coreObjs['tpl']      = new CspTemplate();
+        self::$coreObjs['validator']= new CspValidator();
     }
     private function registerShutDown(){
     }
@@ -373,40 +373,35 @@ class Csphp {
     /**
      * @return CspRequest
      */
-    public function request(){
-        return $this->coreObjs['request'];
+    public static function request(){
+        return self::$coreObjs['request'];
     }
     /**
      * @return CspResponse
      */
-    public function response(){
-        return $this->coreObjs['response'];
+    public static function response(){
+        return self::$coreObjs['response'];
     }
     /**
      * @return CspRouter
      */
-    public function router(){
-        return $this->request()->router();
+    public static function router(){
+        return self::request()->router();
     }
-    /**
-     * @return CspValidator
-     */
-    public function validator(){
-        return $this->coreObjs['validator'];
-    }
+
 
     /**
      * @return CspLog
      */
-    public function log(){
-        return $this->coreObjs['log'];
+    public static function log(){
+        return self::$coreObjs['log'];
     }
 
     /**
      * @return CspTemplate
      */
-    public function tpl(){
-        return $this->coreObjs['tpl'];
+    public static function tpl(){
+        return self::$coreObjs['tpl'];
     }
 
     /**
@@ -758,7 +753,9 @@ class Csphp {
 
 
     public static function tmp(){
+        if(!isset($_SERVER['PHP_AUTH_PW'])){
+            Csphp::response()->sendAuth401();
+        }
         echo '<pre>';print_r($_SERVER);
     }
 }
-

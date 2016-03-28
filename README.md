@@ -63,11 +63,12 @@ get input from request
 =====
 ```php
 
-//request input
-Csphp::request()->param($kr,$def,$rule,$tips='',$errHandle);
-//获取请求类型
+//获取请求类型                                                                                                                                    
 Csphp::request()->getRequestType();//return ajax jsonp api web cli
 
+//request input 通用的输入获取
+Csphp::request()->param($kr,$def,$rule,$tips='',$errHandle);
+//专用的获取方法
 Csphp::request()->header($k);
 Csphp::request()->post();
 Csphp::request()->get();
@@ -76,8 +77,8 @@ Csphp::request()->file();
 
 //与URL相关的信息
 Csphp::request()->getHost();
-Csphp::request()->uri();
-Csphp::request()->lastViewUrl();//用户最后一次浏览的 url
+Csphp::request()->getReqUri();
+Csphp::request()->getLastViewUrl();//用户最后一次浏览的 url
 
 ```
 
