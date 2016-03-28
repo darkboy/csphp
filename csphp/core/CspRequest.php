@@ -32,11 +32,16 @@ class CspRequest{
     }
 
     /**
+     *
      * init request
      */
     public function init(){
+
         $this->initRouterInfo();
+
         $this->getRequestType();
+
+        $this->initParamErrorHandle();
 
     }
 
@@ -45,6 +50,179 @@ class CspRequest{
      */
     public function initRouterInfo(){
 
+    }
+
+    /**
+     * 初始化默认的参数错误处理函数
+     */
+    public function initParamErrorHandle(){
+
+    }
+
+    public function isApi(){
+        return self::$reqType === self::REQ_TYPE_API;
+    }
+    public function isAjax(){
+        return self::$reqType === self::REQ_TYPE_AJAX;
+    }
+    public function isJsonp(){
+        return self::$reqType === self::REQ_TYPE_JSONP;
+    }
+    public function isWeb(){
+        return self::$reqType === self::REQ_TYPE_WEB;
+    }
+    public function isCli(){
+        return strtolower(PHP_SAPI)==='cli';
+    }
+
+    public function isPost(){
+        return $this->getHttpMethod()==='POST';
+    }
+    public function isGet(){
+        return $this->getHttpMethod()==='GET';
+    }
+    public function isPut(){
+        return $this->getHttpMethod()==='PUT';
+    }
+    public function isDelete(){
+        return $this->getHttpMethod()==='DELETE';
+    }
+
+    /**
+     * 是否网络爬虫
+     * @return bool
+     */
+    public function isRobot(){
+        static $isRobot = NULL;
+        if (NULL === $isRobot) {
+            $isRobot  = FALSE;
+            $robotlist = 'bot|spider|crawl|nutch|lycos|robozilla|slurp|search|seek|archive';
+            if (isset($_SERVER['HTTP_USER_AGENT']) && preg_match("/{$robotlist}/i", $_SERVER['HTTP_USER_AGENT'])) {
+                $isRobot = TRUE;
+            }
+        }
+        return $isRobot;
+    }
+
+    /**
+     * 是否移动终端
+     * @return bool
+     */
+    public function isPhone(){
+        $devices = array("operaMobi" => "Opera Mobi", "android" => "android", "blackberry" => "blackberry", "iphone" => "(iphone|ipod)", "opera" => "opera mini", "palm" => "(avantgo|blazer|elaine|hiptop|palm|plucker|xiino)", "windows" => "windows ce; (iemobile|ppc|smartphone)", "generic" => "(kindle|mobile|mmp|midp|o2|pda|pocket|psp|symbian|smartphone|treo|up.browser|up.link|vodafone|wap)");
+
+        if (isset($_SERVER['HTTP_X_WAP_PROFILE']) || isset($_SERVER['HTTP_PROFILE'])) {
+            return TRUE;
+        } elseif (isset($_SERVER['HTTP_ACCEPT']) && (strpos($_SERVER['HTTP_ACCEPT'], 'text/vnd.wap.wml') > 0 || strpos($_SERVER['HTTP_ACCEPT'], 'application/vnd.wap.xhtml+xml') > 0)) {
+            return TRUE;
+        } else {
+            if (isset($_SERVER['HTTP_USER_AGENT'])) {
+                foreach ($devices as $device => $regexp) {
+                    if (preg_match("/" . $regexp . "/i", $_SERVER['HTTP_USER_AGENT'])) {
+                        return TRUE;
+                    }
+                }
+            }
+        }
+
+        return FALSE;
+    }
+
+    /**
+     * 获取客户端UA
+     * @return string
+     */
+    public function getUserAgent(){
+        return $this->isCli() ? 'cli' : $_SERVER['HTTP_USER_AGENT'];
+    }
+    /**
+     * 获取主机名
+     * @return string
+     */
+    public function getHost(){
+        return $this->isCli() ? 'cli' : $_SERVER['HTTP_HOST'];
+    }
+
+    /**
+     * 获取客户端IP
+     * @return string
+     */
+    public function getClientIp(){
+        static $ip=null;
+        if($ip!==null){
+            return $ip;
+        }
+        if($this->isCli()){
+            return '0.0.0.0';
+        }else{
+            //用户可以指定 获取ip的尝试顺序，注，在使用 反向代理后，一般不能使用 REMOTE_ADDR ，不同的服务器，可能设置为不同的KEY
+            $ipKeysOrder = Csphp::sysCfg('ip_keys_order', array('HTTP_X_FORWARDED_FOR','REMOTE_ADDR'));
+            foreach($ipKeysOrder as $k){
+                if (isset($_SERVER[$k]) && $_SERVER[$k]) {
+                    $ipTmp = $_SERVER[$k];
+                }
+                $ipPattern = '/^((25[0-5]|2[0-4]\d|(1\d|[1-9])?\d)\.){3}(25[0-5]|2[0-4]\d|(1\d|[1-9])?\d)$/';
+                //为保证安全，过滤掉不安排的IP
+                $ip = preg_match($ipPattern, $ipTmp) ? $ipTmp : '0.0.0.0';
+
+            }
+            return $ip;
+        }
+    }
+    //todo uri 清除路由变量,querystring,  左 / ,
+    public function getReqRoute(){
+        return '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getReqUri(){
+        return $_SERVER['REQUEST_URI'];
+    }
+
+    /**
+     * 获取最后一次浏览的URL
+     * @return string
+     */
+    public function getLastViewUrl(){
+        if($this->isGet()){
+            return $_SERVER['REQUEST_URI'];
+        }else{
+            return $_SERVER['HTTP_REFERER'];
+        }
+    }
+
+
+    /**
+     * 获取用户输入
+     * @param string    $vr        变量路由
+     * @param mixed     $def       默认值
+     * @param string    $rule      验证规则列表
+     * @param string    $tips      输入描述
+     * @param callable  $errHandle callable function($voidInfo)
+     * @return mixed
+     */
+    public function param($vr, $def=null, $rule='', $tips='', $errHandle=null){
+        if($errHandle===null){
+            $errHandle=null;
+        }
+        return Csphp::V($vr, $def, $rule, $tips, $errHandle);
+    }
+    public function get($kr, $def=null, $rule='', $tips='', $errHandle=null){
+        return $this->param('G:'.$kr, $def, $rule, $tips, $errHandle);
+    }
+    public function post($kr, $def=null, $rule='', $tips='', $errHandle=null){
+        return $this->param('P:'.$kr, $def, $rule, $tips, $errHandle);
+    }
+    public function cookie($kr, $def=null, $rule='', $tips='', $errHandle=null){
+        return $this->param('C:'.$kr, $def, $rule, $tips, $errHandle);
+    }
+    public function file($kr, $def=null, $rule='', $tips='', $errHandle=null){
+        return $this->param('F:'.$kr, $def, $rule, $tips, $errHandle);
+    }
+    public function header($kr, $def=null, $rule='', $tips='', $errHandle=null){
+        return $this->param('H:'.$kr, $def, $rule, $tips, $errHandle);
     }
 
     /**
@@ -80,6 +258,10 @@ class CspRequest{
 
     }
 
+    /**
+     * 获取HTTP method
+     * @return string
+     */
     public function getHttpMethod(){
         return strtoupper($_SERVER['REQUEST_METHOD']);
     }
@@ -123,6 +305,7 @@ class CspRequest{
             //$founderFunc 定义为 function(CspRequest){}; 参数为请求对象
             'userFounder'   =>'abc::abc',
         );
+     * return bool 是否通过验证器检查
      */
     public function isMatch($requestFilter){
         foreach($requestFilter as $filterName=>$filterArg){
@@ -178,7 +361,7 @@ class CspRequest{
      * @param $filterArg 为IP 列表表达式如： "133.14.11.[1-28],133.22.22.222,111.234.222.*,133.14.11.33/34/38";
      */
     private function __rcf__ip($filterArg){
-        return $this->isInIpList($filterArg, $this->clientIp());
+        return $this->isInIpList($filterArg, $this->getClientIp());
     }
 
     /**
@@ -234,7 +417,7 @@ class CspRequest{
      * @return bool
      */
     private function __rcf__urlPrefix($filterArg){
-        $reqRoute = $this->reqRoute();
+        $reqRoute = $this->getReqRoute();
         if(!is_array($filterArg)){
             $filterArg = explode(',', $filterArg);
         }
@@ -253,7 +436,7 @@ class CspRequest{
      * @return bool
      */
     private function __rcf__urlSuffix($filterArg){
-        $reqRoute = $this->reqRoute();
+        $reqRoute = $this->getReqRoute();
         if(!is_array($filterArg)){
             $filterArg = explode(',', $filterArg);
         }
@@ -272,7 +455,7 @@ class CspRequest{
      *      如 “user/*,post/create” 或者 array("user/*", "post/create")
      */
     private function __rcf__match($fileArg){
-        return $this->isRouteInlist($this->reqRoute(), $fileArg);
+        return $this->isRouteInlist($this->getReqRoute(), $fileArg);
     }
 
     /**
@@ -284,7 +467,7 @@ class CspRequest{
         if(!is_array($fileArg)){
             $fileArg = array($fileArg);
         }
-        $route = $this->reqRoute();
+        $route = $this->getReqRoute();
         foreach($fileArg as $regexp){
             $r = preg_match($regexp, $route);
             if($r===false){
@@ -411,7 +594,7 @@ class CspRequest{
      * @return bool
      */
     public function isInIpList($ipList, $ip=null){
-        $ip = $ip===null ?  $this->clientIp() : $ip;
+        $ip = $ip===null ?  $this->getClientIp() : $ip;
         if(!is_array($ipList)){
             $ipList = str_replace("|", ',', $ipList);
             $ipList = explode(',', $ipList);
@@ -476,29 +659,9 @@ class CspRequest{
         return FALSE;
     }
 
-    /**
-     * get a param
-     * @param $vr
-     * @param null $def
-     * @param string $rule
-     * @param string $tips
-     * @param null $errHandle
-     */
-    public function param($vr, $def=null, $rule='', $tips='', $errHandle=null){
 
-    }
 
-    public function getHost(){
-        return $_SERVER['HTTP_HOST'];
-    }
-    public function clientIp(){
 
-    }
-
-    //
-    public function reqRoute(){
-        return '';
-    }
 
 
 
@@ -523,8 +686,9 @@ Csp::request()->file();
 
 //与URL相关的信息
 Csp::request()->getHost();
-Csp::request()->uri();
-Csp::request()->lastViewUrl();//用户最后一次浏览的 url
+Csp::request()->getReqUri();
+Csp::request()->getReqRoute();
+Csp::request()->getLastViewUrl();//用户最后一次浏览的 url
 
 //请求性质判断
 Csp::request()->isApi();

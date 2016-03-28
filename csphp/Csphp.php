@@ -51,15 +51,26 @@ class Csphp {
     );
 
     /**
-     * 系统别名 字典，可以在配置路径的时候，使用 @aliasname 代表相应的目录
+     * 系统别名 字典，可以在配置路径 或者 的时候，使用 @aliasname 代表相应的目录
      * @var array
      */
-    public static $aliasPathMap = array();
+    private static $aliasMap = array();
+
     /**
-     * 组件对象
+     * 组件对象池
      * @var array
      */
     private static $componentObjs = array();
+
+    /**
+     *
+     * @var array
+     */
+    private static $bankmarkData = array();
+    /**
+     * 请求对象构造函数
+     * @param null $appCfg 应用配置数据
+     */
     public function __construct($appCfg=null){
 
         $this->initConfig($appCfg);
@@ -89,35 +100,38 @@ class Csphp {
             }
         }
 
-        self::initAliasPathMap();
+        self::initAliasMap();
     }
 
     /**
-     * 初始化系统路径别名,所有路径 不以 / 结尾
+     * 初始化系统路径别名,所有路径 不以 / 结尾， 命名空间不以 \ 结尾
+     * 配置格式为:
+     * aliasname=>array(pathPrefix,nsPrefix)
      */
-    private static function initAliasPathMap(){
+    private static function initAliasMap(){
         $appRoot = self::appCfg('app_base_path');
         $sysRoot = self::sysCfg('system_base_path');
-        self::$aliasPathMap['@app'] = $appRoot;
-        self::$aliasPathMap['@sys'] = $sysRoot;
+        $appNs   = self::appCfg('app_namespace');
+        self::$aliasMap['@app'] = array($appRoot,$appNs);
+        self::$aliasMap['@sys'] = array($sysRoot,'\\Csp');
 
-        self::$aliasPathMap['@comp']    = $appRoot.'/components';
-        self::$aliasPathMap['@cfg']     = $appRoot.'/config';
-        self::$aliasPathMap['@ctrl']    = $appRoot.'/controlers';
-        self::$aliasPathMap['@ext']     = $appRoot.'/exts';
-        self::$aliasPathMap['@view']    = $appRoot.'/views';
-        self::$aliasPathMap['@tpl']     = $appRoot.'/views';
-        self::$aliasPathMap['@mod']     = $appRoot.'/models';
-        self::$aliasPathMap['@pub']     = $appRoot.'/../public';
-        self::$aliasPathMap['@log']     = $appRoot.'/var/log';
-        self::$aliasPathMap['@upload']  = $appRoot.'/../public/upload';
+        self::$aliasMap['@comp']    = array($appRoot.'/components', $appNs.'\\components');
+        self::$aliasMap['@cfg']     = $appRoot.'/config';
+        self::$aliasMap['@ctrl']    = $appRoot.'/controlers';
+        self::$aliasMap['@ext']     = $appRoot.'/exts';
+        self::$aliasMap['@view']    = $appRoot.'/views';
+        self::$aliasMap['@tpl']     = $appRoot.'/views';
+        self::$aliasMap['@mod']     = $appRoot.'/models';
+        self::$aliasMap['@pub']     = $appRoot.'/../public';
+        self::$aliasMap['@log']     = $appRoot.'/var/log';
+        self::$aliasMap['@upload']  = $appRoot.'/../public/upload';
 
-        self::$aliasPathMap['@f-comp']  = $sysRoot.'/comp';
-        self::$aliasPathMap['@f-ext']   = $sysRoot.'/ext';
+        self::$aliasMap['@f-comp']  = $sysRoot.'/comp';
+        self::$aliasMap['@f-ext']   = $sysRoot.'/ext';
 
         //把用户定义的路径加载进来, 可以覆盖以上的内容路径
         foreach(self::$appCfg['alias_path_config'] as $aliasName=>$pathTpl){
-            self::$aliasPathMap[$aliasName] = self::getPathByRoute($pathTpl);
+            self::$aliasMap[$aliasName] = self::getPathByRoute($pathTpl);
         }
     }
 
@@ -193,7 +207,7 @@ class Csphp {
         $rs = explode('/', $oRoute);
 
         if($firstChar==='@'){
-            $rs[0] = self::getAliasPath($rs[0]);
+            $rs[0] = self::getPathByAlias($rs[0]);
             return join(DIRECTORY_SEPARATOR, $rs);
         }else{
             if($firstChar=='/' || substr($oRoute,1,1)===':'){
@@ -205,7 +219,7 @@ class Csphp {
     }
 
     /**
-     * 通过对象路由表达式，获取命名空间 或者 类名
+     * 通过对象路由表达式，获取命名空间前缀
      * @param $oRoute
      * 类文件 与 对象 别名定位规则,如能是由下值之一
      *      @view/user/index.php 使用别名，可用的 别名 见 self::initAliasPathMap
@@ -220,7 +234,7 @@ class Csphp {
         $firstChar = substr($oRoute,0,1);
         if($firstChar==='@'){
             $rs = explode('\\', $oRoute);
-            $rs[0] = self::getAliasNamespace($rs[0]);
+            $rs[0] = self::getNamespaceByAlias($rs[0]);
             return join('\\', $rs);
         }else{
             if($firstChar=='\\'){
@@ -232,23 +246,23 @@ class Csphp {
     }
 
 
-        /**
+    /**
      * 返回 别名 的实际路径
      * @param $aliasName 以 @ 开头的别名字符串
      */
-    public static function getAliasPath($aliasName){
+    public static function getPathByAlias($aliasName){
         $aliasName = trim($aliasName);
-        return self::$aliasPathMap[$aliasName];
+        return self::$aliasMap[$aliasName];
     }
 
     /**
-     * 获取别名 对应的 命名空间 前缀
-     * @param $aliasName
+     * 获取别名 对应的 命名空间 前缀 不包含最后的 \
+     * @param $aliasName 以 @ 开头的别名字符串
      * @return mixed
      */
-    public static function getAliasNamespace($aliasName){
+    public static function getNamespaceByAlias($aliasName){
         $aliasName = trim($aliasName);
-        return self::$aliasPathMap[$aliasName];
+        return self::$aliasMap[$aliasName];
     }
 
     /**
@@ -325,7 +339,7 @@ class Csphp {
             $r['status']= array_merge($r['status'], array(
                 'time'  =>sprintf("%.4f Sec",self::getTimeUse()),
                 'sip'   =>$_SERVER['SERVER_ADDR'],
-                'cip'   =>self::request()->clientIp()
+                'cip'   =>self::request()->getClientIp()
             ));
         }
         return json_encode($r);
@@ -485,7 +499,7 @@ class Csphp {
             $voidInfo = CspValidator::getVoidInfo($vPath, $tips);
             if($errHandle){
                 if(!is_callable($errHandle)){
-                    throw new CspException('errHandle is not callable ', 10000);
+                    throw new CspException('Param errHandle is not callable: '.json_encode($errHandle), 10000);
                 }
                 call_user_func($errHandle, $voidInfo);
             }else{
@@ -494,6 +508,38 @@ class Csphp {
             }
             return null;
         }
+    }
+
+    /**
+     * 扩展的 call_user_func_array 方法，在 $callable 中可用如下规则
+     *
+     * @aliasname/classname::staticMethod       调用静态方法
+     * @aliasname/classname->commonMethod       初始化一个实例运行
+     *
+     * @param $callable
+     * @param $args
+     */
+    public static function callUserFunction($callable, $args=array()){
+        $cb = $callable;
+        //扩展方式 的首字母为 @
+        if(is_string($cb) && substr($cb,0,1)==='@'){
+            $isStatic = explode("::", $callable);
+            $isObj = explode("->", $callable);
+            if(count($isStatic)==2){
+                //静态方式
+
+            }elseif(count($isStatic)==2){
+                //实例方式
+
+            }else{
+
+            }
+        }
+
+        if(!is_callable($cb)){
+            throw new CspException('Param is not callable, cb:'.json_encode($callable), 10000);
+        }
+        return call_user_func_array($cb, $args);
     }
 
     /**
@@ -575,6 +621,15 @@ class Csphp {
     public static function getTimeUse(){
         return microtime(true) - self::$appStartTime;
     }
+
+    public static function bmkStart($flagKey){
+        self::$bankmarkData[$flagKey] = microtime(true);
+
+    }
+    public static function bmkEnd($flagKey, $dotLen=6){
+        return sprintf("%.".$dotLen."f",microtime(true) - self::$bankmarkData[$flagKey]);
+    }
+
     //调试方法
     public static function trace($traceInfo=null){
         if(self::isProdEnv()){

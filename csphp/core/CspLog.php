@@ -153,8 +153,8 @@ class CspLog{
      * @return mixed|string
      */
     public function wrapLogStr($logStrOrArr, $context=null){
-        $ip = Csphp::request()->clientIp();
-        $uri = Csphp::request()->reqRoute();
+        $ip = Csphp::request()->getClientIp();
+        $uri = Csphp::request()->getReqRoute();
         $prefix = "[".date('H:i:s')."] ".$ip."\t".$uri."\t";
         if(is_array($logStrOrArr)){
             $logStr = json_encode($logStrOrArr);

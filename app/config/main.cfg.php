@@ -1,5 +1,5 @@
 <?php
-namespace app;
+namespace App;
 //配置示例
 $appConfig = array(
     //应用名称
