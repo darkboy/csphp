@@ -221,13 +221,14 @@ class CspResponse{
         'movie' => 'video/x-sgi-movie',
         'ice' => 'x-conference/x-cooltalk',
     );
+    
     public function __construct(){
     }
 
     /**
      * 更改响应数据
-     * @param $str 响应字符串
-     * @param bool $isAppend    是否追加到末尾
+     * @param string $str 响应字符串
+     * @param bool   $isAppend    是否追加到末尾
      */
     public function setBodyStr($str, $isAppend=false){
         if($isAppend){
@@ -242,8 +243,8 @@ class CspResponse{
      *      如果是传递一个参数，则整个字符串作为一个header信息
      *      如果是传递二个参数，则第一个参数为 header name, 后面的为值
      *
-     * @param $k        头信息串 或者头信息名
-     * @param null $v   头信息值
+     * @param string $k   头信息串 或者头信息名
+     * @param null   $v   头信息值
      */
     public function setHeader($k,$v=null){
         if(func_num_args()==1){
@@ -293,10 +294,12 @@ class CspResponse{
     }
 
 
+
     /**
      * 程序重定向
-     * @param $target   重定向目标
-     * @param $type     类型      CspResponse::REDIRECT_TYPE_*
+     * @param string $target 重定向目标
+     * @param string $type   类型      CspResponse::REDIRECT_TYPE_*
+     * @throws \Csp\core\CspException
      */
     public function redirect($target, $type=self::REDIRECT_TYPE_LOCATION){
 
@@ -343,11 +346,12 @@ class CspResponse{
 
     /**
      * 发送一个文件给客户端，浏览器端通常表现为 打开下载窗口
-     * @param $file             实际要发送的文件路径
-     * @param null $saveName    自动保存时的文件名
+     * @param string $file          实际要发送的文件路径
+     * @param null $saveName        自动保存时的文件名
      * @param string $contentType   内容类型,可以是 $this->mimetypes 的Key
      */
     public function sendFile($file, $saveName=null, $contentType='application/octet-stream'){
+
         if(isset($this->mimetypes[$contentType])){
             $contentType = $this->mimetypes[$contentType];
         }
@@ -362,7 +366,7 @@ class CspResponse{
 
     /**
      * 设置一个 content-type
-     * @param $typeOrName 可能是一个标准的 content-type 值或者 名称 如 json
+     * @param string $typeOrName 可能是一个标准的 content-type 值或者 名称 如 json
      */
     public function setContentType($typeOrName){
         if(isset($this->mimetypes[strtolower($typeOrName)])){
