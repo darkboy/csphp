@@ -223,12 +223,13 @@ class CspResponse{
     );
 
     public function __construct(){
+
     }
 
     /**
      * 更改响应数据
-     * @param string $str 响应字符串
-     * @param bool   $isAppend    是否追加到末尾
+     * @param string $str       响应字符串
+     * @param bool   $isAppend  是否追加到末尾
      */
     public function setBodyStr($str, $isAppend=false){
         if($isAppend){
@@ -333,6 +334,25 @@ class CspResponse{
         $this->send();
     }
 
+    /**
+     * 用于跨域COOKIE
+     *
+     * P3P是什么?
+     *
+     * P3P（Platform for Privacy Preferences）是W3C公布的一项隐私保护推荐标准，以为用户提供隐私保护。
+     *
+     * 访问支持P3P网站的用户有权查看站点隐私报告，然 后决定是否接受cookie 或是否使用该网站。
+     *
+     * 如何利用P3P实现跨域
+     * 在开发中，我们碰到的跨域主要还是纠结在IE，页面中的IFRAME或者FRAME或者JS跨域的时候，
+     * IE有安全策略限制页面不带cookie，但是如果我们加上P3P，就没有这策略的限制。
+     *
+     * JS使用P3P协议
+     * xmlhttp.setRequestHeader( "P3P" , 'CP="CURa ADMa DEVa PSAo PSDo OUR BUS UNI PUR INT DEM STA PRE COM NAV OTC NOI DSP COR"' );
+     */
+    public function sendP3P(){
+        header("P3P: CP=CURa ADMa DEVa PSAo PSDo OUR BUS UNI PUR INT DEM STA PRE COM NAV OTC NOI DSP COR");
+    }
     /**
      * 发送401认证登录框，提交的用户名密码将存储在
      *      $_SERVER['PHP_AUTH_USER'] $_SERVER['PHP_AUTH_PW']
