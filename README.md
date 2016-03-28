@@ -5,7 +5,7 @@ A Concise but not Simple PHP framework
 
 ------------------------------------------------------------------
 
-Plain
+Plan
 =====
 
 	1. Core, config, validator, log ,envnt
