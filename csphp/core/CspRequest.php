@@ -238,7 +238,7 @@ class CspRequest{
         }
         $filterCfgKeys = array(
             'is_jsonp_req'  => self::REQ_TYPE_JSONP,
-            'is_api_rep'    => self::REQ_TYPE_API,
+            'is_api_req'    => self::REQ_TYPE_API,
             'is_ajax_req'   => self::REQ_TYPE_AJAX
         );
         foreach($filterCfgKeys as $fk=>$type){
@@ -267,15 +267,15 @@ class CspRequest{
     }
 
     /**
-     * 检查当前请求是否符合给定的条件
+     * 请求过滤器，检查当前请求是否符合给定的条件
      * 以下所有 以 __rcf__ 为前缀的方法 都用于 过滤器 检查
      *
      * 注: 被检查路由什不包括 前后 /
      *
      * @param $requestFilter 请求 过滤器 描述字典 配置规则如下
      *
-     *  filterName  =>argCfg        表示正过滤器
-     *  !filterName =>filterCfg     在过滤器名前加 ! 号，将以上面逻辑相反，，反过滤器
+     *  filterName  =>filterCfg     表示正过滤器
+     *  !filterName =>filterCfg     在过滤器名前加 ! 号，将以上面逻辑相反，反过滤器
      *
      *  同一过滤器有多个时，可以不使用 key , 系统对 数字 key 的配置，将按如下结构解释
      *
@@ -284,6 +284,7 @@ class CspRequest{
         $requestFilter = array(
             'domain'        =>'*',   //对当前域名进行匹配,如果参数是数组，则匹配一个即可,如 "*.domain.com,www.domain.com"
             'ip'            =>'*',   //IP表达式如： "133.14.11.[1-28],133.22.22.222,111.234.222.*,133.14.11.33/34/38"
+            'env'           =>'*',   //可以是数组或者逗号隔开的 环境名 列表如 “dev,test”
 
             'httpMethod'    =>'*',   //可以是数组或者逗号隔开的 HTTP方法 列表如 “GET,POST”
             'requestType'   =>'*',   //可以是数组或者逗号隔开的 请求类型 列表如： “api,web,cli,ajax,jsonp”
@@ -311,27 +312,33 @@ class CspRequest{
         foreach($requestFilter as $filterName=>$filterArg){
             //skip empty config
             if(is_numeric($filterName) && empty($filterArg)){continue;}
-
+            //无键名的配置项目 按 array(filterName, filterCfg) 结构解释
             if(is_numeric($filterName)){
                 $filterName = $filterArg[0];
                 $filterArg  = @$filterArg[1];
             }
+
             //如果过滤器名，是以 ! 开头 表示这是一个反过滤器，进行 反操作验证
             $firstChar = substr($filterName, 0, 1);
             $isNot = false;
             if($firstChar==='!'){
-                $filterName = substr($filterName, 0, 1);
+                $filterName = substr($filterName, 1);
                 $isNot = true;
             }
-            $filterMethod = '__rcf__'.$filterName;
-            if(!method_exists($this, $filterMethod)){
-                throw new CspException("Error filter config for $filterName : ".json_encode($filterArg));
+
+            //当配置值为 * 时不进行任何检查
+            if(is_string($filterArg) && $filterArg==='*'){
+                $filterChk = true;
+            }else{
+                //使用特定的过滤器进行检查
+                $filterMethod = '__rcf__'.$filterName;
+                if(!method_exists($this, $filterMethod)){
+                    throw new CspException("Error filter config for $filterName : ".json_encode($filterArg));
+                }
+                $filterChk = $this->$filterMethod($filterArg);
             }
 
-            if( ($isNot===false && !$this->$filterMethod($filterArg))
-                ||
-                ($isNot===true  && $this->$filterMethod($filterArg))
-                ){
+            if( ($isNot===false && !$filterChk) || ($isNot===true  && $filterChk) ){
                 return false;
             }
         }
@@ -397,6 +404,28 @@ class CspRequest{
         }
         return false;
     }
+
+    /**
+     * 运行环境过滤器
+     * 检查当前请求是否在 特定的运行环境中，必须先在入口文件中配置 CSPHP_ENV_TYPE 常量
+     *
+     * @param $filterArg 配置值可以是 逗号隔开的 环境名，或者数组 如 “dev,test,prod”
+     * @return bool
+     * @throws \Csp\core\CspException
+     */
+    private function __rcf__env($filterArg){
+        if(defined('CSPHP_ENV_TYPE')){
+            if(!is_array($filterArg)){
+                $filterArg = explode(',', strtolower($filterArg));
+            }
+            return in_array(CSPHP_ENV_TYPE, $filterArg);
+        }else{
+            throw new CspException("Use  env filter , pls define CSPHP_ENV_TYPE const ");
+        }
+        return false;
+    }
+
+
     /**
      * httpMethod 过滤器
      * 配置值可以是 逗号隔开的 HTTP方法值，或者数组 如 “GET，POST” or array("GET","DELETE")

@@ -1,6 +1,6 @@
 <?php
 namespace Csp\core;
-use \Csphp as Csphp;
+use \Csphp;
 
 class CspAsset{
 

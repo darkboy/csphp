@@ -1,7 +1,7 @@
 <?php
 namespace Csp\core;
-use \Csphp as Csphp;
-use \Csp\core\CspException   as CspException;
+use \Csphp;
+use \Csp\core\CspException;
 
 
 class CspLog{

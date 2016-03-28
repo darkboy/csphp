@@ -5,18 +5,28 @@ A Concise but not Simple PHP framework
 
 ------------------------------------------------------------------
 
-Framework feature Summary
+Plain
 =====
+
+	1. Core, config, validator, log ,envnt
+	2. request, response, router
+	3. core, comp, comp-flow and event 
+	4. core,tpl,asset
+	5. 各部分联通，核心，配置，请求，路由，响应，组件，扩展，事件，日志
+	6. all baseClass ,model,controler,comp,obj
+	7. all components
+	8. test and debug........
+
 
 
 Startup
 =====
 
 <pre><code>
-
-//启动应用程序 程序只有一个入口配置
-Csp::createApp($cfg)->run();
-
+```php
+	//启动应用程序 程序只有一个入口配置
+	Csp::createApp($cfg)->run();
+```
 </code></pre>
 
 ------------------------------------------------------------------

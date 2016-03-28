@@ -50,4 +50,6 @@ class CsphpAutoload{
 }
 ///注册 auto loader
 spl_autoload_register(function ($className) { CsphpAutoload::load($className);});
+//加载兼容性文件
+require __DIR__.'/compat.php';
 

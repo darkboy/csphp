@@ -5,14 +5,14 @@
 /**
  * Class Csphp core mgr class
  */
-use Csp\core\CspRequest     as CspRequest;
-use Csp\core\CspResponse    as CspResponse;
-use Csp\core\CspLog         as CspLog;
-use Csp\core\CspEvent       as CspEvent;
-use Csp\core\CspRouter      as CspRouter;
-use Csp\core\CspTemplate    as CspTemplate;
-use Csp\core\CspValidator   as CspValidator;
-use Csp\core\CspException   as CspException;
+use Csp\core\CspRequest;
+use Csp\core\CspResponse;
+use Csp\core\CspLog;
+use Csp\core\CspEvent;
+use Csp\core\CspRouter;
+use Csp\core\CspTemplate;
+use Csp\core\CspValidator;
+use Csp\core\CspException;
 
 //设置当前的运行环境
 defined('CSPHP_ENV_TYPE') or define('CSPHP_ENV_TYPE', Csphp::ENV_TYPE_PROD);
@@ -252,7 +252,7 @@ class Csphp {
      */
     public static function getPathByAlias($aliasName){
         $aliasName = trim($aliasName);
-        return self::$aliasMap[$aliasName];
+        return self::$aliasMap[$aliasName][0];
     }
 
     /**
@@ -262,7 +262,7 @@ class Csphp {
      */
     public static function getNamespaceByAlias($aliasName){
         $aliasName = trim($aliasName);
-        return self::$aliasMap[$aliasName];
+        return self::$aliasMap[$aliasName][1];
     }
 
     /**
@@ -465,7 +465,7 @@ class Csphp {
         }
 
         if($vType==='H' && !isset($inputCache['H'])){
-            $inputCache['H'] = http_get_request_headers();
+            $inputCache['H'] = getallheaders();
         }
 
         $v  = null;
