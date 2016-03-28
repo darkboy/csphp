@@ -24,7 +24,7 @@ Startup
 
 ```php
 	//启动应用程序 程序只有一个入口配置
-	Csp::createApp($cfg)->run();
+	Csphp::createApp($cfg)->run();
 ```
 
 ------------------------------------------------------------------
@@ -64,25 +64,25 @@ get input from request
 <pre><code>
 
 //request input
-Csp::request()->param($kr,$def,$rule,$tips='',$errHandle);
-Csp::request()->apiParam($kr,$def,$rule,$tips='',$errHandle);
-Csp::request()->cliParam($kr,$def,$rule,$tips='',$errHandle);
-Csp::request()->webParam($kr,$def,$rule,$tips='',$errHandle);
-Csp::request()->ajaxParam($kr,$def,$rule,$tips='',$errHandle);
-Csp::request()->jsonpParam($kr,$def,$rule,$tips='',$errHandle);
+Csphp::request()->param($kr,$def,$rule,$tips='',$errHandle);
+Csphp::request()->apiParam($kr,$def,$rule,$tips='',$errHandle);
+Csphp::request()->cliParam($kr,$def,$rule,$tips='',$errHandle);
+Csphp::request()->webParam($kr,$def,$rule,$tips='',$errHandle);
+Csphp::request()->ajaxParam($kr,$def,$rule,$tips='',$errHandle);
+Csphp::request()->jsonpParam($kr,$def,$rule,$tips='',$errHandle);
 //获取请求类型
-Csp::request()->getRequestType();//return ajax jsonp api web cli
+Csphp::request()->getRequestType();//return ajax jsonp api web cli
 
-Csp::request()->header($k);
-Csp::request()->post();
-Csp::request()->get();
-Csp::request()->cookie();
-Csp::request()->file();
+Csphp::request()->header($k);
+Csphp::request()->post();
+Csphp::request()->get();
+Csphp::request()->cookie();
+Csphp::request()->file();
 
 //与URL相关的信息
-Csp::request()->getHost();
-Csp::request()->uri();
-Csp::request()->lastViewUrl();//用户最后一次浏览的 url
+Csphp::request()->getHost();
+Csphp::request()->uri();
+Csphp::request()->lastViewUrl();//用户最后一次浏览的 url
 
 </code></pre>
 
@@ -93,14 +93,14 @@ chk request type
 <pre><code>
 
 //请求性质判断
-Csp::request()->isApi();
-Csp::request()->isAjax();
-Csp::request()->isJsonp();
-Csp::request()->isPost();
-Csp::request()->isGet();
-Csp::request()->isPut();
-Csp::request()->isRobot();
-Csp::request()->isPhone();
+Csphp::request()->isApi();
+Csphp::request()->isAjax();
+Csphp::request()->isJsonp();
+Csphp::request()->isPost();
+Csphp::request()->isGet();
+Csphp::request()->isPut();
+Csphp::request()->isRobot();
+Csphp::request()->isPhone();
 
 //用于判断 请求类型的相当配置
 $cfg['jsonp_flag_vr']=array('g:callback', 'p:callback');
@@ -108,8 +108,8 @@ $cfg['ajax_flag_vr'] =array('g:_', 'p:_' );
 $cfg['api_flag_vr']  =array('h:csp-api');
 
 //检查当前请求是否符合条件
-Csp::isMatch($reqCond);
-Csp::request()->isMatch($reqCond);
+Csphp::isMatch($reqCond);
+Csphp::request()->isMatch($reqCond);
 $reqCond=array(
     'domain'=>'*',          //当前域名
     'router_prefix'=>'*',   //路由前缀
@@ -129,7 +129,7 @@ get var by vroute
 <pre><code>
 
 //use input 获取 用户输入
-Csp::v($vr,$def,$rule,$errHandle);
+Csphp::v($vr,$def,$rule,$errHandle);
 //vr 规则，变量路由
 $vr='-:a/b/c';//$sysCfg
 $vr='s:a/b/c';//$_SERVER
@@ -150,8 +150,8 @@ set or get data in page live time
 =====
 <pre><code>
 
-Csp::data($k,$v);//for set
-Csp::data($k);   //for get
+Csphp::data($k,$v);//for set
+Csphp::data($k);   //for get
 
 </code></pre>
 
@@ -162,7 +162,7 @@ url constructor
 <pre><code>
 
 //url构造器
-Csp::url($r, $paramArrOrStr, $anchor, $hostKey='_default');
+Csphp::url($r, $paramArrOrStr, $anchor, $hostKey='_default');
 $cfg['host_keys'] = array(
 	'_default'	=>'http://www.domain.com/',
 	'home'		=>'http://www.domain.com/',
@@ -180,16 +180,16 @@ response feature
 =====
 <pre><code>
 
-Csp::response()->httpCode=200;
-Csp::response()->bodyData=null;//array or str
-Csp::response()->headerData=null;//array
-Csp::response()->setHeader($k,$v);
-Csp::response()->setCookie($k,$v, $ttl, $path, $domain);
+Csphp::response()->httpCode=200;
+Csphp::response()->bodyData=null;//array or str
+Csphp::response()->headerData=null;//array
+Csphp::response()->setHeader($k,$v);
+Csphp::response()->setCookie($k,$v, $ttl, $path, $domain);
 
-Csp::response()->redirect($url,$type);
+Csphp::response()->redirect($url,$type);
 
-Csp::response()->setBody($strOrArray);
-Csp::response()->send();
+Csphp::response()->setBody($strOrArray);
+Csphp::response()->send();
 
 </code></pre>
 
@@ -200,18 +200,18 @@ log and debug func
 <pre><code>
 
 //调试与日志
-Csp::logDebug($cateGory='sys',$msg);	//DEBUG打开时，开启，用于调试
-Csp::logInfo($cateGory='sys',$msg);	//常规dump信息 如 accesslog
-Csp::logError($cateGory='sys',$msg);	//严重错误
-Csp::logWarning($cateGory='sys',$msg); //一般错误，暂不影响使用，如 rpc slow
+Csphp::logDebug($cateGory='sys',$msg);	//DEBUG打开时，开启，用于调试
+Csphp::logInfo($cateGory='sys',$msg);	//常规dump信息 如 accesslog
+Csphp::logError($cateGory='sys',$msg);	//严重错误
+Csphp::logWarning($cateGory='sys',$msg); //一般错误，暂不影响使用，如 rpc slow
 $cfg['log_fromat']= "{time}\t{uri}:{route}\t{msg}";
 
-Csp::dump($msg);
-Csp::trace($msg, $cateGory);
-Csp::dump($msg);
-Csp::bmkStart($labelKey);
-Csp::bmkEnd($labelKey);
-Csp::halt();//alias for exit
+Csphp::dump($msg);
+Csphp::trace($msg, $cateGory);
+Csphp::dump($msg);
+Csphp::bmkStart($labelKey);
+Csphp::bmkEnd($labelKey);
+Csphp::halt();//alias for exit
 
 </code></pre>
 
@@ -222,16 +222,16 @@ load file or instantiate obj
 <pre><code>
 
 //对象加载与实例化
-Csp::getPathByRoute($fRoute);
-Csp::getRealPathByRoute($fRoute);
-Csp::loadFile($fRoute);
+Csphp::getPathByRoute($fRoute);
+Csphp::getRealPathByRoute($fRoute);
+Csphp::loadFile($fRoute);
 
-Csp::newClass($fRoute, $cfg=null);
-Csp::ctrl();
-Csp::mod();
-Csp::cls();
-Csp::ext();
-Csp::comp();
+Csphp::newClass($fRoute, $cfg=null);
+Csphp::ctrl();
+Csphp::mod();
+Csphp::cls();
+Csphp::ext();
+Csphp::comp();
 
 </code></pre>
 
@@ -264,7 +264,7 @@ Components feature
 <pre><code>
 
 //组件的使用
-Csp::comp($comRoute, $cfg, $accessKey='')->anyMethod();
+Csphp::comp($comRoute, $cfg, $accessKey='')->anyMethod();
 $cfg['components']=array(
     //这个key是访问名称
     'access_key'=> array(
@@ -277,12 +277,12 @@ $cfg['components']=array(
 );
 
 //组件的生命周期
-Csp::comp($accessKey)->start();
-Csp::comp($accessKey)->alterStart();
+Csphp::comp($accessKey)->start();
+Csphp::comp($accessKey)->alterStart();
 //php shutdown 的时候执行
-Csp::comp($accessKey)->stop();
+Csphp::comp($accessKey)->stop();
 
-Csp::comp($accessKey)->anyOtherMethod();
+Csphp::comp($accessKey)->anyOtherMethod();
 
 </code></pre>
 
@@ -292,7 +292,7 @@ Filters  feature
 =====
 <pre><code>
 
-Csp::runFilters($fRoute, $cfg=null);
+Csphp::runFilters($fRoute, $cfg=null);
 
 </code></pre>
 
@@ -302,8 +302,8 @@ hooks  feature
 =====
 <pre><code>
 
-Csp::doHooks();
-Csp::hook($hookName, $eventCbFunc);
+Csphp::doHooks();
+Csphp::hook($hookName, $eventCbFunc);
 
 </code></pre>
 
@@ -313,8 +313,8 @@ event  feature
 =====
 <pre><code>
 
-Csp::fireEvent($eventName, $senderObj, $data=null);
-Csp::on($eventName, $eventCbFunc);
+Csphp::fireEvent($eventName, $senderObj, $data=null);
+Csphp::on($eventName, $eventCbFunc);
 
 </code></pre>
 
@@ -324,23 +324,23 @@ Tpl and controler
 =====
 <pre><code>
 
-Csp::$tplVars = array();
-Csp::controler()->assign($k, $v);
-Csp::controler()->assign($kvArr);
-Csp::controler()->fetch($tplRoute, $data);
-Csp::controler()->render($tplRoute, $data, $cacheOpt);
+Csphp::$tplVars = array();
+Csphp::controler()->assign($k, $v);
+Csphp::controler()->assign($kvArr);
+Csphp::controler()->fetch($tplRoute, $data);
+Csphp::controler()->render($tplRoute, $data, $cacheOpt);
 
-Csp::controler()->display($tplRoure, $data, $cacheOpt);
-Csp::controler()->ajaxRst($rst, $code=0, $msg='OK', $tips=null);
-Csp::controler()->jsonpRst($cbName, $rst, $code=0, $msg='OK', $tips=null);
-Csp::controler()->isXXX();// isPost isAjax isApi isGet isPut isPhone isRobot
+Csphp::controler()->display($tplRoure, $data, $cacheOpt);
+Csphp::controler()->ajaxRst($rst, $code=0, $msg='OK', $tips=null);
+Csphp::controler()->jsonpRst($cbName, $rst, $code=0, $msg='OK', $tips=null);
+Csphp::controler()->isXXX();// isPost isAjax isApi isGet isPut isPhone isRobot
 
 //模板
-Csp::tpl()->assign();
-Csp::tpl()->fetch();
-Csp::tpl()->render();
-Csp::tpl()->layout();
-Csp::tpl()->widget();
+Csphp::tpl()->assign();
+Csphp::tpl()->fetch();
+Csphp::tpl()->render();
+Csphp::tpl()->layout();
+Csphp::tpl()->widget();
 
 </code></pre>
 
@@ -351,7 +351,7 @@ asset use
 <pre><code>
 
 //前端资源,解决多机部署，域名分离，灰度上线问题
-Csp::asset($fRroute, $hostKey);
+Csphp::asset($fRroute, $hostKey);
 $cfg['asset']=array(
     'base_path'=>'/',
     'publish_path'=>'',
@@ -366,10 +366,10 @@ route feature
 <pre><code>
 
 //初始化路由信息 解释 路由配置
-Csp::router()->init();
+Csphp::router()->init();
 //动态添加路由配置
-Csp::router()->runTimeRouteRegister();
-Csp::router()->parse($req);
+Csphp::router()->runTimeRouteRegister();
+Csphp::router()->parse($req);
 $routeInfo = array(
     'req_route'=>'a/b/CtrlclassName/actionMethod/vn1-v1/vn2-v2',
     'clean_route'=>'a/b/CtrlclassName/actionMethod',//清除变量后的路由
@@ -384,10 +384,10 @@ $routeInfo = array(
 );
 
 //解释URL上的参数 如 .../vn-1/vn2-2 将产生 {vn:1,vn2:2} 的路由参数
-Csp::router()->cleanRoute();
+Csphp::router()->cleanRoute();
 
 //从路由配置中查找符合条件的规则
-Csp::router()->findRoute();
+Csphp::router()->findRoute();
 //路由配置规则 示例
 $cfg['router'][] = array(
     //触发条件 参见 $reqCond 描述
@@ -404,15 +404,15 @@ $cfg['router'][] = array(
 
 
 
-Csp::$vr = array();
-Csp::router()->parseVar();
-Csp::router()->getRouterVar();
+Csphp::$vr = array();
+Csphp::router()->parseVar();
+Csphp::router()->getRouterVar();
 
-Csp::router()->getRouter();
-Csp::router()->controler();//ctr obj
-Csp::router()->getAction();//str action method name
+Csphp::router()->getRouter();
+Csphp::router()->controler();//ctr obj
+Csphp::router()->getAction();//str action method name
 
-Csp::doAction();
+Csphp::doAction();
 </code></pre>
 
 ------------------------------------------------------------------
@@ -422,7 +422,7 @@ common functions
 <pre><code>
 
 //common functions
-Csp::toolkit()->xxx();
+Csphp::toolkit()->xxx();
 //config
 $cfg['domain']  ='';
 //项目所使用的域名列表
