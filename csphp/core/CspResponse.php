@@ -221,7 +221,7 @@ class CspResponse{
         'movie' => 'video/x-sgi-movie',
         'ice' => 'x-conference/x-cooltalk',
     );
-    
+
     public function __construct(){
     }
 
