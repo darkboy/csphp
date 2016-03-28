@@ -253,6 +253,17 @@ class CspResponse{
         }
     }
 
+    /**
+     * 设置一个http响应码
+     * @param $code
+     */
+    public function setHttpCode($code){
+        $this->httpCode = $code;
+        if($code!=200){
+            $this->setHeader($code);
+        }
+    }
+
 
     /**
      * 设置一个 cookie
