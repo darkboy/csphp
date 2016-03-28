@@ -65,11 +65,6 @@ get input from request
 
 //request input
 Csphp::request()->param($kr,$def,$rule,$tips='',$errHandle);
-Csphp::request()->apiParam($kr,$def,$rule,$tips='',$errHandle);
-Csphp::request()->cliParam($kr,$def,$rule,$tips='',$errHandle);
-Csphp::request()->webParam($kr,$def,$rule,$tips='',$errHandle);
-Csphp::request()->ajaxParam($kr,$def,$rule,$tips='',$errHandle);
-Csphp::request()->jsonpParam($kr,$def,$rule,$tips='',$errHandle);
 //获取请求类型
 Csphp::request()->getRequestType();//return ajax jsonp api web cli
 
