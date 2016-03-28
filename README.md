@@ -32,7 +32,7 @@ Startup
 
 exception handle for param 404 401 err
 =====
-<pre><code>
+```php
 
 //err 不同的参数错误使用统一的处理方法 并且可以由用户配置
 CspErrorHandle::cliParamError();
@@ -55,13 +55,13 @@ $cfg['error_handle']=array(
     'error'             =>'CspErrorHandle::error',
 );
 
-</code></pre>
+```
 
 ------------------------------------------------------------------
 
 get input from request 
 =====
-<pre><code>
+```php
 
 //request input
 Csphp::request()->param($kr,$def,$rule,$tips='',$errHandle);
@@ -84,13 +84,13 @@ Csphp::request()->getHost();
 Csphp::request()->uri();
 Csphp::request()->lastViewUrl();//用户最后一次浏览的 url
 
-</code></pre>
+```
 
 ------------------------------------------------------------------
 
 chk request type
 =====
-<pre><code>
+```php
 
 //请求性质判断
 Csphp::request()->isApi();
@@ -120,13 +120,13 @@ $reqCond=array(
     'user_cond'=>'abc::abc',//用户自定义规则,是一个可调用的 回调或者服务定义器
 );
 
-</code></pre>
+```
 
 ------------------------------------------------------------------
 
 get var by vroute
 =====
-<pre><code>
+```php
 
 //use input 获取 用户输入
 Csphp::v($vr,$def,$rule,$errHandle);
@@ -142,24 +142,24 @@ $vr='v:a/b/c';//var from route parse
 $vr='h:a/b/c';//header
 $vr='a:a/b/c';// value in v or r
 
-</code></pre>
+```
 
 ------------------------------------------------------------------
 
 set or get data in page live time 
 =====
-<pre><code>
+```php
 
 Csphp::data($k,$v);//for set
 Csphp::data($k);   //for get
 
-</code></pre>
+```
 
 ------------------------------------------------------------------
 
 url constructor 
 =====
-<pre><code>
+```php
 
 //url构造器
 Csphp::url($r, $paramArrOrStr, $anchor, $hostKey='_default');
@@ -172,13 +172,13 @@ $cfg['host_keys'] = array(
 	
 );
 
-</code></pre>
+```
 
 ------------------------------------------------------------------
 
 response feature 
 =====
-<pre><code>
+```php
 
 Csphp::response()->httpCode=200;
 Csphp::response()->bodyData=null;//array or str
@@ -191,13 +191,13 @@ Csphp::response()->redirect($url,$type);
 Csphp::response()->setBody($strOrArray);
 Csphp::response()->send();
 
-</code></pre>
+```
 
 ------------------------------------------------------------------
 
 log and debug func 
 =====
-<pre><code>
+```php
 
 //调试与日志
 Csphp::logDebug($cateGory='sys',$msg);	//DEBUG打开时，开启，用于调试
@@ -213,13 +213,13 @@ Csphp::bmkStart($labelKey);
 Csphp::bmkEnd($labelKey);
 Csphp::halt();//alias for exit
 
-</code></pre>
+```
 
 ------------------------------------------------------------------
 
 load file or instantiate obj
 =====
-<pre><code>
+```php
 
 //对象加载与实例化
 Csphp::getPathByRoute($fRoute);
@@ -233,13 +233,13 @@ Csphp::cls();
 Csphp::ext();
 Csphp::comp();
 
-</code></pre>
+```
 
 ------------------------------------------------------------------
 
 file route rule
 =====
-<pre><code>
+```php
 
 //类文件 与 对象 别名定位规则，类文件路由
 $fRoute='@com/a/b/c'; //优先从应用目录查找
@@ -255,13 +255,13 @@ $fRoute='@a-ext/a/b/c'; //应用扩展类
 $fRoute='@static/a/b/c.js';  //应用静态文件,应包含扩展名
 $fRoute='@static/a/b/c.css'; //应用静态文件
 
-</code></pre>
+```
 
 ------------------------------------------------------------------
 
 Components feature
 =====
-<pre><code>
+```php
 
 //组件的使用
 Csphp::comp($comRoute, $cfg, $accessKey='')->anyMethod();
@@ -284,45 +284,45 @@ Csphp::comp($accessKey)->stop();
 
 Csphp::comp($accessKey)->anyOtherMethod();
 
-</code></pre>
+```
 
 ------------------------------------------------------------------
 
 Filters  feature
 =====
-<pre><code>
+```php
 
 Csphp::runFilters($fRoute, $cfg=null);
 
-</code></pre>
+```
 
 ------------------------------------------------------------------
 
 hooks  feature
 =====
-<pre><code>
+```php
 
 Csphp::doHooks();
 Csphp::hook($hookName, $eventCbFunc);
 
-</code></pre>
+```
 
 ------------------------------------------------------------------
 
 event  feature
 =====
-<pre><code>
+```php
 
 Csphp::fireEvent($eventName, $senderObj, $data=null);
 Csphp::on($eventName, $eventCbFunc);
 
-</code></pre>
+```
 
 ------------------------------------------------------------------
 
 Tpl and controler
 =====
-<pre><code>
+```php
 
 Csphp::$tplVars = array();
 Csphp::controler()->assign($k, $v);
@@ -342,13 +342,13 @@ Csphp::tpl()->render();
 Csphp::tpl()->layout();
 Csphp::tpl()->widget();
 
-</code></pre>
+```
 
 ------------------------------------------------------------------
 
 asset use
 =====
-<pre><code>
+```php
 
 //前端资源,解决多机部署，域名分离，灰度上线问题
 Csphp::asset($fRroute, $hostKey);
@@ -357,13 +357,13 @@ $cfg['asset']=array(
     'publish_path'=>'',
 );
 
-</code></pre>
+```
 
 ------------------------------------------------------------------
 
 route feature
 =====
-<pre><code>
+```php
 
 //初始化路由信息 解释 路由配置
 Csphp::router()->init();
@@ -413,13 +413,13 @@ Csphp::router()->controler();//ctr obj
 Csphp::router()->getAction();//str action method name
 
 Csphp::doAction();
-</code></pre>
+```
 
 ------------------------------------------------------------------
 
 common functions
 =====
-<pre><code>
+```php
 
 //common functions
 Csphp::toolkit()->xxx();
@@ -434,13 +434,13 @@ $cfg['hosts']=array(
     'sub2'  =>'http://sub2.domain.com/',
 );
 
-</code></pre>
+```
 
 ------------------------------------------------------------------
 
 autoload files
 =====
-<pre><code>
+```php
 
 //在框架引导期间 会自动加载的目录或者文件，值为加载的目录深度,如果加载目录为文件则后面的值无效，始终为 0
 $cfg['auto_include_path']=array(
@@ -449,13 +449,13 @@ $cfg['auto_include_path']=array(
   'path2'   =>2,
 );
 
-</code></pre>
+```
 
 ------------------------------------------------------------------
 
 modelbase feature
 =====
-<pre><code>
+```php
 
 //配置主键与表名，在子类的 构造器中执行
 ModelBase::$tableName   = 'table1';
@@ -488,13 +488,13 @@ ModelBase::formatGet($fk, $pkOrCond);
 ModelBase::formatGets($fk, $pks);
 ModelBase::formatData($fk, $data, $isMultiRow=false);
 
-</code></pre>
+```
 
 ------------------------------------------------------------------
 
 db feature
 =====
-<pre><code>
+```php
 
 $cfg['dbName']=array(
 	'host'	 => DB_HOST_W,
@@ -542,7 +542,7 @@ ModelBase::db()->queryCmd()
     ->limit()
     ->exec();
 
-</code></pre>
+```
 
 ------------------------------------------------------------------
 
