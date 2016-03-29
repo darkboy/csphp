@@ -47,8 +47,8 @@ $appConfig = array(
                 //这条规则表示只在 domain.com 下使用
                 'host'=>'*.domain.com'
             ),
-            //组件的配置列表
-            'cfg'=>array()
+            //组件的配置选项字典列表，每个key将作来组件的属性被赋值
+            'options'=>array()
 
         ),
 

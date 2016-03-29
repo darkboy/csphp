@@ -52,10 +52,10 @@ class CspLog{
         return $this->logOptions[$k];
     }
     /**
-     * 写入一条日志
-     * @param $category         日志的分类信息
-     * @param null $logStrOrArr 日志信息，可以包含 {{keyname}}
-     * @param null $context 上下文字典信息，$msg 中的 {{keyname}} 会替换为 $context[keyname]
+     * 写入一条debug日志
+     * @param string $category    日志的分类信息
+     * @param mixed  $logStrOrArr 日志信息，可以包含 {{keyname}}
+     * @param null   $context     上下文字典信息，$msg 中的 {{keyname}} 会替换为 $context[keyname]
      */
     public function logDebug($category, $logStrOrArr=null, $context=null){
         if(!$this->option('is_log_debug')){
@@ -65,10 +65,10 @@ class CspLog{
     }
 
     /**
-     * 写入一条日志
-     * @param $category         日志的分类信息
-     * @param null $logStrOrArr 日志信息，可以包含 {{keyname}}
-     * @param null $context 上下文字典信息，$msg 中的 {{keyname}} 会替换为 $context[keyname]
+     * 写入一条info日志
+     * @param string $category    日志的分类信息
+     * @param mixed  $logStrOrArr 日志信息，可以包含 {{keyname}}
+     * @param null   $context     上下文字典信息，$msg 中的 {{keyname}} 会替换为 $context[keyname]
      */
     public function logInfo($category, $logStrOrArr=null, $context=null){
         if(!$this->option('is_log_info')){
@@ -78,10 +78,10 @@ class CspLog{
     }
 
     /**
-     * 写入一条日志
-     * @param $category         日志的分类信息
-     * @param null $logStrOrArr 日志信息，可以包含 {{keyname}}
-     * @param null $context 上下文字典信息，$msg 中的 {{keyname}} 会替换为 $context[keyname]
+     * 写入一条warning日志
+     * @param string $category    日志的分类信息
+     * @param mixed  $logStrOrArr 日志信息，可以包含 {{keyname}}
+     * @param null   $context     上下文字典信息，$msg 中的 {{keyname}} 会替换为 $context[keyname]
      */
     public function logWarning($category, $logStrOrArr=null, $context=null){
         if(!$this->option('is_log_warning')){
@@ -91,10 +91,10 @@ class CspLog{
     }
 
     /**
-     * 写入一条日志
-     * @param $category         日志的分类信息
-     * @param null $logStrOrArr 日志信息，可以包含 {{keyname}}
-     * @param null $context 上下文字典信息，$msg 中的 {{keyname}} 会替换为 $context[keyname]
+     * 写入一条Error日志
+     * @param string $category    日志的分类信息
+     * @param mixed  $logStrOrArr 日志信息，可以包含 {{keyname}}
+     * @param null   $context     上下文字典信息，$msg 中的 {{keyname}} 会替换为 $context[keyname]
      */
     public function logError($category, $logStrOrArr=null, $context=null){
         if(!$this->option('is_log_error')){
@@ -124,7 +124,7 @@ class CspLog{
 
     /**
      * 为防止目录
-     * @param $category
+     * @param $category string
      * @return bool
      */
     public function chkCategoryName($category){

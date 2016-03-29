@@ -57,10 +57,15 @@ class Csphp {
     private static $aliasMap = array();
 
     /**
+     * 组件配置数据
+     * @var array
+     */
+    private static $componentsCfgData = array();
+    /**
      * 组件对象池
      * @var array
      */
-    private static $componentObjs = array();
+    private static $componentsPool = array();
 
     /**
      *
@@ -146,20 +151,74 @@ class Csphp {
     }
 
     /**
-     * 初始化所有的组件
+     * 初始化所有的 组件链
      */
-    public function initComponentChain(){
+    private static function initComponentsChain($comps){
 
-        foreach(self::$sysCfg['components'] as $compCfg){
+        //后加载 sys 组件 ，如果 access_key 有冲突,则以 sys 为准
+        foreach(self::$appCfg['components'] as $k=>$comp){
+            if( is_array($comp['filter']) && !empty($comp['filter']) && self::request()->isMatch($comp['filter']) ) {
+                self::$componentsCfgData[$k] = $comp;;
+            }
+        }
+        foreach(self::$sysCfg['components'] as $k=>$comp){
+            if( is_array($comp['filter']) && !empty($comp['filter']) && self::request()->isMatch($comp['filter']) ) {
+                self::$componentsCfgData[$k] = $comp;;
+            }
 
         }
 
-        foreach(self::$appCfg['components'] as $compCfg){
+        self::createAllComponents();
+        self::allComponentsStart();
+        self::allComponentsAfterStart();
+    }
 
+    /**
+     * 创建所有的组件对象
+     */
+    private static function createAllComponents(){
+        foreach(self::$componentsCfgData as $k=>$comp){
+            self::$componentsPool[$k] = self::newClass($comp['class'], $comp['options'], false);
         }
     }
 
     /**
+     *
+     */
+    private static function allComponentsStart(){
+        foreach(self::$componentsCfgData as $k=>$compObj){
+            $startRet = $compObj->start();
+            if(!$startRet){
+                throw new CspException("Component [ $k ] start fail. ".$compObj->getErrorMsg());
+            }
+        }
+    }
+
+    /**
+     *
+     */
+    private static function allComponentsAfterStart(){
+        foreach(self::$componentsCfgData as $k=>$compObj){
+            $afterStartRet = $compObj->afterStart();
+            if(!$afterStartRet){
+                throw new CspException("Component [ $k ] start fail. ".$compObj->getErrorMsg());
+            }
+        }
+    }
+
+    /**
+     * @param $accessKey
+     * @param $oRoute
+     * @param array $opts
+     * @param array $filter
+     */
+    public static function registerComponent($accessKey, $oRoute, $opts=array(),$filter=array()){
+
+    }
+
+
+
+        /**
      * 传递一个参数时，为直接引用对象，传弟2-3个参数时，为初始化组件
      * Csphp::comp($comRoute, $cfg, $accessKey='')->anyMethod();
      * $cfg['components']=array(
@@ -175,7 +234,7 @@ class Csphp {
         )
         );
      */
-    public static function comp($comRoute, $cfg=null, $accessKey=null){
+    public static function comp($compRoute, $opts=array(), $accessKey=null){
         if(func_num_args()==1){
             if(isset(self::$componentObjs[$comRoute])){
 
@@ -248,7 +307,7 @@ class Csphp {
 
     /**
      * 返回 别名 的实际路径
-     * @param $aliasName 以 @ 开头的别名字符串
+     * @param $aliasName string 以 @ 开头的别名字符串
      */
     public static function getPathByAlias($aliasName){
         $aliasName = trim($aliasName);
@@ -257,7 +316,7 @@ class Csphp {
 
     /**
      * 获取别名 对应的 命名空间 前缀 不包含最后的 \
-     * @param $aliasName 以 @ 开头的别名字符串
+     * @param $aliasName string 以 @ 开头的别名字符串
      * @return mixed
      */
     public static function getNamespaceByAlias($aliasName){
@@ -267,7 +326,7 @@ class Csphp {
 
     /**
      * 加载一个文件
-     * @param $oRoute   可以包含别名前缀
+     * @param $oRoute   string 可以包含别名前缀
      * @return mixed
      */
     public static function loadFile($oRoute){
@@ -288,10 +347,17 @@ class Csphp {
      */
     public static function newClass($oRoute, $cfg=null, $isSingleton=true){
         static $objs = array();
-        if($isSingleton && isset($objs[$oRoute])){
-            return $objs[$oRoute];
+        $realNamespace = self::getNamespaceByRoute($oRoute);
+        if($isSingleton){
+            if(isset($objs[$oRoute])){
+                return $objs[$oRoute];
+            }else{
+
+            }
+
+        }else{
+
         }
-        $realNamespace = self::getPathByRoute($oRoute);
 
     }
     public static function ctrl($route, $cfg=null, $isSingleton=true){
@@ -324,7 +390,7 @@ class Csphp {
      * @param string $tips
      * @return string jsonString
      */
-    public static function warpJsonApiData($rst, $code=0, $msg='OK', $tips=''){
+    public static function wrapJsonApiData($rst, $code=0, $msg='OK', $tips=''){
         //header('Content-type: application/json');
         $r = array(
             'status'=>array(
@@ -354,10 +420,9 @@ class Csphp {
         self::$coreObjs['tpl']      = new CspTemplate();
         self::$coreObjs['validator']= new CspValidator();
     }
-    private function registerShutDown(){
-    }
+
     /**
-     * @param $appConfig
+     * @param $appConfig array
      */
     public static function createApp($appConfig=array()){
         self::$app = new self($appConfig);
@@ -592,9 +657,9 @@ class Csphp {
 
     /**
      * 四种日志记录 Debug info warning error
-     * @param $type 错误的类型，用于分类错误信息
-     * @param $msg
-     * @param $context  上下文字典信息，$msg 中的 {{keyname}} 会替换为 $context[keyname]
+     * @param $type string 错误的类型，用于分类错误信息
+     * @param $msg  string
+     * @param $context  array or null 上下文字典信息，$msg 中的 {{keyname}} 会替换为 $context[keyname]
      */
     public static function logDebug($type, $msg, $context=null){
         self::log()->logDebug($type, $msg, $context);
@@ -651,8 +716,8 @@ class Csphp {
 
     /**
      * 美化输出格式，用于调试
-     * @param null $data
-     * @param bool $isVarDump
+     * @param mixed $data
+     * @param bool  $isVarDump
      */
     public static function dump($data = null, $isVarDump = false, $isExit=true) {
 
@@ -721,9 +786,9 @@ class Csphp {
 
     /**
      * 触发一个事件
-     * @param $eventName        事件名
-     * @param null $data        事件相关的数据
-     * @param null $senderObj   事件发送者，对象
+     * @param $eventName        string 事件名
+     * @param null $data        mixed  事件相关的数据
+     * @param null $senderObj   classObj 事件发送者，对象
      */
     public static function fireEvent($eventName, $data=null, $senderObj=null){
         CspEvent::fire($eventName, $data, $senderObj);
@@ -731,8 +796,8 @@ class Csphp {
 
     /**
      * 监听某个事件
-     * @param $eventName                需要监听的事件名
-     * @param $eventListenerCallback    事件处理器，func($eventDdata, eventSender=null){}
+     * @param $eventName  string              需要监听的事件名
+     * @param $eventListenerCallback callable 事件处理器，func($eventDdata, eventSender=null){}
      */
     public static function on($eventName, $eventListenerCallback){
         CspEvent::on($eventName, $eventListenerCallback);
@@ -742,8 +807,8 @@ class Csphp {
     /**
      * alias for self::on
      * 监听某个事件
-     * @param $eventName                需要监听的事件名
-     * @param $eventListenerCallback    事件处理器，func($eventDdata, eventSender=null){}
+     * @param $eventName                string 需要监听的事件名
+     * @param $eventListenerCallback    callable 事件处理器，func($eventDdata, eventSender=null){}
      */
     public static function listen($eventName, $eventListenerCallback){
         CspEvent::on($eventName, $eventListenerCallback);
