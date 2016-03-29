@@ -165,7 +165,6 @@ class Csphp {
             if( is_array($comp['filter']) && !empty($comp['filter']) && self::request()->isMatch($comp['filter']) ) {
                 self::$componentsCfgData[$k] = $comp;;
             }
-
         }
 
         self::createAllComponents();
