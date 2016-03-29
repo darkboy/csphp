@@ -28,7 +28,8 @@ $appConfig = array(
     //路径别名配置
     'alias_path_config'=>array(
         //@aliasname=>path
-        '@demo'=>'@app/demo',
+        '@demo'=>'@cfg/demo',
+        '@myext'=>'@var:key/key2'
     ),
 
     //应用组件配置列表
@@ -48,7 +49,9 @@ $appConfig = array(
                 'host'=>'*.domain.com'
             ),
             //组件的配置选项字典列表，每个key将作来组件的属性被赋值
-            'options'=>array()
+            'options'=>array(
+
+            )
 
         ),
 

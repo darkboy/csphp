@@ -29,9 +29,9 @@ class CspResponse{
 
     public $httpVer  = '1.1';
 
-    public $httpCode = 200;
-    public $bodyStr  = '';
-    public $headers  = array();
+    private $httpCode = 200;
+    private $bodyStr  = '';
+    private $headers  = array();
 
     //是否已经发送送信息
     public $headersHadSend  = false;
