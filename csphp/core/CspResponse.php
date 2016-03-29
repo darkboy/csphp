@@ -21,7 +21,7 @@ use \Csphp;
  * Csphp::response()->sendAuth401($tips='请输入你的账号');
  * Csphp::response()->sendFile($file, $saveName=null, $contentType='application/octet-stream');
  *
- * 
+ *
  * @package Csp\core
  *
  */
