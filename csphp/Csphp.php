@@ -234,19 +234,19 @@ class Csphp {
      */
     public static function comp($compRoute, $opts=array(), $accessKey=null){
         if(func_num_args()==1){
-            if(isset(self::$componentObjs[$comRoute])){
 
-            }else{
-                return self::$componentObjs[$comRoute];
-            }
         }else{
-            if($accessKey===null){
-                $accessKey = $comRoute;
-            }
 
         }
     }
 
+    /**
+     * 获取当前的运行环境
+     * @return string
+     */
+    public static function getEnv(){
+        return CSPHP_ENV_TYPE;
+    }
     /**
      * 通过对象路由表达式，获取路径
      * @param $oRoute
@@ -256,7 +256,7 @@ class Csphp {
      *      c:\\xxxx    windows 下的 绝对路径
      *      user/index  默认为 app 路径下
      */
-    public static function getPathByRoute($oRoute){
+    public static function getPathByRoute($oRoute, $suffix=''){
         $oRoute = trim($oRoute);
         $oRoute = rtrim($oRoute, '/');
 
@@ -336,6 +336,32 @@ class Csphp {
             throw new CspException("Can not load file , Error fRoute  $oRoute after parse is  : ".$realRoute);
         }
         return require($realRoute);
+    }
+
+    /**
+     * 运行时加载应用的配置文件
+     * @param $cfgFirstKey
+     */
+    public static function loadAppConfig($cfgFirstKey){
+        if(isset(self::$appCfg[$cfgFirstKey])){
+            return self::$appCfg[$cfgFirstKey];
+        }
+        $cfgPath = self::$appCfg['app_cfg_path'];
+
+        $cfgFile = $cfgPath.'/'.$cfgFirstKey.'.cfg.php';
+
+        $cfgEnvFile = $cfgPath.'/'.self::getEnv().'/'.$cfgFirstKey.'.cfg.php';
+
+        if(!file_exists($cfgFile)){
+            if(!file_exists($cfgEnvFile)){
+                throw new CspException("Can not find cfg file for key {$cfgFirstKey} , file : ".$cfgFile);
+            }else{
+               $cfgFile = $cfgEnvFile;
+            }
+        }
+        self::$appCfg[$cfgFirstKey] = require($cfgFile);
+        return self::$appCfg[$cfgFirstKey];
+
     }
 
     /**
@@ -522,8 +548,17 @@ class Csphp {
             $inputCache['R'] = array_merge($_COOKIE, $_GET, $_POST);
         }
 
+        //还没有取过 头信息， 立即获取
         if($vType==='H' && !isset($inputCache['H'])){
             $inputCache['H'] = getallheaders();
+        }
+
+        //如果使用的是子配置文件 ，又还没有加载，则尝试加载
+        if($vType==='-' && !isset($inputCache['-'][$vKes[0]])){
+
+            $subCfg = self::loadFile('@cfg/'.$vKes[0]);
+            self::$appCfg[$vKes[0]] = $subCfg;
+
         }
 
         $v  = null;

@@ -8,7 +8,9 @@ $appConfig = array(
     'app_version' =>'20160301.01.xxxx',
 
     //应用的根目录
-    'app_base_path'=>dirname(__DIR__),
+    'app_base_path' =>dirname(__DIR__),
+    //应用配置目录
+    'app_cfg_path'  =>__DIR__,
     //应用命名空间
     'app_namespace'=>__NAMESPACE__,
 
@@ -25,11 +27,16 @@ $appConfig = array(
         'api'		=>'http://api.domain.com/',
 
     ),
+
     //路径别名配置
     'alias_path_config'=>array(
         //@aliasname=>path
         '@demo'=>'@cfg/demo',
-        '@myext'=>'@var:key/key2'
+    ),
+
+    'demo_for_file'=>array(
+
+        '@myext'=>'-:mysql'
     ),
 
     //应用组件配置列表
