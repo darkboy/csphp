@@ -146,12 +146,11 @@ class Csphp {
     public function run(){
         //初始化核心对象
         $this->initCoreObjs();
-        $this->registerShutDown();
         self::tmp();
     }
 
     /**
-     * 初始化所有的 组件链
+     * 初始化所有的 组件链, 检查过滤器，初始化 组件配置选项，执行 start 和 after 方法
      */
     private static function initComponentsChain($comps){
 
@@ -194,7 +193,7 @@ class Csphp {
     }
 
     /**
-     *
+     * 当一个组件对另一个组件有依赖时，可以把初始化工作放到 alfterStart 中，如果被依赖的组件
      */
     private static function allComponentsAfterStart(){
         foreach(self::$componentsCfgData as $k=>$compObj){
