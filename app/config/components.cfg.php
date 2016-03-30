@@ -8,6 +8,8 @@ return array(
     'access_key'=>array(
         //类对象路由
         'class' =>'@comp/demoComp',
+        //是否需要进行预 启动, 组件必须实现 start 方法
+        'start' =>false,
         //请求过滤器，在什么条件下使用该组件 !filter 则不在过滤中使用组件, 详见 过滤器描述
         'filter'=>array(
             //这条规则表示访问 /user/* 时启用这个组件
@@ -23,7 +25,7 @@ return array(
         )
 
     ),
-    //-------------#test
+    //-------------
 
 
 

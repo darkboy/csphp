@@ -1,5 +1,5 @@
 <?php
-namespace App;
+namespace App\config;
 //配置示例
 $appConfig = array(
     //应用名称
@@ -12,11 +12,11 @@ $appConfig = array(
     //应用配置目录
     'app_cfg_path'  =>__DIR__,
     //应用命名空间
-    'app_namespace' =>__NAMESPACE__,
+    'app_namespace' =>'App',
 
-    //在框架引导期间 会自动加载的目录或者文件，文件或者目录为key 值为加载的目录深度,如果加载目录为文件则后面的值无效，始终为 0
+    //在框架引导期间 会自动加载的目录或者文件 如果是一个目录，刚加载这个目录下的所有PHP文件
     'auto_include_path'=>array(
-        //fileOrDir=>level
+        //fileOrDir
     ),
 
     //路径别名配置

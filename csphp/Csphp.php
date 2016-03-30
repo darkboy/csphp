@@ -67,6 +67,7 @@ class Csphp {
      */
     private static $componentsPool = array();
 
+
     /**
      *
      * @var array
@@ -96,6 +97,7 @@ class Csphp {
         self::$coreRootPath = dirname(__FILE__);
         require_once self::$coreRootPath.'/CsphpAutoload.php';
 
+
         //load sys config
         self::$sysCfg = include(self::$coreRootPath.'/CspCfg.php');
         //ower write system config
@@ -106,6 +108,7 @@ class Csphp {
         }
 
         self::initAliasMap();
+        self::loadAutoloadFiles();
     }
 
     /**
@@ -117,29 +120,57 @@ class Csphp {
         $appRoot = self::appCfg('app_base_path');
         $sysRoot = self::sysCfg('system_base_path');
         $appNs   = self::appCfg('app_namespace');
+
+        //echo '<pre>';print_r($appNs);exit;
+
         self::$aliasMap['@app'] = array($appRoot,$appNs);
         self::$aliasMap['@sys'] = array($sysRoot,'\\Csp');
 
         self::$aliasMap['@comp']    = array($appRoot.'/components', $appNs.'\\components');
-        self::$aliasMap['@cfg']     = $appRoot.'/config';
-        self::$aliasMap['@ctrl']    = $appRoot.'/controlers';
-        self::$aliasMap['@ext']     = $appRoot.'/exts';
-        self::$aliasMap['@view']    = $appRoot.'/views';
-        self::$aliasMap['@tpl']     = $appRoot.'/views';
-        self::$aliasMap['@mod']     = $appRoot.'/models';
-        self::$aliasMap['@pub']     = $appRoot.'/../public';
-        self::$aliasMap['@log']     = $appRoot.'/var/log';
-        self::$aliasMap['@upload']  = $appRoot.'/../public/upload';
+        self::$aliasMap['@cfg']     = array($appRoot.'/config', $appNs);
+        self::$aliasMap['@ctrl']    = array($appRoot.'/controlers',$appNs.'\\controlers');
+        self::$aliasMap['@ext']     = array($appRoot.'/exts', $appNs.'\\exts');
+        self::$aliasMap['@view']    = array($appRoot.'/views',$appNs.'\\views');
+        self::$aliasMap['@tpl']     = array($appRoot.'/views',$appNs.'\\views');
+        self::$aliasMap['@mod']     = array($appRoot.'/models',$appNs.'\\models');
+        self::$aliasMap['@pub']     = array($appRoot.'/../public',$appNs);
+        self::$aliasMap['@log']     = array($appRoot.'/var/log',$appNs);
+        self::$aliasMap['@upload']  = array($appRoot.'/../public/upload',$appNs);
 
-        self::$aliasMap['@f-comp']  = $sysRoot.'/comp';
-        self::$aliasMap['@f-ext']   = $sysRoot.'/ext';
+        self::$aliasMap['@f-comp']  = array($sysRoot.'/comp','Csp\\comp');
+        self::$aliasMap['@f-ext']   = array($sysRoot.'/ext','Csp\\ext');
 
         //把用户定义的路径加载进来, 可以覆盖以上的内容路径
-        foreach(self::$appCfg['alias_path_config'] as $aliasName=>$pathTpl){
-            self::$aliasMap[$aliasName] = self::getPathByRoute($pathTpl);
+        foreach(self::$appCfg['alias_path_config'] as $aliasName=>$v){
+            $ns     = is_array($v) ? $v[1] : $appNs;
+            $path   = is_array($v) ? $v[0] : $v;
+            self::$aliasMap[$aliasName] = array( self::getPathByRoute($path), $ns );
         }
     }
 
+    //加载需要自动加载的文件
+    private static function loadAutoloadFiles(){
+        foreach (self::appCfg('auto_include_path',array()) as $path=>$level){
+            $realPath = self::getPathByRoute($path);
+            if(is_file($realPath)){
+                include ($realPath);
+            }else{
+                if(file_exists($realPath) && is_dir($realPath)){
+                    $realPath = rtrim($realPath, '\\/');
+
+                    $pathArr = glob($realPath.'/*.php');
+                    if(is_array($pathArr)){
+                        foreach($pathArr as $f){
+                            require_once($f);
+                        }
+                    }
+
+                }else{
+                    throw new CspException("Error config: auto_include_path path : [$path => $realPath ] ");
+                }
+            }
+        }
+    }
     /**
      * start a applatection
      */
@@ -155,90 +186,51 @@ class Csphp {
     private static function initComponentsChain($comps){
 
         //后加载 sys 组件 ，如果 access_key 有冲突,则以 sys 为准
-        foreach(self::$appCfg['components'] as $k=>$comp){
-            if( is_array($comp['filter']) && !empty($comp['filter']) && self::request()->isMatch($comp['filter']) ) {
-                self::$componentsCfgData[$k] = $comp;;
+        foreach(self::appCfg(['components'],array()) as $accessKey=>$comp){
+            if( isset($comp['filter']) && !empty($comp['filter']) &&  is_array($comp['filter']) && self::request()->isMatch($comp['filter']) ) {
+                self::$componentsCfgData[$accessKey] = $comp;;
             }
         }
-        foreach(self::$sysCfg['components'] as $k=>$comp){
-            if( is_array($comp['filter']) && !empty($comp['filter']) && self::request()->isMatch($comp['filter']) ) {
-                self::$componentsCfgData[$k] = $comp;;
+        foreach(self::sysCfg(['components'],array()) as $accessKey=>$comp){
+            if( isset($comp['filter']) && !empty($comp['filter']) && is_array($comp['filter']) && self::request()->isMatch($comp['filter']) ) {
+                self::$componentsCfgData[$accessKey] = $comp;;
             }
         }
-
-        self::createAllComponents();
-        self::allComponentsStart();
-        self::allComponentsAfterStart();
     }
 
     /**
-     * 创建所有的组件对象
+     * @param string $accessKey
+     * @return component obj
      */
-    private static function createAllComponents(){
-        foreach(self::$componentsCfgData as $k=>$comp){
-            self::$componentsPool[$k] = self::newClass($comp['class'], $comp['options'], false);
+    public static function comp($accessKey){
+        //已经初始化过的 组件 直接返回
+        if(isset(self::$componentsPool[$accessKey])){
+            return self::$componentsPool[$accessKey];
         }
+
+        //未初始化的组件，尝试查找配置
+        $k = 'components/'.$accessKey;
+        $compCfg = self::sysCfg($k,  self::appCfg($k, null) );
+        if(!is_array($compCfg)){
+            throw new CspException("Error config, can not find component config by access_key : [$accessKey] ");
+        }
+        return self::createComponent($compCfg);
+
     }
 
     /**
+     * 创建并初始化一个组件
      *
-     */
-    private static function allComponentsStart(){
-        foreach(self::$componentsCfgData as $k=>$compObj){
-            $startRet = $compObj->start();
-            if(!$startRet){
-                throw new CspException("Component [ $k ] start fail. ".$compObj->getErrorMsg());
-            }
-        }
-    }
-
-    /**
-     * 当一个组件对另一个组件有依赖时，可以把初始化工作放到 alfterStart 中，如果被依赖的组件
-     */
-    private static function allComponentsAfterStart(){
-        foreach(self::$componentsCfgData as $k=>$compObj){
-            $afterStartRet = $compObj->afterStart();
-            if(!$afterStartRet){
-                throw new CspException("Component [ $k ] start fail. ".$compObj->getErrorMsg());
-            }
-        }
-    }
-
-    /**
-     * @param $accessKey
-     * @param $oRoute
+     * @param string $accessKey
+     * @param null $oRoute
      * @param array $opts
      * @param array $filter
      */
-    public static function registerComponent($accessKey, $oRoute, $opts=array(),$filter=array()){
+    public static function createComponent($compConfig){
 
     }
 
 
-
-        /**
-     * 传递一个参数时，为直接引用对象，传弟2-3个参数时，为初始化组件
-     * Csphp::comp($comRoute, $cfg, $accessKey='')->anyMethod();
-     * $cfg['components']=array(
-            //这个key是访问名称
-            'access_key'=> array(
-                'filter'=>$requestFilter,//什么条件下加载组件
-                //对象定位路由,可以定位组件对象
-                'comp'  =>$fRoute,
-                //组合配置字典 中的每一项都将设置为组件的属性 即 comp->cfgname = $value
-                'cfg'   =>array(
-                    'cfgname'=>$value
-                )
-        )
-        );
-     */
-    public static function comp($compRoute, $opts=array(), $accessKey=null){
-        if(func_num_args()==1){
-
-        }else{
-
-        }
-    }
 
     /**
      * 获取当前的运行环境
@@ -287,7 +279,7 @@ class Csphp {
     public static function getNamespaceByRoute($oRoute){
         $oRoute = trim($oRoute);
         $oRoute = rtrim($oRoute, '/\\');
-
+        $oRoute = str_replace('/', '\\', $oRoute);
         $firstChar = substr($oRoute,0,1);
         if($firstChar==='@'){
             $rs = explode('\\', $oRoute);
@@ -309,7 +301,11 @@ class Csphp {
      */
     public static function getPathByAlias($aliasName){
         $aliasName = trim($aliasName);
-        return self::$aliasMap[$aliasName][0];
+        if( is_array(self::$aliasMap[$aliasName]) && isset(self::$aliasMap[$aliasName][0]) ){
+            return self::$aliasMap[$aliasName][0];
+        }else{
+            throw new CspException('Error alias name '.$aliasName.' config ');
+        }
     }
 
     /**
@@ -319,7 +315,11 @@ class Csphp {
      */
     public static function getNamespaceByAlias($aliasName){
         $aliasName = trim($aliasName);
-        return self::$aliasMap[$aliasName][1];
+        if( is_array(self::$aliasMap[$aliasName]) && isset(self::$aliasMap[$aliasName][1]) ){
+            return self::$aliasMap[$aliasName][1];
+        }else{
+            throw new CspException('Error alias name '.$aliasName.' config ');
+        }
     }
 
     /**
@@ -341,6 +341,7 @@ class Csphp {
     /**
      * 运行时加载应用的配置文件
      * @param $cfgFirstKey
+     * @return  array
      */
     public static function loadAppConfig($cfgFirstKey){
         if(isset(self::$appCfg[$cfgFirstKey])){
@@ -354,7 +355,7 @@ class Csphp {
 
         if(!file_exists($cfgFile)){
             if(!file_exists($cfgEnvFile)){
-                throw new CspException("Can not find cfg file for key {$cfgFirstKey} , file : ".$cfgFile);
+                throw new CspException("Can not find cfg file for key {$cfgFirstKey} , file : ".$cfgFile.' And '.$cfgEnvFile);
             }else{
                $cfgFile = $cfgEnvFile;
             }
@@ -365,13 +366,62 @@ class Csphp {
     }
 
     /**
-     * 实例化一个对象
-     * @param $oRoute
-     * @param null $cfg
+     * @param $obj
+     * @param null $options
      */
-    public static function newClass($oRoute, $cfg=null, $isSingleton=true){
+    public static function initObjectOptions($obj, $options=null){
+        if(!empty($options) && is_array($options)){
+            foreach ($options as $k=>$v){
+                $obj->$k = $v;
+            }
+        }
+        return $obj;
+    }
+    /**
+     * 实例化一个对象
+     * @param $oRoute mixed 可以是如下值的一个
+     *          实际的类名字符串，如： App\controlers\index
+     *          一个对象，当传递一个对象时，实际上只进行 $opts 的属性赋值
+     * @param array $opts
+     * @return object
+     */
+    public static function newClass($oRoute, $opts=array(), $isSingleton=true){
         static $objs = array();
-        $realNamespace = self::getNamespaceByRoute($oRoute);
+
+        $staticsKey = null;
+        if(is_string($oRoute)){
+            $staticsKey = $oRoute;
+            if(isset($objs[$staticsKey]) && $isSingleton){
+                return $objs[$staticsKey];
+            }
+            //获取类名
+            $realNamespace = self::getNamespaceByRoute($oRoute);
+
+            if(!class_exists($realNamespace)){
+                throw new CspException("Error class oRoute, can not find calss {$oRoute} => {$realNamespace} ");
+            }
+
+            if($isSingleton){
+                $objs[$staticsKey] = self::initObjectOptions(new $realNamespace(), $opts);
+                return $objs[$staticsKey];
+            }else{
+                return self::initObjectOptions(new $realNamespace(), $opts);
+            }
+
+        }else{
+            if(is_object($oRoute)){
+                $staticsKey = get_class($oRoute);
+                if($staticsKey=='Closure'){
+                    throw new CspException("Error class oRoute, can not be Closure");
+                }else{
+                    return self::initObjectOptions($oRoute, $opts);
+                }
+            }else{
+                throw new CspException("Error class oRoute, unknow type");
+            }
+        }
+
+
         if($isSingleton){
             if(isset($objs[$oRoute])){
                 return $objs[$oRoute];
@@ -521,13 +571,12 @@ class Csphp {
         $vr = trim($vr, ' /');
 
         if(isset($vCache[$vr])){
-            return $vCache;
+            return $vCache[$vr];
         }
 
         //检查变更路由 的合法性
         if ( !preg_match("#^([gpcrfsehv-])(?::(.+))?\$#sim",$vr,$m) ){
             throw new CspException("Can't parse var from vRoute: {$vr} ");
-            return NULL;
         }
 
         //提取变量的类型 即第一个字符
@@ -555,10 +604,7 @@ class Csphp {
 
         //如果使用的是子配置文件 ，又还没有加载，则尝试加载
         if($vType==='-' && !isset($inputCache['-'][$vKes[0]])){
-
-            $subCfg = self::loadFile('@cfg/'.$vKes[0]);
-            self::$appCfg[$vKes[0]] = $subCfg;
-
+            $subCfg = self::loadAppConfig($vKes[0]);
         }
 
         $v  = null;
@@ -591,6 +637,7 @@ class Csphp {
         }else{
             $voidInfo = CspValidator::getVoidInfo($vPath, $tips);
             if($errHandle){
+                //todo 替换为 内部扩展的 call_user_function
                 if(!is_callable($errHandle)){
                     throw new CspException('Param errHandle is not callable: '.json_encode($errHandle), 10000);
                 }
@@ -789,7 +836,18 @@ class Csphp {
      */
     public static function sysCfg($k, $def=null){
         $vKeys = explode('/', $k);
-        return isset(self::$sysCfg[$k]) ? self::$sysCfg[$k] : $def ;
+        switch(count($vKeys)){
+            case 1:
+                return isset(self::$sysCfg[$k]) ? self::$sysCfg[$k] : $def ;
+            case 2:
+                return isset(self::$sysCfg[$k][$vKeys[1]]) ? self::$sysCfg[$k][$vKeys[1]] : $def;
+            case 3:
+                return isset(self::$sysCfg[$k][$vKeys[1]][$vKeys[2]]) ? self::$sysCfg[$k][$vKeys[1]][$vKeys[2]] : $def;
+            case 4:
+                return isset(self::$sysCfg[$k][$vKeys[1]][$vKeys[2]][$vKeys[3]]) ? self::$sysCfg[$k][$vKeys[1]][$vKeys[2]][$vKeys[3]] : $def;
+
+        }
+        return null ;
     }
     /**
      * get app cfg
@@ -847,13 +905,14 @@ class Csphp {
         CspEvent::on($eventName, $eventListenerCallback);
     }
 
-    public function cls(){}
-
-
     public static function tmp(){
-        if(!isset($_SERVER['PHP_AUTH_PW'])){
-            Csphp::response()->sendAuth401();
-        }
-        echo '<pre>';print_r($_SERVER);
+
+        echo '<pre>';
+        //var_dump(self::appCfg('app_namespace'));exit;
+        //var_dump(self::getNamespaceByRoute('@ctrl/api/index'));
+        var_dump(self::newClass('@ctrl/api/index',array('var'=>'yxh')));
+        var_dump(self::newClass('@ctrl/api/index',array('var'=>'yxh2')));
+        var_dump(self::newClass('@ctrl/api/index',array('var'=>'yxh2'), false));
+        //print_r($_SERVER);
     }
 }
