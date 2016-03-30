@@ -1,7 +1,7 @@
 <?php
 namespace Csp\core;
-use \Csphp as Csphp;
-use Csp\core\CspRouter as CspRouter;
+use \Csphp;
+use Csp\core\CspRouter;
 class CspRequest{
     //请求类型
     const REQ_TYPE_WEB  = 'web';
@@ -141,6 +141,10 @@ class CspRequest{
      */
     public function getHost(){
         return $this->isCli() ? 'cli' : $_SERVER['HTTP_HOST'];
+    }
+
+    public function getQueryString(){
+        return $this->isCli() ? 'cli' : $_SERVER['QUERY_STRING'];
     }
 
     /**

@@ -176,7 +176,11 @@ class Csphp {
      */
     public function run(){
         //初始化核心对象
-        $this->initCoreObjs();
+        self::initCoreObjs();
+        //self::request()->parseRoute();
+        //self::router()->getAction();
+        //self::doFilters();
+
         self::tmp();
     }
 
@@ -487,7 +491,7 @@ class Csphp {
     /**
      *init core objs
      */
-    private function initCoreObjs(){
+    private static function initCoreObjs(){
         self::$coreObjs['request']  = new CspRequest();
         self::$coreObjs['response'] = new CspResponse();
         self::$coreObjs['log']      = new CspLog();
@@ -582,7 +586,7 @@ class Csphp {
         //提取变量的类型 即第一个字符
         $vType = strtoupper(substr($vr,0,1));
         //提取变量的路径，即第3个字符之后
-        $vPath= substr($vr,2);
+        $vPath= substr($vr, 2);
         $vKes = explode('/', $vPath);
         //初始化所有输入
         if(empty($inputCache)){
@@ -600,6 +604,11 @@ class Csphp {
         //还没有取过 头信息， 立即获取
         if($vType==='H' && !isset($inputCache['H'])){
             $inputCache['H'] = getallheaders();
+        }
+
+        //还没有取过 路由变量信息， 立即获取
+        if($vType==='V' && !isset($inputCache['V'])){
+            $inputCache['H'] = self::router()->getRouteVars();
         }
 
         //如果使用的是子配置文件 ，又还没有加载，则尝试加载
@@ -910,9 +919,9 @@ class Csphp {
         echo '<pre>';
         //var_dump(self::appCfg('app_namespace'));exit;
         //var_dump(self::getNamespaceByRoute('@ctrl/api/index'));
-        var_dump(self::newClass('@ctrl/api/index',array('var'=>'yxh')));
-        var_dump(self::newClass('@ctrl/api/index',array('var'=>'yxh2')));
-        var_dump(self::newClass('@ctrl/api/index',array('var'=>'yxh2'), false));
-        //print_r($_SERVER);
+        //var_dump(self::newClass('@ctrl/api/index',array('var'=>'yxh')));
+        //var_dump(self::newClass('@ctrl/api/index',array('var'=>'yxh2')));
+        //var_dump(self::newClass('@ctrl/api/index',array('var'=>'yxh2'), false));
+        print_r($_SERVER);
     }
 }
