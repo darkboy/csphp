@@ -263,7 +263,7 @@ class CspRequest{
      *
      * 注: 被检查路由什不包括 前后 /
      *
-     * @param $requestFilter 请求 过滤器 描述字典 配置规则如下
+     * @param $requestFilter array 请求 过滤器 描述字典 配置规则如下
      *
      *  filterName  =>filterCfg     表示正过滤器
      *  !filterName =>filterCfg     在过滤器名前加 ! 号，将以上面逻辑相反，反过滤器
@@ -339,7 +339,8 @@ class CspRequest{
     /**
      * 检查当前的请求域名
      *
-     * @param $filterArg 配置项可以是 逗号隔开的 域名列表，或者数组，可以使用通配符如  *.abc.com
+     * @param $filterArg string 配置项可以是 逗号隔开的 域名列表，或者数组，可以使用通配符如  *.abc.com
+     * @return bool
      */
     private function __rcf__domain($filterArg){
         $host = $this->getHost();
@@ -356,7 +357,8 @@ class CspRequest{
 
     /**
      * IP 过滤器，符合条件时返回 true
-     * @param $filterArg 为IP 列表表达式如： "133.14.11.[1-28],133.22.22.222,111.234.222.*,133.14.11.33/34/38";
+     * @param $filterArg string 为IP 列表表达式如： "133.14.11.[1-28],133.22.22.222,111.234.222.*,133.14.11.33/34/38";
+     * @return bool
      */
     private function __rcf__ip($filterArg){
         return $this->isInIpList($filterArg, $this->getClientIp());
@@ -365,7 +367,7 @@ class CspRequest{
     /**
      * requestType 过滤器
      *
-     * @param $filterArg 配置值可以是 逗号隔开的 requestType，或者数组 如 “api,jsonp”
+     * @param $filterArg string 配置值可以是 逗号隔开的 requestType，或者数组 如 “api,jsonp”
      * @return bool
      */
     private function __rcf__requestType($filterArg){
@@ -380,7 +382,7 @@ class CspRequest{
      *
      * 检查请求是否从特定的入口进入，必须先在入口文件中配置 CSPHP_ENTRYNAME 常量
      *
-     * @param $filterArg 配置值可以是 逗号隔开的 入口名，或者数组 如 “home,admin”
+     * @param $filterArg string 配置值可以是 逗号隔开的 入口名，或者数组 如 “home,admin”
      * @return bool
      * @throws \Csp\core\CspException
      */
@@ -393,14 +395,13 @@ class CspRequest{
         }else{
             throw new CspException("Use  entryName filter , pls define CSPHP_ENTRYNAME const ");
         }
-        return false;
     }
 
     /**
      * 运行环境过滤器
      * 检查当前请求是否在 特定的运行环境中，必须先在入口文件中配置 CSPHP_ENV_TYPE 常量
      *
-     * @param $filterArg 配置值可以是 逗号隔开的 环境名，或者数组 如 “dev,test,prod”
+     * @param $filterArg string 配置值可以是 逗号隔开的 环境名，或者数组 如 “dev,test,prod”
      * @return bool
      * @throws \Csp\core\CspException
      */
@@ -413,7 +414,6 @@ class CspRequest{
         }else{
             throw new CspException("Use  env filter , pls define CSPHP_ENV_TYPE const ");
         }
-        return false;
     }
 
 
@@ -421,7 +421,7 @@ class CspRequest{
      * httpMethod 过滤器
      * 配置值可以是 逗号隔开的 HTTP方法值，或者数组 如 “GET，POST” or array("GET","DELETE")
      *
-     * @param $filterArg
+     * @param $filterArg string
      * @return bool
      */
     private function __rcf__httpMethod($filterArg){
@@ -433,7 +433,7 @@ class CspRequest{
 
     /**
      * 前缀过滤器，
-     * @param $filterArg 可以是一个 逗号隔开的前缀列表，或者 数组
+     * @param $filterArg string 可以是一个 逗号隔开的前缀列表，或者 数组
      * @return bool
      */
     private function __rcf__urlPrefix($filterArg){
@@ -452,7 +452,7 @@ class CspRequest{
 
     /**
      * 后缀过滤器
-     * @param $filterArg 可以是一个 逗号隔开的后缀列表，或者 数组
+     * @param $filterArg string 可以是一个 逗号隔开的后缀列表，或者 数组
      * @return bool
      */
     private function __rcf__urlSuffix($filterArg){
@@ -471,8 +471,9 @@ class CspRequest{
 
     /**
      * glob 模式过滤器
-     * @param $fileArg  可以是用逗号隔开的 路由列表，或者数组，
+     * @param $fileArg  string 可以是用逗号隔开的 路由列表，或者数组，
      *      如 “user/*,post/create” 或者 array("user/*", "post/create")
+     * @return bool
      */
     private function __rcf__match($fileArg){
         return $this->isRouteInlist($this->getReqRoute(), $fileArg);
@@ -481,7 +482,8 @@ class CspRequest{
     /**
      * 正则过滤器
      * match 正刚过滤器的配置项为 , 被检查的是当前请求路由 不包含前后 /
-     * @param $fileArg 正则表达式,或者正则表达式数组，符合一条即可
+     * @param $fileArg string 正则表达式,或者正则表达式数组，符合一条即可
+     * @return bool
      */
     private function __rcf__regexp($fileArg){
         if(!is_array($fileArg)){
@@ -524,7 +526,7 @@ class CspRequest{
 
     /**
      * 输入验证过滤器，需要所有输入都符合要求
-     * @param $filterArg 配置规则见 self::__rcf_chkValue
+     * @param $filterArg array 配置规则见 self::__rcf_chkValue
      */
     private function __rcf__inputAll($filterArg){
         foreach($filterArg as $rule){
@@ -537,9 +539,9 @@ class CspRequest{
 
     /**
      * 检查一个变量是否符合某个规则
-     * @param $vr               变量路由
-     * @param null $valOrRule   变量值 或者 规则
-     * @param string $op        操作符可能是 == != >= <= > < regexp any ci
+     * @param $vr               string 变量路由
+     * @param null $valOrRule   string 变量值 或者 规则
+     * @param string $op        string 操作符可能是 == != >= <= > < regexp any ci
      *
      */
     private function __rcf_chkValue($vr, $valOrRule=null, $op='any'){
@@ -577,12 +579,11 @@ class CspRequest{
                 throw new CspException("Error filter config for input checker : ".json_encode(array($vr, $valOrRule, $op)));
                 break;
         }
-        return false;
     }
     /**
      * 用户自定义的过滤器
      *
-     * @param $filterArg 闭包或者 callable callback 如： function (CspRequest){}
+     * @param $filterArg callable 闭包或者 callable callback 如： function (CspRequest){}
      */
     private function __rcf__userFounder($filterArg){
 
@@ -596,12 +597,11 @@ class CspRequest{
             }
         }
 
-        return false;
     }
     /**
      * 注册请求检查器，用于查找符合条件的 请求，可配置在 reqCondFilter 的 userFounder 字段
-     * @param $founderName
-     * @param $founderFunc  查找逻辑的 闭包 或者  callable ，
+     * @param $founderName  string
+     * @param $founderFunc  callable 查找逻辑的 闭包 或者  callable ，
      */
     public function registerFounder($founderName, $founderFunc){
         self::$reqFounderFunc[$founderName] = $founderFunc;
@@ -609,8 +609,8 @@ class CspRequest{
 
     /**
      * 检查是否在IP列表
-     * @param $ipList = "133.14.11.[1-28],133.22.22.222,111.234.222.*,133.14.11.33/34/38";
-     * @param null $ip  被检查的 IP 或者自动从系统取
+     * @param string $ipList = "133.14.11.[1-28],133.22.22.222,111.234.222.*,133.14.11.33/34/38";
+     * @param string $ip  被检查的 IP 或者自动从系统取
      * @return bool
      */
     public function isInIpList($ipList, $ip=null){
@@ -664,8 +664,8 @@ class CspRequest{
 
     /**
      *
-     * @param $routeName
-     * @param $list     逗号隔开的 路由列表，或者数组，每一项将使用 fnmatch 检查
+     * @param $routeName    string
+     * @param $list         string 逗号隔开的 路由列表，或者数组，每一项将使用 fnmatch 检查
      * @return bool
      */
     public function isRouteInlist($routeName, $list){
