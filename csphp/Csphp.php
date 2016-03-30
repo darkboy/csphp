@@ -45,6 +45,7 @@ class Csphp {
     //挂载的 核心 对象
     private static $coreObjs = array(
         'request'   =>null,
+        'router'    =>null,
         'response'  =>null,
         'log'       =>null,
         'validator' =>null,
@@ -424,19 +425,6 @@ class Csphp {
                 throw new CspException("Error class oRoute, unknow type");
             }
         }
-
-
-        if($isSingleton){
-            if(isset($objs[$oRoute])){
-                return $objs[$oRoute];
-            }else{
-
-            }
-
-        }else{
-
-        }
-
     }
     public static function ctrl($route, $cfg=null, $isSingleton=true){
         $route = ltrim($route, ' /');
@@ -493,6 +481,7 @@ class Csphp {
      */
     private static function initCoreObjs(){
         self::$coreObjs['request']  = new CspRequest();
+        self::$coreObjs['router']   = new CspRouter();
         self::$coreObjs['response'] = new CspResponse();
         self::$coreObjs['log']      = new CspLog();
         self::$coreObjs['tpl']      = new CspTemplate();
@@ -529,7 +518,7 @@ class Csphp {
      * @return CspRouter
      */
     public static function router(){
-        return self::request()->router();
+        return self::$coreObjs['router'];;
     }
 
 

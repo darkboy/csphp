@@ -9,18 +9,15 @@ class CspRequest{
     const REQ_TYPE_JSONP= 'jsonp';
     const REQ_TYPE_API  = 'api';
     const REQ_TYPE_CLI  = 'cli';
-    // request type is one of up const
+
+    // request type is one of web api ajax jsonp cli
     public static  $reqType = null;
+
     //用户自定义的用于查找请求的方法 name=>func($req)
     public static $reqFounderFunc = array();
 
-    /**
-     * @var \Csp\core\CspRouter
-     */
-    public $router = null;
 
     public function __construct(){
-        $this->router = new CspRouter();
         $this->init();
     }
 
@@ -28,7 +25,7 @@ class CspRequest{
      * @return \Csp\core\CspRouter
      */
     public function router(){
-        return $this->router;
+        return Csphp::router();
     }
 
     /**
@@ -36,21 +33,11 @@ class CspRequest{
      * init request
      */
     public function init(){
-
-        $this->initRouterInfo();
-
         $this->getRequestType();
-
         $this->initParamErrorHandle();
-
     }
 
-    /**
-     * 简单初始化路由信息，
-     */
-    public function initRouterInfo(){
 
-    }
 
     /**
      * 初始化默认的参数错误处理函数
