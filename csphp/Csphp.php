@@ -85,6 +85,37 @@ class Csphp {
     }
 
     /**
+     * @param $appConfig array
+     */
+    public static function createApp($appConfig=array()){
+        self::$app = new self($appConfig);
+        return self::$app;
+    }
+
+    /**
+     * start a applatection
+     */
+    public function run(){
+        //初始化核心对象
+        self::initCoreObjs();
+        //初始化别名配置
+        self::initAliasMap();
+        //导入用户定义的文件
+        self::loadAutoloadFiles();
+        //初始化请求信息
+        self::request()->init();
+        //解释路由信息
+        self::router()->parseRoute();
+        //初始化组件
+        self::initComponents();
+
+        //self::router()->getAction();
+        //self::doFilters();
+
+        self::tmp();
+    }
+
+    /**
      * 初始化应用 与 系统配置
      * @param $appCfg
      */
@@ -96,7 +127,7 @@ class Csphp {
         }
 
         self::$coreRootPath = dirname(__FILE__);
-        require_once self::$coreRootPath.'/CsphpAutoload.php';
+        require_once(self::$coreRootPath.'/CsphpAutoload.php');
 
 
         //load sys config
@@ -107,10 +138,9 @@ class Csphp {
                 self::$sysCfg[$k] = $v;
             }
         }
-
-        self::initAliasMap();
-        self::loadAutoloadFiles();
     }
+
+
 
     /**
      * 初始化系统路径别名,所有路径 不以 / 结尾， 命名空间不以 \ 结尾
@@ -149,46 +179,10 @@ class Csphp {
         }
     }
 
-    //加载需要自动加载的文件
-    private static function loadAutoloadFiles(){
-        foreach (self::appCfg('auto_include_path',array()) as $path=>$level){
-            $realPath = self::getPathByRoute($path);
-            if(is_file($realPath)){
-                include ($realPath);
-            }else{
-                if(file_exists($realPath) && is_dir($realPath)){
-                    $realPath = rtrim($realPath, '\\/');
-
-                    $pathArr = glob($realPath.'/*.php');
-                    if(is_array($pathArr)){
-                        foreach($pathArr as $f){
-                            require_once($f);
-                        }
-                    }
-
-                }else{
-                    throw new CspException("Error config: auto_include_path path : [$path => $realPath ] ");
-                }
-            }
-        }
-    }
     /**
-     * start a applatection
+     * 初始化所有的 组件, 检查过滤器，初始化 组件配置选项，执行 start
      */
-    public function run(){
-        //初始化核心对象
-        self::initCoreObjs();
-        //self::request()->parseRoute();
-        //self::router()->getAction();
-        //self::doFilters();
-
-        self::tmp();
-    }
-
-    /**
-     * 初始化所有的 组件链, 检查过滤器，初始化 组件配置选项，执行 start 和 after 方法
-     */
-    private static function initComponentsChain($comps){
+    private static function initComponents(){
 
         //后加载 sys 组件 ，如果 access_key 有冲突,则以 sys 为准
         foreach(self::appCfg(['components'],array()) as $accessKey=>$comp){
@@ -205,7 +199,7 @@ class Csphp {
 
     /**
      * @param string $accessKey
-     * @return component obj
+     * @return  object
      */
     public static function comp($accessKey){
         //已经初始化过的 组件 直接返回
@@ -235,7 +229,32 @@ class Csphp {
 
     }
 
+    /**
+     * 加载应用配置中指定的需要自动加载的文件
+     * @throws \Csp\core\CspException
+     */
+    private static function loadAutoloadFiles(){
+        foreach (self::appCfg('auto_include_path',array()) as $path=>$level){
+            $realPath = self::getPathByRoute($path);
+            if(is_file($realPath)){
+                include ($realPath);
+            }else{
+                if(file_exists($realPath) && is_dir($realPath)){
+                    $realPath = rtrim($realPath, '\\/');
 
+                    $pathArr = glob($realPath.'/*.php');
+                    if(is_array($pathArr)){
+                        foreach($pathArr as $f){
+                            require_once($f);
+                        }
+                    }
+
+                }else{
+                    throw new CspException("Error config: auto_include_path path : [$path => $realPath ] ");
+                }
+            }
+        }
+    }
 
     /**
      * 获取当前的运行环境
@@ -302,7 +321,8 @@ class Csphp {
 
     /**
      * 返回 别名 的实际路径
-     * @param $aliasName string 以 @ 开头的别名字符串
+     * @param $aliasName string 以 @开头的别名字符串
+     * @return string
      */
     public static function getPathByAlias($aliasName){
         $aliasName = trim($aliasName);
@@ -315,7 +335,7 @@ class Csphp {
 
     /**
      * 获取别名 对应的 命名空间 前缀 不包含最后的 \
-     * @param $aliasName string 以 @ 开头的别名字符串
+     * @param $aliasName string 以 @开头的别名字符串
      * @return mixed
      */
     public static function getNamespaceByAlias($aliasName){
@@ -488,13 +508,7 @@ class Csphp {
         self::$coreObjs['validator']= new CspValidator();
     }
 
-    /**
-     * @param $appConfig array
-     */
-    public static function createApp($appConfig=array()){
-        self::$app = new self($appConfig);
-        return self::$app;
-    }
+
 
     /**
      * @return Csphp

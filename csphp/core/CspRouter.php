@@ -81,8 +81,12 @@ class CspRouter{
      * 解释当前请求 路由
      */
     public function parseRoute(){
-        $this->parseUrl();
-        $this->findRoute();
+        if(Csphp::request()->isCli()){
+            $this->parseCli();
+        }else{
+            $this->parseUrl();
+            $this->findRoute();
+        }
     }
 
     /**

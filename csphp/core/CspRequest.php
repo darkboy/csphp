@@ -18,7 +18,6 @@ class CspRequest{
 
 
     public function __construct(){
-        $this->init();
     }
 
     /**
