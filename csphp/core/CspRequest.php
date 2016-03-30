@@ -299,6 +299,9 @@ class CspRequest{
      * return bool 是否通过验证器检查
      */
     public function isMatch($requestFilter){
+        if(empty($requestFilter)){
+            return true;
+        }
         foreach($requestFilter as $filterName=>$filterArg){
             //skip empty config
             if(is_numeric($filterName) && empty($filterArg)){continue;}

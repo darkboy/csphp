@@ -114,6 +114,12 @@ class Csphp {
 
         self::tmp();
     }
+    /**
+     * 应用退出
+     */
+    public static function exitApp(){
+        self::response()->send();
+    }
 
     /**
      * 初始化应用 与 系统配置
@@ -183,21 +189,36 @@ class Csphp {
      * 初始化所有的 组件, 检查过滤器，初始化 组件配置选项，执行 start
      */
     private static function initComponents(){
-
+        self::initComponentsByCfg( self::appCfg(['components'], array()) );
         //后加载 sys 组件 ，如果 access_key 有冲突,则以 sys 为准
-        foreach(self::appCfg(['components'],array()) as $accessKey=>$comp){
-            if( isset($comp['filter']) && !empty($comp['filter']) &&  is_array($comp['filter']) && self::request()->isMatch($comp['filter']) ) {
-                self::$componentsCfgData[$accessKey] = $comp;;
-            }
-        }
-        foreach(self::sysCfg(['components'],array()) as $accessKey=>$comp){
-            if( isset($comp['filter']) && !empty($comp['filter']) && is_array($comp['filter']) && self::request()->isMatch($comp['filter']) ) {
-                self::$componentsCfgData[$accessKey] = $comp;;
-            }
-        }
+        self::initComponentsByCfg( self::sysCfg(['components'], array()) );
     }
 
     /**
+     * 通过配置数据初始化组件
+     *
+     * @param $compCfgArr   array ,组件配置数组，如 -:components
+     * @return bool
+     * @throws \Csp\core\CspException
+     */
+    private static function initComponentsByCfg($compCfgArr){
+        //检查应用中的
+        foreach($compCfgArr as $accessKey=>$comp){
+            if( isset($comp['start']) && $comp['start'] ) {
+                $needStart = true;
+                if(isset($comp['filter']) && !empty($comp['filter'])){
+                    $needStart = self::request()->isMatch($comp['filter']);
+                }
+                if($needStart){
+                    self::createComponent($accessKey, $comp);
+                }
+            }
+        }
+        return true;
+    }
+
+
+        /**
      * @param string $accessKey
      * @return  object
      */
@@ -213,7 +234,7 @@ class Csphp {
         if(!is_array($compCfg)){
             throw new CspException("Error config, can not find component config by access_key : [$accessKey] ");
         }
-        return self::createComponent($compCfg);
+        return self::createComponent($accessKey, $compCfg);
 
     }
 
@@ -225,8 +246,16 @@ class Csphp {
      * @param array $opts
      * @param array $filter
      */
-    public static function createComponent($compConfig){
-
+    public static function createComponent($accessKey, $compCfg){
+        if(!is_array($compCfg)){
+            throw new CspException("Error config, can not find component config by access_key : [$accessKey] ");
+        }
+        self::$componentsPool[$accessKey] = self::newClass($compCfg['class'], $compCfg['options'], false);
+        //如果配置为自动启动的组件 则执行 start 方法
+        if(isset($compCfg['start']) && $compCfg['start']){
+            self::$componentsPool[$accessKey]->start();
+        }
+        return self::$componentsPool[$accessKey];
     }
 
     /**
@@ -446,27 +475,21 @@ class Csphp {
             }
         }
     }
+
     public static function ctrl($route, $cfg=null, $isSingleton=true){
         $route = ltrim($route, ' /');
         return self::newClass('@ctrl/'.$route, $cfg, $isSingleton);
     }
+
     public static function mod($route, $cfg=null, $isSingleton=true){
         $route = ltrim($route, ' /');
         return self::newClass('@mod/'.$route, $cfg, $isSingleton);
     }
+
     public static function ext($route, $cfg=null, $isSingleton=true){
         $route = ltrim($route, ' /');
         return self::newClass('@ext/'.$route, $cfg, $isSingleton);
     }
-
-    /**
-     * 应用退出
-     */
-    public static function exitApp(){
-        self::app()->response()->send();
-    }
-
-
 
     /**
      * 统一规范 rest 接口，ajax ,以及 jsonp 接口 数据格式
