@@ -93,7 +93,7 @@ class Csphp {
     }
 
     /**
-     * start a applatection
+     * start applatection
      */
     public function run(){
         //初始化核心对象
@@ -104,6 +104,8 @@ class Csphp {
         self::loadAutoloadFiles();
         //初始化请求信息
         self::request()->init();
+        //初始化路由信息
+        self::router()->init();
         //解释路由信息
         self::router()->parseRoute();
         //初始化组件
