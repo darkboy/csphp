@@ -426,6 +426,29 @@ class CspResponse{
         echo $this->bodyStr;
     }
 
+
+    public function cliHelp() {
+        echo "\n", "  欢迎使用Csphp命令行模式，命令格式如下:", "\n";
+        echo "\n\t", "cli.php <Routename> [-xvalue ...] [-x value ...] [--argname value ...]  [--argname=value ...]  [\"<C|P|G>:<Querystring>\" ...] ", "\n";
+        echo "\n\t", "Routename:\t为控制器路由名称，如  clidemo/test";
+
+        echo "\n\n\t", "指定运行环境:\t--env [dev|test|prod] ", "";
+        echo "\n\n\t", "短参数的格式:\t-xvalue 或者 -x value  将产生参数 x=value 的效果，可以用 APP::cliArg('x') 获取 ", "";
+        echo "\n\t", "长参数的格式:\t--arg=value 或者 --arg value  将产生参数 arg=value 的效果，可以用 APP::cliArg('arg') 获取 ", "\n";
+
+
+        echo "\n\t", "另外，可用 \"<C|P|G>:<Querystring>\" 模似 POST GET COOKIE 数值，用于调试WEB接口 格式说明如下: ", "";
+        echo "\n\t", "C: 后面的数据将被填入 \$_COOKIE\t \"c:a=1\" 将产生 \$_COOKIE[a]=1 的效果";
+        echo "\n\t", "G: 后面的数据将被填入 \$_GET\t 效果同上";
+        echo "\n\t", "p: 后面的数据将被填入 \$_POST\t 效果同上", "\n";
+
+        echo "\n\t", "查看帮助： cli.php [-h|--help|?|/?]  ";
+        echo "\n\t", "完整示例： cli.php --env dev clidemo/test \"g:getval=1\" -s -aavalue --param1=value1 --boolvalue --param2 value2  ";
+        echo "\n\t", "完整示例： cli.php --env test clidemo/test \"g:getval=1\" \"p:postval=2\"  ";
+
+        echo "\n\n";
+    }
+
 }
 /*
 
