@@ -127,7 +127,7 @@ class Csphp {
         self::$aliasMap['@sys'] = array($sysRoot,'\\Csp');
 
         self::$aliasMap['@comp']    = array($appRoot.'/components', $appNs.'\\components');
-        self::$aliasMap['@cfg']     = array($appRoot.'/config', $appNs);
+        self::$aliasMap['@cfg']     = array($appRoot.'/config', $appNs.'\\config');
         self::$aliasMap['@ctrl']    = array($appRoot.'/controlers',$appNs.'\\controlers');
         self::$aliasMap['@ext']     = array($appRoot.'/exts', $appNs.'\\exts');
         self::$aliasMap['@view']    = array($appRoot.'/views',$appNs.'\\views');
