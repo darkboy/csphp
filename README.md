@@ -12,7 +12,7 @@ Plan
 	2. request, response, router
 	3. core, comp, comp-flow and event 
 	4. core,tpl,asset
-	5. 各部分联通，核心，配置，请求，路由，响应，组件，扩展，事件，日志
+	5. link all feature: core, config,request,router,response,component,ext,event,log
 	6. all baseClass ,model,controler,comp,obj
 	7. all components
 	8. test and debug........
