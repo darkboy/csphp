@@ -100,7 +100,7 @@ class Csphp {
         self::initCoreObjs();
         //初始化别名配置
         self::initAliasMap();
-        //导入用户定义的文件
+        //导入应用定义的预加载文件
         self::loadAutoloadFiles();
         //初始化请求信息
         self::request()->init();
