@@ -2,7 +2,7 @@
 namespace Csp\core;
 use \Csphp;
 /*
- * Csphp clie 模式相关的管理控制
+ * Csphp cli 模式相关的管理控制
  *
  */
 class CspCliConsole{
@@ -169,7 +169,9 @@ class CspCliConsole{
     //交互式脚本的帮助文档
     public static function interactionHelp(){}
 
+    //守护程序入口
     public static function daemon(){}
+    //守护程序帮助
     public static function daemonHelp(){}
 
     /**
