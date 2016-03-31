@@ -5,6 +5,7 @@ use \Csphp;
  * Csphp 中关于url 的概念约定
  *
  * http://www.csphp.com:80/path/to/setup/index.php/controler/action/v1-v1/v2-v2?a=1&b=2#abc
+ *
  * 主机部分 http://www.csphp.com:80
  * 安装路径 /path/to/setup
  * 入口文件 /path/to/setup/index.php
@@ -143,11 +144,13 @@ class CspRouter{
     public function findRoute(){
         $reqRoute = $this->getReqRoute();
         foreach(Csphp::appCfg('router',array()) as $routeName=>$rCfg){
-            if( !isset($rCfg['filter']) || Csphp::request()->isMatch($rCfg['filter']) ){
+            if( !isset($rCfg['filter']) || $filterRst = Csphp::request()->isMatch($rCfg['filter']) ){
                 //对请求路由进行预处理，如删除 静态化 的后缀 .html 等
                 $reqRoute = $this->doRouteBeforeAction($reqRoute,$rCfg);
-                $this->findMatchRuleByRouteCfg($reqRoute, $rCfg);
+                $findRst  = $this->findMatchRuleByRouteCfg($reqRoute, $rCfg);
+                echo '<pre>';print_r($findRst);exit;
             }
+            var_dump($filterRst);
         }
     }
 
@@ -228,32 +231,143 @@ class CspRouter{
      * 可能的配置规则为:
      * 1. 别名 ，如 /req_route/ctrl1/action=>/req_route/ctrl2/action2
      * 2. 配置规则中 可能 包含变量 ，所有变量都可以在 目标中使用
-     *      总规则为 {var_name/default_value/type/len}
-     *      var_name        表示变量名，可以在目标路由中引用 如 "/api/user/{var_name}"
+     *      总规则为 {vname-type-len-def}
+     *      vname       表示变量名，可以在目标路由中引用 如 "/api/user/{var_name}"
      *
-     *      default_value   表示默认值，默认值为空
      *
-     *      type            表示匹配的字符类型,只有3种类型, 默认值为 s
+     *      type        表示匹配的字符类型,只有3种类型, 默认值为 s
      *              *   为任意字符
      *              d   数字
      *              s   为除 / 外的字符
      *
-     *      len             表示匹配的字符的个数,默认值为 +
+     *      len         表示匹配的字符的个数,默认值为 +
      *              *   为任意个字符,可以没有
      *              +   1个以上，不能没有
      *              1,3 1-3个
      *
      *
-     *      {name}          表示任意长度的字符，不包括 / 符
-     *      {name/guest/s}  表示 匹配一个 name 的变量，没有 以 guest 顶上
-     *
-     *
+     *      {name}          表示 任意长度的字符，不包括 / 符
+     *      {name-s}        表示 任意长度的字符，不包括 / 符,同上
+     *      {name-*}        表示 任意长度的字符，包括 / 符
+     *      {name-d}        表示 任意长度的数字
+     *      {name-d-2}      表示 2位数字
+     *      {name-d-2,4}    表示 2-4 位数字
+     *      {name-s-+}      表示 1位以上的字符，
+     *      {name-d-2,}     表示 2位以上的数字
      *
      * @param $reqRoute string  请求路由
-     * @param $rCfg     array   配置列表 可能的配置规则如下:
+     * @param $rCfg     array   配置列表 可能的配置规则如上:
      *
      */
     public function findMatchRuleByRouteCfg($reqRoute, $rCfg){
+
+        //匹配到的规则模板 key
+        $matchKey   = "";
+        //匹配到的路由变量
+        $matchVars  = array();
+        //匹配到的目录路由表达式
+        $routeSource = '';
+        //目标路由结果
+        $routeRst    = '';
+
+
+        //检查是否存在别名
+        if(isset($rCfg['rule_list'][$reqRoute])){
+            return array(
+                'route_var'=>$matchVars,
+                'match_key'=>$reqRoute,
+                'target_source' =>$rCfg['rule_list'][$reqRoute],
+                'target_route'  =>$rCfg['rule_list'][$reqRoute]
+            );
+        }
+        //echo '<pre>';
+        foreach($rCfg['rule_list'] as $rTpl=>$targetRoute){
+            //echo "\n\n",$rTpl," => ",$targetRoute;
+            //如果模板中不包含 { } 字符的 匹配模板，不包含变量
+            $isVarTpl = strpos($rTpl,'{');
+            if($isVarTpl){
+                //前缀不同，不需要再进行正则 匹配
+                if(substr($rTpl,0, $isVarTpl)!== substr($reqRoute,0, $isVarTpl)){
+                    continue;
+                }else{
+                    $ruleRegexp = self::compileRouteRuleToRegexp($rTpl);
+                    //echo "\n\n".$reqRoute." ".$ruleRegexp."\n\n";
+                    if(preg_match($ruleRegexp, $reqRoute,$m)){
+                        $matchKey = $rTpl;
+                        $routeRst = $targetRoute;
+                        $routeSource = $targetRoute;
+                        foreach($m as $k=>$v){
+                            if(!is_numeric($k)){
+                                $routeRst = str_replace("{".$k."}", $v, $routeRst);
+                                $matchVars[$k]=$v;
+                            }
+                        }
+                    }
+
+                }
+            }else{
+
+                if(fnmatch($rTpl, $reqRoute)){
+                    $matchKey = $rTpl;
+                    $routeRst = $targetRoute;
+                    $routeSource = $targetRoute;
+                }else{
+                    continue;
+                }
+
+            }
+            //如果成功匹配，则返回
+            if($matchKey){
+                return array(
+                    'route_var'=>$matchVars,
+                    'match_key'=>$matchKey,
+                    'target_source' =>$routeSource,
+                    'target_route'  =>$routeRst
+                );
+            }
+        }
+        return array();
+    }
+
+
+    /**
+     * 将路由规则配置，编译成 正则表达式，进行匹配
+     * @param $ruleStr
+     */
+    public static function compileRouteRuleToRegexp($ruleStr){
+        //配置规则为 {vname-type-len} 每一项的
+        $defOpts = array(
+            0=>'id',
+            1=>'s',
+            2=>'+',
+            3=>null
+        );
+
+        $charsCfg = array(
+            's'=>'[^/]',
+            '*'=>'.',
+            'd'=>'\\d',
+        );
+
+        $lenCfg = array(
+            '*'=>'*',
+            '+'=>'+'
+        );
+
+        $varPattern = "#".preg_quote('{')."([^\\{\\}]+)".preg_quote('}')."#sim";
+        //echo $varPattern."\n";
+
+        $ruleStr = preg_replace_callback($varPattern, function($m) use ($defOpts, $charsCfg, $lenCfg) {
+            //分解规则
+            $vs   = explode('-', trim($m[1]));
+            $name = $vs[0];
+            $type = isset($vs[1]) ? strtolower($vs[1]) : 's';
+            $len  = isset($vs[2]) ? $vs[2] : '+';
+
+            $regexp = '(?<'.$name.'>'.$charsCfg[$type].(isset($lenCfg[$len]) ? $len : '{'.$len.'}').')';
+            return $regexp;
+        },$ruleStr);
+        return "#^".$ruleStr."\$#sim";
 
     }
 

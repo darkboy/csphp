@@ -363,6 +363,9 @@ class CspRequest{
         }
         return false;
     }
+    private function __rcf__host($filterArg){
+        return self::__rcf__domain($filterArg);
+    }
 
     /**
      * IP 过滤器，符合条件时返回 true
