@@ -140,18 +140,44 @@ class CspRouter{
 
     /**
      * 从 路由配置 中查找 条件匹配的 规则
+     * array(
+     * 'route_var'=>$matchVars,
+     * 'match_key'=>$reqRoute,
+     * 'target_source' =>$targetSource,
+     * 'target_route'  =>$targetRoute
+     * );
      */
     public function findRoute(){
-        $reqRoute = $this->getReqRoute();
+        $sourceReqRoute = $this->getReqRoute();
         foreach(Csphp::appCfg('router',array()) as $routeName=>$rCfg){
             if( !isset($rCfg['filter']) || $filterRst = Csphp::request()->isMatch($rCfg['filter']) ){
                 //对请求路由进行预处理，如删除 静态化 的后缀 .html 等
-                $reqRoute = $this->doRouteBeforeAction($reqRoute,$rCfg);
+                $reqRoute = $this->doRouteBeforeAction($sourceReqRoute, $rCfg);
                 $findRst  = $this->findMatchRuleByRouteCfg($reqRoute, $rCfg);
-                echo '<pre>';print_r($findRst);exit;
+
+                //echo '<pre>';print_r($findRst);//exit;
+                if(empty($findRst)){
+                    continue;
+                }
+
+                //解释真实控制器
+                if(!isset($findRst['real_route']) || empty($findRst['real_route'])){
+
+                    $realRoute = $this->doRouteAfterAction($findRst['target_route'], $rCfg);
+                    $isControlerExists = $this->isControlerExists($realRoute);
+                    if(!empty($isControlerExists)){
+                        $findRst['real_route'] = $isControlerExists;
+                    }else{
+                        //todo 404 not fond
+                        $findRst['real_route'] = 404;
+                    }
+                }
+                //echo '<pre>';print_r($findRst);//exit;
+                return $findRst;
             }
-            var_dump($filterRst);
+            //echo "Filter rst: ".var_dump($filterRst);
         }
+        return array();
     }
 
     /**
@@ -194,6 +220,7 @@ class CspRouter{
         }
         $actionName = $actionCfg[0];
         $actionArg = isset($actionCfg[1]) ? trim($actionCfg[1]) : '';
+
         switch(strtolower($actionName)){
             case 'del_suffix':
                 if(substr($reqRoute,-strlen($actionArg))===$actionArg){
@@ -230,7 +257,7 @@ class CspRouter{
      *
      * 可能的配置规则为:
      * 1. 别名 ，如 /req_route/ctrl1/action=>/req_route/ctrl2/action2
-     * 2. 配置规则中 可能 包含变量 ，所有变量都可以在 目标中使用
+     * 2. 配置规则中 可能 包含变量 ，所有变量都可以在 目标路由中使用
      *      总规则为 {vname-type-len-def}
      *      vname       表示变量名，可以在目标路由中引用 如 "/api/user/{var_name}"
      *
@@ -270,7 +297,6 @@ class CspRouter{
         //目标路由结果
         $routeRst    = '';
 
-
         //检查是否存在别名
         if(isset($rCfg['rule_list'][$reqRoute])){
             return array(
@@ -280,7 +306,24 @@ class CspRouter{
                 'target_route'  =>$rCfg['rule_list'][$reqRoute]
             );
         }
+
+        //检查是否存在 非规则的控制器, 存在 则直接返回
+        $realRoute = $this->doRouteAfterAction($reqRoute, $rCfg);
+        $isControlerExists = $this->isControlerExists($realRoute);
+        if(!empty($isControlerExists)){
+            //print_r($isControlerExists);
+            return array(
+                'route_var'     =>$matchVars,
+                'match_key'     =>'',
+                'target_source' =>'',
+                'target_route'  =>'',
+                'real_route'    =>$isControlerExists
+            );
+        }
+
+
         //echo '<pre>';
+        //扫苗规则列表
         foreach($rCfg['rule_list'] as $rTpl=>$targetRoute){
             //echo "\n\n",$rTpl," => ",$targetRoute;
             //如果模板中不包含 { } 字符的 匹配模板，不包含变量
@@ -371,8 +414,40 @@ class CspRouter{
 
     }
 
+    /**
+     * 检查是否存在真实的控制器
+     *
+     * @param $realRoute
+     * @return array
+     */
+    public function isControlerExists($realRoute){
 
+        if(substr($realRoute,0,1)!=='@'){
+            $realRoute = '@ctrl'.$realRoute;
+        }
+        $realRoute = rtrim($realRoute, '/');
 
+        $paths = explode('/',$realRoute);
+        $actoin = array_pop($paths);
+        $realRouteShort = join('/', $paths);
+
+        $ctrlFile = Csphp::getPathByRoute($realRouteShort, '.php');
+        //echo $ctrlFile;
+        if(file_exists($ctrlFile)){
+            return array(
+                'action'        =>$actoin,
+                'ctontroler'    =>$realRouteShort
+            );
+        }
+        $ctrlFile =  Csphp::getPathByRoute($realRoute, '.php');
+        if(file_exists($ctrlFile)){
+            return array(
+                'action'        =>'index',
+                'ctontroler'    =>$realRoute
+            );
+        }
+        return array();
+    }
 
     /**
      * 用户自定义路由

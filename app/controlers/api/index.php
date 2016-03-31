@@ -8,5 +8,7 @@ class index {
         echo ' -init- ';
     }
 
+    public function actionGet(){}
+
 }
 

@@ -396,12 +396,12 @@ class Csphp {
 
         if($firstChar==='@'){
             $rs[0] = self::getPathByAlias($rs[0]);
-            return join(DIRECTORY_SEPARATOR, $rs);
+            return join(DIRECTORY_SEPARATOR, $rs).$suffix;
         }else{
             if($firstChar=='/' || substr($oRoute,1,1)===':'){
-                return $oRoute;
+                return $oRoute.$suffix;
             }else{
-                return self::appCfg('app_base_path').'/'.$oRoute;
+                return self::appCfg('app_base_path').'/'.$oRoute.$suffix;
             }
         }
     }
