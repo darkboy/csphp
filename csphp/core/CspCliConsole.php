@@ -33,9 +33,8 @@ class CspCliConsole{
     }
 
     public function init(){
-        $this->routeInfo['uri']        = Csphp::request()->getReqUri();
-        $this->routeInfo['setup_path'] = $this->getSetupPath();
-        $this->routeInfo['entry_file'] = $this->getEntryFile();
+        self::parseCliArgs();
+
     }
 
     /**
@@ -55,18 +54,19 @@ class CspCliConsole{
      * @return array('kv'=>array(),'v'=>array());
      */
     public static function parseCliArgs(){
-        global $argv;
+        $cliArgv=$_SERVER['argv'];
 
+        //解释后的 cli 参数值字典
         $argData = array(
             //有名称的参数
             'kv'=>array(),
             //无名称的参数
             'v'=>array()
         );
-        $c = count($argv);
+        $c = count($cliArgv);
         for ($i=1; $i<$c; $i++) {
 
-            $v = $argv[$i];
+            $v = $cliArgv[$i];
             $isLongOpt = substr($v,0,2)==='--';
 
             //长参数处理
@@ -78,10 +78,10 @@ class CspCliConsole{
                     $argData['kv'][$vs[0]]=$vs[1];
                 }else{
                     //argFormat: --longarg argv
-                    if(!isset($argv[$i+1]) || substr($argv[$i+1],0,1)==='-'){
+                    if(!isset($cliArgv[$i+1]) || substr($cliArgv[$i+1],0,1)==='-'){
                         $argData['kv'][$vn] = true;
                     }else{
-                        $argData['kv'][$vn] = $argv[$i+1];
+                        $argData['kv'][$vn] = $cliArgv[$i+1];
                         $i++;
                     }
 
@@ -99,10 +99,10 @@ class CspCliConsole{
                     }
 
                 }else{
-                    if(!isset($argv[$i+1]) || substr($argv[$i+1],0,1)==='-'){
+                    if(!isset($cliArgv[$i+1]) || substr($cliArgv[$i+1],0,1)==='-'){
                         $argData['kv'][substr($v,1,1)] = true;
                     }else{
-                        $argData['kv'][substr($v,1,1)] = $argv[$i+1];
+                        $argData['kv'][substr($v,1,1)] = $cliArgv[$i+1];
                         $i++;
                     }
                 }
@@ -117,8 +117,13 @@ class CspCliConsole{
         return $argData;
     }
 
+    /**
+     * 解释cli中的路由信息
+     */
+    public static function parseRoute(){
 
-    public function cliHelp() {
+    }
+    public static function cliHelp() {
         echo "\n", "  欢迎使用Csphp命令行模式，命令格式如下:", "\n";
         echo "\n\t", "cli.php <Routename> [-xvalue ...] [-x value ...] [--argname value ...]  [--argname=value ...]  [\"<C|P|G>:<Querystring>\" ...] ", "\n";
         echo "\n\t", "Routename:\t为控制器路由名称，如  clidemo/test";
@@ -138,5 +143,44 @@ class CspCliConsole{
         echo "\n\t", "完整示例： cli.php --env test clidemo/test \"g:getval=1\" \"p:postval=2\"  ";
 
         echo "\n\n";
+    }
+
+
+    /**
+     * 交互式脚本入口
+     */
+    public static function interaction(){
+        self::interactionHelp();
+        $isExit= false;
+        do{
+            $cmdStr = self::read();
+            if(in_array(strtolower($cmdStr), array('h','?','??','help'))){
+                self::interactionHelp();
+            }
+            if(in_array(strtolower($cmdStr), array('exit','quit','bye'))){
+                exit(0);
+            }
+
+
+
+        }while(!$isExit);
+    }
+    public static function interactionHelp(){}
+
+    /**
+     * 读取标准输入
+     * @return string
+     */
+    public static function  read(){
+        return trim(fgets(STDIN));
+    }
+
+    /**
+     * 标准输出
+     * @param $msg
+     * @return int
+     */
+    public static function  write($msg){
+        return fwrite(STDOUT, $msg);
     }
 }
