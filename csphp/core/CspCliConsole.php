@@ -160,12 +160,17 @@ class CspCliConsole{
             if(in_array(strtolower($cmdStr), array('exit','quit','bye'))){
                 exit(0);
             }
+            //do any func...
 
 
 
         }while(!$isExit);
     }
+    //交互式脚本的帮助文档
     public static function interactionHelp(){}
+
+    public static function daemon(){}
+    public static function daemonHelp(){}
 
     /**
      * 读取标准输入
