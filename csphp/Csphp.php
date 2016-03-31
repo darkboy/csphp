@@ -126,31 +126,26 @@ class Csphp {
      */
     private static $aliasMap = array();
 
+
     /**
-     * 组件配置数据
-     * @var array
-     */
-    private static $componentsCfgData = array();
-    /**
-     * 组件对象池
+     * 组件对象池，所有实例化后的组件存储在这里，access_key=>compObj
      * @var array
      */
     private static $componentsPool = array();
 
 
     /**
-     *
+     * 存储系统的执行标签与时间
      * @var array
      */
     private static $bankmarkData = array();
+
     /**
-     * 请求对象构造函数
+     * 应用 对象构造函数
      * @param null $appCfg 应用配置数据
      */
     public function __construct($appCfg=null){
-
         $this->initConfig($appCfg);
-
     }
 
     /**
