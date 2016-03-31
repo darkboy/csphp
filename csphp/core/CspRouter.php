@@ -105,8 +105,6 @@ class CspRouter{
     }
 
 
-
-
     /**
      * 解释当前请求 路由
      */
@@ -142,7 +140,122 @@ class CspRouter{
     /**
      * 从 路由配置 中查找 条件匹配的 规则
      */
-    public function findRoute(){}
+    public function findRoute(){
+        $reqRoute = $this->getReqRoute();
+        foreach(Csphp::appCfg('router',array()) as $routeName=>$rCfg){
+            if( !isset($rCfg['filter']) || Csphp::request()->isMatch($rCfg['filter']) ){
+                //对请求路由进行预处理，如删除 静态化 的后缀 .html 等
+                $reqRoute = $this->doRouteBeforeAction($reqRoute,$rCfg);
+                $this->findMatchRuleByRouteCfg($reqRoute, $rCfg);
+            }
+        }
+    }
+
+    /**
+     * 对 req route 进行预处理，通常是删除后缀
+     * @param string    $reqRoute
+     * @param array     $rCfg
+     * @return string   $reqRoute
+     */
+    public function doRouteBeforeAction($reqRoute,$rCfg){
+        if(!isset($rCfg['before_action']) || empty($rCfg['before_action'])){
+            return $reqRoute;
+        }
+        return $this->doActionForReqRoute($reqRoute, $rCfg['before_action']);
+    }
+
+    /**
+     * 对 req route 进行后处理，通常是添加 前缀
+     * @param string    $reqRoute
+     * @param array     $rCfg
+     * @return string   $reqRoute
+     */
+    public function doRouteAfterAction($reqRoute,$rCfg){
+        if(!isset($rCfg['after_action']) || empty($rCfg['after_action'])){
+            return $reqRoute;
+        }
+        return $this->doActionForReqRoute($reqRoute, $rCfg['after_action']);
+
+    }
+
+    /**
+     * 对请求路由做一些字符串操作，
+     * @param $reqRoute  string 请求路由
+     * @param $actionCfg array or string 如 array('del_suffix','.html') "del_suffix=>.html"
+     * @return stirng
+     * @throws \Csp\core\CspException
+     */
+    public function doActionForReqRoute($reqRoute, $actionCfg){
+        if(!is_array($actionCfg)){
+            $actionCfg = explode("::", $actionCfg, 2);
+        }
+        $actionName = $actionCfg[0];
+        $actionArg = isset($actionCfg[1]) ? trim($actionCfg[1]) : '';
+        switch(strtolower($actionName)){
+            case 'del_suffix':
+                if(substr($reqRoute,-strlen($actionArg))===$actionArg){
+                    return substr($reqRoute, 0, -strlen($actionArg));
+                }else{
+                    return $reqRoute;
+                }
+                break;
+            case 'add_suffix':
+                return $reqRoute.$actionArg;
+            case 'del_prefix':
+                if(substr($reqRoute,0,strlen($actionArg))===$actionArg){
+                    return substr($reqRoute, strlen($actionArg));
+                }else{
+                    return $reqRoute;
+                }
+                break;
+            case 'add_prefix':
+                return $actionArg.$reqRoute;
+            case 'regexp_replace':
+                $actionCfg2 = isset($actionCfg[2]) ? $actionCfg[2] : '';
+                return preg_replace($actionArg,$actionCfg2, $reqRoute);
+            default:
+                throw new CspException('error route action confg: '.json_encode($actionCfg));
+        }
+    }
+
+    /**
+     * 从路由配置规则 rule_list 中查找 匹配的规则条件
+     * 查找逻辑为
+     * 1. 检查是否有别名，有则，立即返回
+     * 2. 检查当前的 请求 路由是否 存在 控制器文件，存在则返回
+     * 3. 逐一 将 配置 规则 翻译 为正则表达式，并进行匹配，成功立即返回
+     *
+     * 可能的配置规则为:
+     * 1. 别名 ，如 /req_route/ctrl1/action=>/req_route/ctrl2/action2
+     * 2. 配置规则中 可能 包含变量 ，所有变量都可以在 目标中使用
+     *      总规则为 {var_name/default_value/type/len}
+     *      var_name        表示变量名，可以在目标路由中引用 如 "/api/user/{var_name}"
+     *
+     *      default_value   表示默认值，默认值为空
+     *
+     *      type            表示匹配的字符类型,只有3种类型, 默认值为 s
+     *              *   为任意字符
+     *              d   数字
+     *              s   为除 / 外的字符
+     *
+     *      len             表示匹配的字符的个数,默认值为 +
+     *              *   为任意个字符,可以没有
+     *              +   1个以上，不能没有
+     *              1,3 1-3个
+     *
+     *
+     *      {name}          表示任意长度的字符，不包括 / 符
+     *      {name/guest/s}  表示 匹配一个 name 的变量，没有 以 guest 顶上
+     *
+     *
+     *
+     * @param $reqRoute string  请求路由
+     * @param $rCfg     array   配置列表 可能的配置规则如下:
+     *
+     */
+    public function findMatchRuleByRouteCfg($reqRoute, $rCfg){
+
+    }
 
 
 
