@@ -19,9 +19,76 @@ use Csp\core\CspException;
 defined('CSPHP_ENV_TYPE') or define('CSPHP_ENV_TYPE', Csphp::ENV_TYPE_PROD);
 
 class Csphp {
+    /**
+     * 生产环境
+     */
     const ENV_TYPE_PROD = 'prod';
+    /**
+     * 测试环境
+     */
     const ENV_TYPE_TEST = 'test';
+    /**
+     * 开发环境
+     */
     const ENV_TYPE_DEV  = 'dev';
+
+
+    /**
+     * 以下是所有的 系统内置 事件列表
+     * 组件 和 应用 可以在不同 流程 注入逻辑（监听相应的事件）
+     * 通过变更  app response request route tpl 进行 数据更改 和 流程干预
+     */
+    /**
+     * 核心架构 准备完毕事件，已完成 配置，初始化，和 路由解释
+     */
+    const EVENT_CORE_AFTER_INIT         = 'EVENT_CORE_AFTER_INIT';
+    /**
+     * 用户以 及 系统配置的 组件初始化完成，即：已调用完他们的 start 方法
+     */
+    const EVENT_CORE_AFTER_COMP_INIT    = 'EVENT_CORE_AFTER_COMP_INIT';
+    /**
+     * 系统准备开始 执行 Action请求运作
+     */
+    const EVENT_CORE_BEFORE_ACTION      = 'EVENT_CORE_BEFORE_ACTION';
+
+
+    /**
+     * 开始渲染一个模板
+     */
+    const EVENT_CORE_BEFORE_TPL_RENDER  = 'EVENT_CORE_BEFORE_TPL_RANDER';
+    /**
+     * 结束渲染一个模板
+     */
+    const EVENT_CORE_AFTER_TPL_RENDER   = 'EVENT_CORE_AFTER_TPL_RANDER';
+
+    /**
+     * 系统结束了动作
+     */
+    const EVENT_CORE_END_ACTION         = 'EVENT_CORE_END_ACTION';
+
+
+    /**
+     * 所有数据准备就续，准备发送
+     */
+    const EVENT_CORE_BEFORE_SEND_RESP   = 'EVENT_CORE_BEFORE_SEND_RESP';
+    /**
+     * 所有数据发送完毕
+     */
+    const EVENT_CORE_AFTER_SEND_RESP    = 'EVENT_CORE_AFTER_SEND_RESP';
+    /**
+     * 应用退出
+     */
+    const EVENT_CORE_EXIT               = 'EVENT_CORE_EXIT';
+    /**
+     * PHP进程退出
+     */
+    const EVENT_CORE_PHP_EXIT           = 'EVENT_CORE_PHP_EXIT';
+
+
+    /**
+     * 应用开始时间
+     * @var int
+     */
     public static $appStartTime = 0;
     /**
      * @var Csphp
@@ -118,6 +185,7 @@ class Csphp {
             //解释路由信息
             self::cliConsole()->parseRoute();
         }
+        //self::fireEvent()
 
         //初始化组件
         self::initComponents();
