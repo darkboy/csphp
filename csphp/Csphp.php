@@ -53,11 +53,11 @@ class Csphp {
 
 
     /**
-     * 开始渲染一个模板
+     * 开始渲染一个模板，可能被触发多次
      */
     const EVENT_CORE_BEFORE_TPL_RENDER  = 'EVENT_CORE_BEFORE_TPL_RANDER';
     /**
-     * 结束渲染一个模板
+     * 结束渲染一个模板，可能被触发多次
      */
     const EVENT_CORE_AFTER_TPL_RENDER   = 'EVENT_CORE_AFTER_TPL_RANDER';
 
