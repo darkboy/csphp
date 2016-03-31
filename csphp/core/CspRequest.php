@@ -42,7 +42,7 @@ class CspRequest{
      * 初始化默认的参数错误处理函数
      */
     public function initParamErrorHandle(){
-
+        //todo...
     }
 
     public function isApi(){

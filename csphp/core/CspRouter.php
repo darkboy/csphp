@@ -47,6 +47,10 @@ class CspRouter{
         $this->routeInfo['setup_path'] = $this->getSetupPath();
         $this->routeInfo['entry_file'] = $this->getEntryFile();
     }
+    public function dump(){
+        echo '<pre>';
+        print_r($this->routeInfo);
+    }
     /**
      * 某些场景下，项目会被安装在WEB站点的某个目录
      * 返回入口文件之前的路路径，不含最后的 / ，含左 /
@@ -71,119 +75,19 @@ class CspRouter{
      *
      */
     public function getReqRoute(){
+        return $this->routeInfo['req_route'];
+    }
 
+    public function getUri(){
+        return $this->routeInfo['uri'];
     }
 
     /**
      * 获取路由解释过程中产生的变量
      */
-    public function getRouteVars(){}
-
-
-    /**
-     * 解释路径
-     */
-    public function parseUrl(){}
-
-    public function parseCli(){
-        //$cliData = self::parseCliArgs();
+    public function getRouteVars(){
+        return $this->routeInfo['route_var'];
     }
-
-    /**
-     *
-     * 解释命令行参数 cli.php -a -bv -c="v1 and v2" --long1 --long2 longv2 --long3="v1 and v2" str1 "str2 and str3"
-     *
-     * 解释为：
-     *
-     * {
-     *  "kv":
-     *      {"a":true,"b":"v","c":"v1 and v2","long1":true,"long2":"longv2","long3":"v1 and v2"},
-     *   "v":
-     *      ["str1","str2 and str3"]
-     * }
-     *
-     *
-     * @return array('kv'=>array(),'v'=>array());
-     */
-    public static function parseCliArgs(){
-        global $argv;
-
-        $argData = array(
-            //有名称的参数
-            'kv'=>array(),
-            //无名称的参数
-            'v'=>array()
-        );
-        $c = count($argv);
-        for ($i=1; $i<$c; $i++) {
-
-            $v = $argv[$i];
-            $isLongOpt = substr($v,0,2)==='--';
-
-            //长参数处理
-            if($isLongOpt){
-                $vn = substr($v,2);
-                //argFormat: --longarg="abc def"
-                if(strpos($vn,'=')){
-                    $vs = explode('=', $vn, 2);
-                    $argData['kv'][$vs[0]]=$vs[1];
-                }else{
-                    //argFormat: --longarg argv
-                    if(!isset($argv[$i+1]) || substr($argv[$i+1],0,1)==='-'){
-                        $argData['kv'][$vn] = true;
-                    }else{
-                        $argData['kv'][$vn] = $argv[$i+1];
-                        $i++;
-                    }
-
-                }
-            }
-            //短参数处理
-            $isShort = substr($v,0,1)==='-';
-            if(!$isLongOpt && $isShort){
-                //argFormat: -fvalue
-                if(strlen($v)>2){
-                    if(strpos($v,'=')){
-                        $argData['kv'][substr($v,1,1)]=substr($v,3);
-                    }else{
-                        $argData['kv'][substr($v,1,1)]=substr($v,2);
-                    }
-
-                }else{
-                    if(!isset($argv[$i+1]) || substr($argv[$i+1],0,1)==='-'){
-                        $argData['kv'][substr($v,1,1)] = true;
-                    }else{
-                        $argData['kv'][substr($v,1,1)] = $argv[$i+1];
-                        $i++;
-                    }
-                }
-
-            }
-            if(!$isLongOpt && !$isShort){
-                $argData['v'][] = $v;
-            }
-
-        }
-
-        return $argData;
-    }
-
-    /**
-     * 解释当前请求 路由
-     */
-    public function parseRoute(){
-        if(Csphp::request()->isCli()){
-            $this->parseCli();
-        }else{
-            $this->parseUrl();
-            $this->findRoute();
-        }
-    }
-
-    /**
-     * 从 路由配置 中查找 条件匹配的 规则
-     */
-    public function findRoute(){}
 
     /**
      * 设置一个路由变量
@@ -199,6 +103,48 @@ class CspRouter{
             $this->routeInfo['route_var'][$k]=$v;
         }
     }
+
+
+
+
+    /**
+     * 解释当前请求 路由
+     */
+    public function parseRoute(){
+        $this->parseUrl();
+        $this->findRoute();
+    }
+
+    /**
+     * 解释路径
+     */
+    public function parseUrl(){
+        $urlPs      = explode('?', $this->getUri(),2);
+        $urlPath    = trim($urlPs[0], '/\\');
+        $urlPs      = explode('/', $urlPath);
+
+        $reqRoute   = '';
+        $startRouterVar = false;
+        foreach($urlPs as $p){
+            if($startRouterVar || strpos($p, '-')){
+                $vs = explode('-',$p);
+                $this->setRouteVar($vs[0], isset($vs[1]) ? urldecode($vs[1]) : '');
+                $startRouterVar = true;
+            }else{
+                $reqRoute.='/'.$p;
+            }
+        }
+        $this->routeInfo['req_route'] = $reqRoute;
+
+    }
+
+
+    /**
+     * 从 路由配置 中查找 条件匹配的 规则
+     */
+    public function findRoute(){}
+
+
 
 
     /**
