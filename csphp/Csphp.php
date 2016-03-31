@@ -10,6 +10,7 @@ use Csp\core\CspResponse;
 use Csp\core\CspLog;
 use Csp\core\CspEvent;
 use Csp\core\CspRouter;
+use Csp\core\CspCliConsole;
 use Csp\core\CspTemplate;
 use Csp\core\CspValidator;
 use Csp\core\CspException;
@@ -47,6 +48,7 @@ class Csphp {
         'request'   =>null,
         'router'    =>null,
         'response'  =>null,
+        'cliConsole'=>null,
         'log'       =>null,
         'validator' =>null,
     );
@@ -104,10 +106,19 @@ class Csphp {
         self::loadAutoloadFiles();
         //初始化请求信息
         self::request()->init();
-        //初始化路由信息
-        self::router()->init();
-        //解释路由信息
-        self::router()->parseRoute();
+
+        if(self::isCli()){
+            //初始化路由信息
+            self::router()->init();
+            //解释路由信息
+            self::router()->parseRoute();
+        }else{
+            //初始化
+            self::cliConsole()->init();
+            //解释路由信息
+            self::cliConsole()->parseRoute();
+        }
+
         //初始化组件
         self::initComponents();
 
@@ -531,6 +542,9 @@ class Csphp {
         self::$coreObjs['log']      = new CspLog();
         self::$coreObjs['tpl']      = new CspTemplate();
         self::$coreObjs['validator']= new CspValidator();
+        if(self::isCli()){
+            self::$coreObjs['cliConsole'] = new CspCliConsole();
+        }
     }
 
 
@@ -559,6 +573,14 @@ class Csphp {
     public static function router(){
         return self::$coreObjs['router'];;
     }
+    /**
+     * @return CspCliConsole
+     */
+    public static function cliConsole(){
+        return self::$coreObjs['cliConsole'];;
+    }
+
+
 
 
     /**

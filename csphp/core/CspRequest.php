@@ -216,6 +216,13 @@ class CspRequest{
     }
 
     /**
+     * 获取POST原始输入
+     * @return string
+     */
+    public function getRowInput(){
+        return file_get_contents('php://input');
+    }
+    /**
      * @return null|string
      */
     public function getRequestType(){
