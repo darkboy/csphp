@@ -185,7 +185,7 @@ class Csphp {
             //解释路由信息
             self::cliConsole()->parseRoute();
         }
-        //self::fireEvent()
+        self::fireEvent(self::EVENT_CORE_AFTER_INIT);
 
         //初始化组件
         self::initComponents();
@@ -1004,9 +1004,9 @@ class Csphp {
 
     /**
      * 触发一个事件
-     * @param $eventName        string 事件名
-     * @param null $data        mixed  事件相关的数据
-     * @param null $senderObj   classObj 事件发送者，对象
+     * @param string    $eventName  事件名
+     * @param mixed     $data       事件相关的数据
+     * @param object    $senderObj  事件发送者，对象
      */
     public static function fireEvent($eventName, $data=null, $senderObj=null){
         CspEvent::fire($eventName, $data, $senderObj);
@@ -1014,22 +1014,31 @@ class Csphp {
 
     /**
      * 监听某个事件
-     * @param $eventName  string              需要监听的事件名
-     * @param $eventListenerCallback callable 事件处理器，func($eventDdata, eventSender=null){}
+     * @param string    $eventName  事件名
+     * @param callable  $eventListener func(CspEvent $event){}
      */
-    public static function on($eventName, $eventListenerCallback){
-        CspEvent::on($eventName, $eventListenerCallback);
+    public static function on($eventName, $eventListener){
+        CspEvent::on($eventName, $eventListener);
+    }
+
+    /**
+     * 监听某个事件,将在PHP退出前执行
+     * @param string    $eventName  事件名
+     * @param callable  $eventListener func(CspEvent $event){}
+     */
+    public static function delayOn($eventName, $eventListener){
+        CspEvent::delayOn($eventName, $eventListener);
     }
 
 
     /**
      * alias for self::on
      * 监听某个事件
-     * @param $eventName                string 需要监听的事件名
-     * @param $eventListenerCallback    callable 事件处理器，func($eventDdata, eventSender=null){}
+     * @param $eventName        string   需要监听的事件名
+     * @param $eventListener    callable 事件处理器，func(CspEvent $event){}
      */
-    public static function listen($eventName, $eventListenerCallback){
-        CspEvent::on($eventName, $eventListenerCallback);
+    public static function listen($eventName, $eventListener){
+        CspEvent::on($eventName, $eventListener);
     }
 
     public static function tmp(){
