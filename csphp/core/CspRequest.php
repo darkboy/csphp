@@ -307,7 +307,7 @@ class CspRequest{
      */
     public function isMatch($requestFilter){
         //空规则, * ,all 表示任意 直接通过
-        if(empty($requestFilter) || $requestFilter==='*' || strtolower($requestFilter)==='all' ){
+        if(empty($requestFilter) || (is_string($requestFilter) && in_array($requestFilter, array('*', 'all'))) ){
             return true;
         }
         foreach($requestFilter as $filterName=>$filterArg){
