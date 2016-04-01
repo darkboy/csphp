@@ -21,10 +21,17 @@ return array(
         'rule_list'=>array(
             //别名
             '/user/info'            =>'/account/info',
-            '/user/func'            =>function(){echo 11;},
-            '/user/{arg1}/{arg2}'   =>'/account/info/{arg2}/{arg1}',
-            '/user/{uid-d}'         =>'/account/view',
-            '/user/{var-*}'         =>'/newpost/{var}',
+            //闭包
+            '/user/func'            =>function(){echo 'hello world';},
+            //callable 绝对路由
+            '/user/abs'             =>'@ext/account/info::action',
+            //变量与变量引用,如下规则将可实现迁移目的
+            '/user/{arg1}/{arg2}'   =>'/account/{arg2}/{arg1}',
+            //变量类型 和 长度 的限制
+            '/user/{uid-d-2}'       =>'/account/view',
+            //后缀规则,如下规则与 /user/* 相同，只是增加了变量引用
+            '/user/{var-*}'         =>'/other/{var}',
+            //fnmatch 规则，无变量可用
             '/match/*'              =>'/newfn'
         )
     ),
