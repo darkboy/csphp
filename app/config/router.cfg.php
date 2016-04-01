@@ -11,10 +11,10 @@ return array(
             //这条规则表示只在 domain.com 下使用
             'host'=>'*.csphp.com'
         ),
-        //actionName=>actionArg
+        //actionName::actionArg 如: del_suffix::.html
         'before_action'=>array(),
 
-        //actionName=>actionArg
+        //actionName::actionArg 如: add_prefix::/api
         'alfter_action'=>array(),
 
         //路由列表, 配置规则为： 路由模板=>目标路由
