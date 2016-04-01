@@ -4,8 +4,7 @@ namespace App;
 return array(
 
 
-    //示例配置------
-    //这个 配置规则为  module_name=>cfg_data
+    //------ 示例配置, 建议将默认模块 放在最后面 将将过滤器设置为空 ------
     array(
         //模块识别过滤器，系统 在什么条件下 识别为正在访问该模块，通常是域名，或者URL前缀
         'filter'=>array(
