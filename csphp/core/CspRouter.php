@@ -79,11 +79,16 @@ class CspRouter{
         return $this->routeInfo['req_route'];
     }
 
+    /**
+     * 获取 request_uri
+     * @return string
+     */
     public function getUri(){
         return $this->routeInfo['uri'];
     }
 
     /**
+     * 获取路由变量
      * 获取路由解释过程中产生的变量
      */
     public function getRouteVars(){
@@ -115,7 +120,7 @@ class CspRouter{
     }
 
     /**
-     * 解释路径
+     * 解释路径,提取路径中的变量，返回 reqRoute
      */
     public function parseUrl(){
         $urlPs      = explode('?', $this->getUri(),2);
