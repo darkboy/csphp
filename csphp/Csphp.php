@@ -186,7 +186,9 @@ class Csphp {
             self::router()->parseRoute();
 
         }
+
         self::router()->dump();
+
         self::fireEvent(self::EVENT_CORE_AFTER_INIT);
 
         //初始化组件

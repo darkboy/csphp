@@ -116,7 +116,8 @@ class CspRouter{
      */
     public function parseRoute(){
         $this->parseUrl();
-        $this->findRoute();
+        $findRst = $this->findRoute();
+
     }
 
     /**
