@@ -241,8 +241,8 @@ class CspRouter{
     }
 
     /**
-     * 从路由配置规则 rule_list 中查找 匹配的规则条件
-     * 查找逻辑为
+     * 过滤器通过后 从路由配置规则 rule_list 中查找 匹配的规则条件
+     * 查找逻辑为:
      * 1. 检查是否有别名，有则，立即返回
      * 2. 检查当前的 请求 路由是否 存在 控制器文件，存在则返回
      * 3. 逐一 将 配置 规则 翻译 为正则表达式，并进行匹配，成功立即返回
@@ -250,7 +250,7 @@ class CspRouter{
      * 可能的配置规则为:
      * 1. 别名 ，如 /req_route/ctrl1/action=>/req_route/ctrl2/action2
      * 2. 配置规则中 可能 包含变量 ，所有变量都可以在 目标路由中使用
-     *      总规则为 {vname-type-len-def}
+     *      变量描述 {vname-type-len}
      *      vname       表示变量名，可以在目标路由中引用 如 "/api/user/{var_name}"
      *
      *
@@ -265,10 +265,10 @@ class CspRouter{
      *              1,3 1-3个
      *
      *
-     *      {name}          表示 任意长度的字符，不包括 / 符
-     *      {name-s}        表示 任意长度的字符，不包括 / 符,同上
-     *      {name-*}        表示 任意长度的字符，包括 / 符
-     *      {name-d}        表示 任意长度的数字
+     *      {name}          表示 1位以上长度的字符，不包括 / 符
+     *      {name-s}        表示 1位以上长度的字符，不包括 / 符,同上
+     *      {name-*}        表示 1位以上长度的字符，包括 / 符
+     *      {name-d}        表示 1位以上长度的数字
      *      {name-d-2}      表示 2位数字
      *      {name-d-2,4}    表示 2-4 位数字
      *      {name-s-+}      表示 1位以上的字符，
@@ -463,11 +463,21 @@ class CspRouter{
     }
 
     /**
-     * 用户自定义路由
-     * @param $filter
-     * @param $callback
+     * 用户自定义路由, 主要为组件提供动态更改路由的方式，
+     *
+     * 如 CspRouter::onRequest('/docs/{act_cmd}',function(){},array('host'=>'api.csphp.com'));
+     *
+     * @param $matchRule string
+     * @param $callback callable 执行逻辑
+     * @param $filter    array
+     * @return void
      */
-    public static function on($filter, $callback){
-
+    public static function onRequest($matchRule, $callback, $filter=array()){
+        array_unshift(Csphp::$appCfg['router'],array(
+            'filter'=>$filter,
+            'rule_list'=>array(
+                $matchRule => $callback
+            )
+        ));
     }
 }
