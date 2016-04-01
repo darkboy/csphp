@@ -278,15 +278,15 @@ class CspRouter{
      * @param $rCfg     array   配置列表 可能的配置规则如上:
      * @return $routeMatch array
      *  array(
-     *  //路由成功匹配的类型 real alias regexp match
+     *  //路由成功匹配的类型: real alias regexp match
      *  'route_type'    =>'real',
      *  //根据 路由模板 和 当前请求 进行匹配后产生的路由变量
      *  'route_var'     =>array(),
-     *  //匹配到的路由模板
+     *  //匹配到的路由模板规则KEY
      *  'match_key'     =>'',
-     *  //匹配到的目标路由，可能包含变量
+     *  //匹配到的目标路由，可能包含变量引用
      *  'target_route'  =>'',
-     *  //解释后的目标路由
+     *  //解释后的目标路由，已解释目录路由中引用的变量
      *  'parse_route'   =>'',
      *  //真实的路由，将被执行
      *  'real_route'    =>array('ctontroler'=>'','action'=>'')

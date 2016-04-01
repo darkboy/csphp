@@ -11,6 +11,7 @@ return array(
             //这条规则表示只在 domain.com 下使用
             'host'=>'*.csphp.com'
         ),
+
         //actionName::actionArg 如: del_suffix::.html
         'before_action'=>array(),
 
