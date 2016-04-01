@@ -4,6 +4,7 @@ namespace App;
 return array(
     //规则名称=>规则内容
     'demo_rule'=>array(
+
         //请求过滤器，在什么条件下使用该路由规则 !filter 则表示反规则, 详见 CspRequest  过滤器  中的描述
         'filter'=>array(
             //这条规则表示访问 /user/* 时启用这个组件
@@ -34,7 +35,7 @@ return array(
             //后缀规则,如下规则与 /user/* 相同，只是增加了变量引用
             '/user/{var-*}'         =>'/other/{var}',
             //fnmatch 规则，无变量可用
-            '/match/*'              =>'/newfn'
+            '/match/*'              =>'/match'
         )
     ),
 

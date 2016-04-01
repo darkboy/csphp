@@ -272,6 +272,12 @@ class Csphp {
     }
 
     /**
+     * todo
+     * 模块初始化，检查 当前运行的是什么模块，
+     */
+    private static function initModule(){}
+
+    /**
      * 初始化所有的 组件, 检查过滤器，初始化 组件配置选项，执行 start
      */
     private static function initComponents(){

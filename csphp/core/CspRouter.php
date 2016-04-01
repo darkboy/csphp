@@ -123,7 +123,7 @@ class CspRouter{
      * 解释路径,提取路径中的变量，返回 reqRoute
      */
     public function parseUrl(){
-        $urlPs      = explode('?', $this->getUri(),2);
+        $urlPs      = explode('?', $this->getUri(), 2);
         $urlPath    = trim($urlPs[0], '/\\');
         $urlPs      = explode('/', $urlPath);
 
