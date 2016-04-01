@@ -21,9 +21,11 @@ return array(
         'rule_list'=>array(
             //别名
             '/user/info'            =>'/account/info',
+            '/user/func'            =>function(){echo 11;},
             '/user/{arg1}/{arg2}'   =>'/account/info/{arg2}/{arg1}',
-            '/post/{var-*}'         =>'/newpost/{var}',
-            '/fnmatch/*'            =>'/newfn'
+            '/user/{uid-d}'         =>'/account/view',
+            '/user/{var-*}'         =>'/newpost/{var}',
+            '/match/*'              =>'/newfn'
         )
     ),
 

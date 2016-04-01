@@ -160,19 +160,11 @@ class CspRouter{
                     continue;
                 }
 
-                //解释真实控制器
-                if(!isset($findRst['real_route']) || empty($findRst['real_route'])){
-
-                    $realRoute = $this->doRouteAfterAction($findRst['target_route'], $rCfg);
-                    $isControlerExists = $this->isControlerExists($realRoute);
-                    if(!empty($isControlerExists)){
-                        $findRst['real_route'] = $isControlerExists;
-                    }else{
-                        //todo 404 not fond
-                        $findRst['real_route'] = 404;
-                    }
+                //解释成功
+                if(!empty($findRst) ){
+                    $findRst['hit_rule'] = $routeName."::".$findRst['match_key'];
                 }
-                //echo '<pre>';print_r($findRst);//exit;
+                echo "<pre>Route find: \n";print_r($findRst);//exit;
                 return $findRst;
             }
             //echo "Filter rst: ".var_dump($filterRst);
@@ -284,26 +276,36 @@ class CspRouter{
      *
      * @param $reqRoute string  请求路由
      * @param $rCfg     array   配置列表 可能的配置规则如上:
-     *
+     * @return $routeMatch array
+     *  array(
+     *  //路由成功匹配的类型 real alias regexp match
+     *  'route_type'    =>'real',
+     *  //根据 路由模板 和 当前请求 进行匹配后产生的路由变量
+     *  'route_var'     =>array(),
+     *  //匹配到的路由模板
+     *  'match_key'     =>'',
+     *  //匹配到的目标路由，可能包含变量
+     *  'target_route'  =>'',
+     *  //解释后的目标路由
+     *  'parse_route'   =>'',
+     *  //真实的路由，将被执行
+     *  'real_route'    =>array('ctontroler'=>'','action'=>'')
+     * )
      */
     public function findMatchRuleByRouteCfg($reqRoute, $rCfg){
 
-        //匹配到的规则模板 key
-        $matchKey   = "";
         //匹配到的路由变量
         $matchVars  = array();
-        //匹配到的目录路由表达式
-        $routeSource = '';
-        //目标路由结果
-        $routeRst    = '';
 
         //检查是否存在别名
         if(isset($rCfg['rule_list'][$reqRoute])){
             return array(
-                'route_var'=>$matchVars,
-                'match_key'=>$reqRoute,
-                'target_source' =>$rCfg['rule_list'][$reqRoute],
-                'target_route'  =>$rCfg['rule_list'][$reqRoute]
+                'route_type'    =>'alias',
+                'route_var'     =>array(),
+                'match_key'     =>$reqRoute,
+                'target_route'  =>$rCfg['rule_list'][$reqRoute],
+                'parse_route'   =>$rCfg['rule_list'][$reqRoute],
+                'real_route'    =>(is_string($rCfg['rule_list'][$reqRoute]) ? $this->isControlerExists($rCfg['rule_list'][$reqRoute]) : $rCfg['rule_list'][$reqRoute])
             );
         }
 
@@ -313,10 +315,11 @@ class CspRouter{
         if(!empty($isControlerExists)){
             //print_r($isControlerExists);
             return array(
-                'route_var'     =>$matchVars,
+                'route_type'    =>'real',
+                'route_var'     =>array(),
                 'match_key'     =>'',
-                'target_source' =>'',
                 'target_route'  =>'',
+                'parse_route'   =>'',
                 'real_route'    =>$isControlerExists
             );
         }
@@ -324,50 +327,60 @@ class CspRouter{
 
         //echo '<pre>';
         //扫苗规则列表
-        foreach($rCfg['rule_list'] as $rTpl=>$targetRoute){
+        foreach($rCfg['rule_list'] as $rTpl=>$targetSourceRoute){
             //echo "\n\n",$rTpl," => ",$targetRoute;
             //如果模板中不包含 { } 字符的 匹配模板，不包含变量
             $isVarTpl = strpos($rTpl,'{');
             if($isVarTpl){
-                //前缀不同，不需要再进行正则 匹配
+                //前缀不同，不需要再进行正则匹配,直接进行下一条规则检查
                 if(substr($rTpl,0, $isVarTpl)!== substr($reqRoute,0, $isVarTpl)){
                     continue;
                 }else{
                     $ruleRegexp = self::compileRouteRuleToRegexp($rTpl);
                     //echo "\n\n".$reqRoute." ".$ruleRegexp."\n\n";
-                    if(preg_match($ruleRegexp, $reqRoute,$m)){
-                        $matchKey = $rTpl;
-                        $routeRst = $targetRoute;
-                        $routeSource = $targetRoute;
-                        foreach($m as $k=>$v){
-                            if(!is_numeric($k)){
-                                $routeRst = str_replace("{".$k."}", $v, $routeRst);
-                                $matchVars[$k]=$v;
-                            }
-                        }
+
+                    //匹配不成功，进行下一条规则匹配
+                    if(!preg_match($ruleRegexp, $reqRoute, $m)){
+                        continue;
                     }
+                    //只有目标路由是字符串 才需要解释 变量
+                    $needParse = is_string($targetSourceRoute) && strpos($targetSourceRoute,'{') ? true : false;
+                    $parseRoute = $targetSourceRoute;
+                    $matchVars= array();
+                    foreach($m as $k=>$v){
+                        if(is_numeric($k)){continue;}
+                        if($needParse){
+                            $parseRoute = str_replace("{".$k."}", $v, $parseRoute);
+                        }
+                        $matchVars[$k]=$v;
+                    }
+                    return array(
+                        'route_type'    =>'regexp',
+                        'route_var'     =>$matchVars,
+                        'match_key'     =>$rTpl,
+                        'target_route'  =>$targetSourceRoute,
+                        'parse_route'   =>$parseRoute,
+                        'real_route'    =>(is_string($parseRoute) ? $this->isControlerExists($parseRoute) : $parseRoute)
+                    );
 
                 }
             }else{
-
+                //glob模式的，路由配置
                 if(fnmatch($rTpl, $reqRoute)){
-                    $matchKey = $rTpl;
-                    $routeRst = $targetRoute;
-                    $routeSource = $targetRoute;
+                    return array(
+                        'route_type'    =>'match',
+                        'route_var'     =>$matchVars,
+                        'match_key'     =>$rTpl,
+                        'target_route'  =>$targetSourceRoute,
+                        'parse_route'   =>$targetSourceRoute,
+                        'real_route'    =>(is_string($targetSourceRoute) ? $this->isControlerExists($targetSourceRoute) : $targetSourceRoute)
+                    );
                 }else{
                     continue;
                 }
 
             }
-            //如果成功匹配，则返回
-            if($matchKey){
-                return array(
-                    'route_var'=>$matchVars,
-                    'match_key'=>$matchKey,
-                    'target_source' =>$routeSource,
-                    'target_route'  =>$routeRst
-                );
-            }
+
         }
         return array();
     }
