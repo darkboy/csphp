@@ -25,6 +25,7 @@ return array(
             '/user/alias'           =>'/account/alias',
             //闭包
             '/user/func'            =>function(){echo 'hello world';},
+            //用户定义的 callable 结构，
             '/user/instance'        =>array('Csphp', 'obj'),
             //callable 绝对路由
             '/user/abs'             =>'@ext/account/info::action',
@@ -35,7 +36,11 @@ return array(
             //后缀规则,如下规则与 /user/* 相同，只是增加了变量引用
             '/user/{var-*}'         =>'/other/{var}',
             //fnmatch 规则，无变量可用
-            '/match/*'              =>'/match'
+            '/match/*'              =>'/match',
+            //选择语法1，如下表示，只有 /swyes/y1 和 /swyes/y2 会被匹配，/swyes/y3 等不匹配
+            '/swyes/{vn-(y1|y2)}'   =>'/switch/catch_yes_sw1_sw2/{vn}',
+            //选择语法2,跟上面相反，是除了 /swno/n1 和 /swno/n2 外 ，/swno/n3 是匹配的
+            '/swno/{vn-(?!n1|n2)}'  =>'/switch/catch_no_n1_n2/{vn}'
         )
     ),
 

@@ -417,7 +417,18 @@ class CspRouter{
         //echo $varPattern."\n";
 
         $ruleStr = preg_replace_callback($varPattern, function($m) use ($defOpts, $charsCfg, $lenCfg) {
-            //分解规则
+
+            //检查分支语法 {vname-(sw1|sw2|sw3)} 或者 {vname-(?!sw1|sw2|sw3)}
+            if(strpos($m[1], '-(') && substr($m[1],-1)===')'){
+                $vs   = explode('-', trim($m[1]), 2);
+                $name = $vs[0];
+                $subExp = $vs[1];
+                $regexp = '(?<'.$name.'>'.$subExp.(substr($subExp,1,2)=='?!' ? '[^/]+' : '').')';
+                //echo $regexp;
+                return $regexp;
+            }
+
+            //常规变量规则分解： {vname-type-len}
             $vs   = explode('-', trim($m[1]));
             $name = $vs[0];
             $type = isset($vs[1]) ? strtolower($vs[1]) : 's';
