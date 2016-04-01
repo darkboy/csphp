@@ -333,6 +333,17 @@ class CspRouter{
         //扫苗规则列表
         foreach($rCfg['rule_list'] as $rTpl=>$targetSourceRoute){
             //echo "\n\n",$rTpl," => ",$targetRoute;
+            //检查是否正则表达路由,规则是正则达式时，必须以 # 作为分隔符
+            if(substr($rTpl,0,1)==='#'){
+                $ruleRegexp = $rTpl;
+                $matchRst = $this->checkReqRouteByRegexpRule($ruleRegexp, $reqRoute, $targetSourceRoute, $rTpl);
+                if(empty($matchRst)){
+                    continue;
+                }else{
+                    return $matchRst;
+                }
+            }
+
             //如果模板中不包含 { } 字符的 匹配模板，不包含变量
             $isVarTpl = strpos($rTpl,'{');
             if($isVarTpl){
@@ -341,32 +352,13 @@ class CspRouter{
                     continue;
                 }else{
                     $ruleRegexp = self::compileRouteRuleToRegexp($rTpl);
-                    //echo "\n\n".$reqRoute." ".$ruleRegexp."\n\n";
-
-                    //匹配不成功，进行下一条规则匹配
-                    if(!preg_match($ruleRegexp, $reqRoute, $m)){
+                    $matchRst = $this->checkReqRouteByRegexpRule($ruleRegexp, $reqRoute, $targetSourceRoute, $rTpl);
+                    if(empty($matchRst)){
                         continue;
+                    }else{
+                        return $matchRst;
                     }
-                    //只有目标路由是字符串 才需要解释 变量
-                    $needParse = is_string($targetSourceRoute) && strpos($targetSourceRoute,'{') ? true : false;
-                    $parseRoute = $targetSourceRoute;
-                    $matchVars= array();
-                    foreach($m as $k=>$v){
-                        if(is_numeric($k)){continue;}
-                        if($needParse){
-                            $parseRoute = str_replace("{".$k."}", $v, $parseRoute);
-                        }
-                        $matchVars[$k]=$v;
-                    }
-                    return array(
-                        'route_type'    =>'regexp',
-                        'route_var'     =>$matchVars,
-                        'match_key'     =>$rTpl,
-                        'target_route'  =>$targetSourceRoute,
-                        'parse_route'   =>$parseRoute,
-                        'real_route'    =>$this->isControlerExists($parseRoute)
-                    );
-
+                    //echo "\n\n".$reqRoute." ".$ruleRegexp."\n\n";
                 }
             }else{
                 //glob模式的，路由配置
@@ -387,6 +379,41 @@ class CspRouter{
 
         }
         return array();
+    }
+
+    /**
+     *
+     * @param $ruleRegexp
+     * @param $reqRoute
+     * @param $targetSourceRoute
+     * @param $matchKey
+     * @return array
+     */
+    public function checkReqRouteByRegexpRule($ruleRegexp, $reqRoute, $targetSourceRoute, $matchKey){
+        //匹配不成功，进行下一条规则匹配
+        if(!preg_match($ruleRegexp, $reqRoute, $m)){
+            return false;
+        }
+        //只有目标路由是字符串 才需要解释 变量
+        $needParse = is_string($targetSourceRoute) && strpos($targetSourceRoute,'{') ? true : false;
+        $parseRoute = $targetSourceRoute;
+
+        $matchVars= array();
+        foreach($m as $k=>$v){
+            if(is_numeric($k)){continue;}
+            if($needParse){
+                $parseRoute = str_replace("{".$k."}", $v, $parseRoute);
+            }
+            $matchVars[$k]=$v;
+        }
+        return array(
+            'route_type'    =>'regexp',
+            'route_var'     =>$matchVars,
+            'match_key'     =>$matchKey,
+            'target_route'  =>$targetSourceRoute,
+            'parse_route'   =>$parseRoute,
+            'real_route'    =>$this->isControlerExists($parseRoute)
+        );
     }
 
 
