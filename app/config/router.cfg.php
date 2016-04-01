@@ -24,6 +24,7 @@ return array(
             '/user/alias'           =>'/account/alias',
             //闭包
             '/user/func'            =>function(){echo 'hello world';},
+            '/user/instance'        =>array('Csphp', 'obj'),
             //callable 绝对路由
             '/user/abs'             =>'@ext/account/info::action',
             //变量与变量引用,如下规则将可实现迁移目的

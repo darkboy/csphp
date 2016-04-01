@@ -156,11 +156,9 @@ class CspRouter{
                 $findRst  = $this->findMatchRuleByRouteCfg($reqRoute, $rCfg);
 
                 //echo '<pre>';print_r($findRst);//exit;
-                if(empty($findRst)){
-                    continue;
-                }
+                if(empty($findRst)){continue;}
 
-                //解释成功
+                //匹配成功
                 if(!empty($findRst) ){
                     $findRst['hit_rule'] = $routeName."::".$findRst['match_key'];
                 }
@@ -305,7 +303,7 @@ class CspRouter{
                 'match_key'     =>$reqRoute,
                 'target_route'  =>$rCfg['rule_list'][$reqRoute],
                 'parse_route'   =>$rCfg['rule_list'][$reqRoute],
-                'real_route'    =>(is_string($rCfg['rule_list'][$reqRoute]) ? $this->isControlerExists($rCfg['rule_list'][$reqRoute]) : $rCfg['rule_list'][$reqRoute])
+                'real_route'    =>$this->isControlerExists($rCfg['rule_list'][$reqRoute])
             );
         }
 
@@ -360,7 +358,7 @@ class CspRouter{
                         'match_key'     =>$rTpl,
                         'target_route'  =>$targetSourceRoute,
                         'parse_route'   =>$parseRoute,
-                        'real_route'    =>(is_string($parseRoute) ? $this->isControlerExists($parseRoute) : $parseRoute)
+                        'real_route'    =>$this->isControlerExists($parseRoute)
                     );
 
                 }
@@ -373,7 +371,7 @@ class CspRouter{
                         'match_key'     =>$rTpl,
                         'target_route'  =>$targetSourceRoute,
                         'parse_route'   =>$targetSourceRoute,
-                        'real_route'    =>(is_string($targetSourceRoute) ? $this->isControlerExists($targetSourceRoute) : $targetSourceRoute)
+                        'real_route'    =>$this->isControlerExists($targetSourceRoute)
                     );
                 }else{
                     continue;
@@ -434,11 +432,35 @@ class CspRouter{
      * @return array
      */
     public function isControlerExists($realRoute){
+        if(is_object($realRoute)){
+            return $realRoute;
+        }
 
+        if(is_array($realRoute)){
+            return array(
+                'controler' =>$realRoute[0],
+                'action'    =>$realRoute[1]
+            );
+        }
+
+        //目标路由 只能是 数组，字符串  和 闭包对象
+        if(!is_string($realRoute)){
+            //todo error route
+            return array();
+        }
+
+        //非绝对路由
         if(substr($realRoute,0,1)!=='@'){
             $realRoute = '@ctrl'.$realRoute;
         }
         $realRoute = rtrim($realRoute, '/');
+
+        if($pi = strpos($realRoute, '::')){
+            return array(
+                'controler' =>substr($realRoute,0,$pi),
+                'action'    =>substr($realRoute,$pi+2)
+            );
+        }
 
         $paths = explode('/',$realRoute);
         $actoin = array_pop($paths);
