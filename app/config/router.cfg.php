@@ -42,7 +42,7 @@ return array(
             //选择语法2,跟上面相反，是除了 /swno/n1 和 /swno/n2 外 ，例如 /swno/n3 是匹配的
             '/swno/{vn-(?!n1|n2)}'  =>'/switch/catch_no_n1_n2/{vn}',
             //正则表达式规则，当使用正则表达式时，必须以 # 号开头，即以 # 作为正则分隔符，里面的 命名捕获将作为路由变量 如下面的ID
-            '#/regexp/(?<id>[\d]+)#sim'    =>'/regexp/{id}'
+            '#^/regexp/(?<id>[\d]+)$#sim'    =>'/regexp/{id}'
         )
     ),
 

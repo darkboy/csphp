@@ -1062,6 +1062,7 @@ class Csphp {
         //var_dump(self::newClass('@ctrl/api/index',array('var'=>'yxh')));
         //var_dump(self::newClass('@ctrl/api/index',array('var'=>'yxh2')));
         //var_dump(self::newClass('@ctrl/api/index',array('var'=>'yxh2'), false));
+        echo self::getTimeUse();
         print_r($_SERVER);
     }
 }
