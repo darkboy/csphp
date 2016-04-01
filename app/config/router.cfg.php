@@ -28,7 +28,7 @@ return array(
             //变量与变量引用,如下规则将可实现迁移目的
             '/user/{arg1}/{arg2}'   =>'/account/{arg2}/{arg1}',
             //变量类型 和 长度 的限制
-            '/user/{uid-d-2}'       =>'/account/view',
+            '/user/{uid-d-2,5}'     =>'/account/view',
             //后缀规则,如下规则与 /user/* 相同，只是增加了变量引用
             '/user/{var-*}'         =>'/other/{var}',
             //fnmatch 规则，无变量可用
