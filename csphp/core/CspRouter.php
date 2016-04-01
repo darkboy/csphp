@@ -334,7 +334,7 @@ class CspRouter{
         foreach($rCfg['rule_list'] as $rTpl=>$targetSourceRoute){
             //echo "\n\n",$rTpl," => ",$targetRoute;
             //检查是否正则表达路由,规则是正则达式时，必须以 # 作为分隔符
-            if(substr($rTpl,0,1)==='#'){
+            if($rTpl[0]==='#'){
                 $ruleRegexp = $rTpl;
                 $matchRst = $this->checkReqRouteByRegexpRule($ruleRegexp, $reqRoute, $targetSourceRoute, $rTpl);
                 if(empty($matchRst)){
@@ -494,7 +494,7 @@ class CspRouter{
         }
 
         //非绝对路由
-        if(substr($realRoute,0,1)!=='@'){
+        if($realRoute[0]!=='@'){
             $realRoute = '@ctrl'.$realRoute;
         }
         $realRoute = rtrim($realRoute, '/');
