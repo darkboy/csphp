@@ -306,7 +306,8 @@ class CspRequest{
      * return bool 是否通过验证器检查
      */
     public function isMatch($requestFilter){
-        if(empty($requestFilter)){
+        //空规则, * ,all 表示任意 直接通过
+        if(empty($requestFilter) || $requestFilter==='*' || strtolower($requestFilter)==='all' ){
             return true;
         }
         foreach($requestFilter as $filterName=>$filterArg){
