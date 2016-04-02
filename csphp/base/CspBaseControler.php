@@ -10,11 +10,22 @@ class CspBaseControler {
 
     }
 
-    public function render($vars=array(),$tplRoute='',$isReturn=false){
+    /*
+     *
+     */
+    public function render($vars=array(), $tplRoute='', $isReturn=false){
         Csphp::tpl()->initByControler($this);
     }
-    public function xpipeStart(){}
+
     public function assign($k, $v=null){}
+
+    /**
+     *
+     */
+    public function xpipeStart(){}
+
+    public function xpipe(){}
+
     /**
      * 控制器实例化的时候 被执行 主要用于 访问控制
      * 返回一个ACL 配置
