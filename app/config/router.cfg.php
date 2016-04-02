@@ -29,6 +29,7 @@ return array(
             '/user/instance'        =>array('Csphp', 'obj'),
             //callable 绝对路由
             '/user/abs'             =>'@ext/account/info::action',
+            '/user/abs2'            =>'\account\info::action',
             //变量与变量引用,如下规则将可实现迁移目的
             '/user/{arg1}/{arg2}'   =>'/account/{arg2}/{arg1}',
             //变量类型 和 长度 的限制

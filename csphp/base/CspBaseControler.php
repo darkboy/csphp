@@ -7,9 +7,7 @@ class CspBaseControler {
     public $jsonpCallbackName = null;
 
     public function __construct(){
-        $this->request = Csphp::request();
-        $acls = $this->filter();
-        Csphp::checkAccessControl($acls);
+
     }
 
     /**
@@ -17,6 +15,8 @@ class CspBaseControler {
      * @return array
      */
     public function filter(){
+        return array();
+        /*
         return array(
             'acl'=>array(
                 'filter'=>array(),
@@ -25,6 +25,7 @@ class CspBaseControler {
                 'allow' =>array(),
             )
         );
+        */
     }
 
 

@@ -64,7 +64,7 @@ class CspRouter{
 
 
     public function dump(){
-        echo '<pre>';
+        echo "\n\n".'<pre>'.__CLASS__.'::'.__METHOD__;
         print_r($this->routeInfo);
     }
 
@@ -149,17 +149,62 @@ class CspRouter{
                 break;
             }
 
+            //print_r($routeRst);
             //查找控制器失败
             if(is_array($routeRst) && (!isset($routeRst['controler'])) || empty($routeRst['controler']) ){
-                //404...
-                echo '404:';print_r($routeRst);
+                //404 error route rst...
+                throw new CspException('404 Error route rst: '.json_encode($routeRst));
             }
 
-                //callable array
-            if(is_array($routeRst) && !isset($routeRst['controler'])){
+            //callable array
+            if(is_array($routeRst) && isset($routeRst['controler'])){
+
+                $actionName = 'action'.ucfirst($routeRst['action']);
+                $controler  = $routeRst['controler'];
+                if($controler[0]==='@'){
+                    $controler = Csphp::getNamespaceByRoute($controler);
+                }
+                //echo $controler;
+                if(!class_exists($controler)){
+                    //404 can not find class
+                    throw new CspException('404 can not find class '.$controler.' '.json_encode($routeRst));
+                }
+
+                $ctrlObj = new $controler();
+
+                if(!method_exists($ctrlObj, $actionName)){
+                    //404 can not find action in controler class
+                    throw new CspException('404 can not find action '.$actionName.' in class '.$controler.' '.json_encode($routeRst));
+
+                }
+
+                //执行 filter , 是一个控制器预载逻辑，通常返回 acls 访问控制配置
+                if(method_exists($ctrlObj, 'filter')){
+                    $acls = $ctrlObj->filter();
+                    if(!empty($acls)){
+                        Csphp::checkAccessControl($acls);
+                    }
+                }
+
+                //执行 beforeAction
+                if(method_exists($ctrlObj, 'beforeAction')){
+                    $ctrlObj->beforeAction();
+                }
+
+                //实际执行action
+                $ctrlObj->$actionName();
+
+                //执行 afterAction
+                if(method_exists($ctrlObj, 'afterAction')){
+                    $ctrlObj->afterAction();
+                }
 
                 //call_user_func($routeRst);
+            }else{
+                print_r($routeRst);
+                throw new CspException('404 can not find route '.json_encode($routeRst));
             }
+            //error route rst
         }while(false);
         //执行 action 完成
         Csphp::fireEvent(Csphp::EVENT_CORE_AFTER_ACTION);
@@ -367,7 +412,7 @@ class CspRouter{
      *  //解释后的目标路由，已解释目录路由中引用的变量
      *  'parse_route'   =>'',
      *  //真实的路由，将被执行
-     *  'real_route'    =>array('ctontroler'=>'','action'=>'')
+     *  'real_route'    =>array('controler'=>'','action'=>'')
      * )
      */
     public function findMatchRuleByRouteCfg($reqRoute, $rCfg){
@@ -568,14 +613,17 @@ class CspRouter{
             return array();
         }
 
+        //检查是否饱含  :: 调用符
+        $pi = strpos($realRoute, '::');
+
         //非绝对路由
-        if($realRoute[0]!=='@'){
+        if($realRoute[0]!=='@' && $pi===false){
             $realRoute = '@m-ctrl'.$realRoute;
         }
         $realRoute = rtrim($realRoute, '/');
 
         //目标路由为 用户自定义的 callable 字符串
-        if($pi = strpos($realRoute, '::')){
+        if($pi){
             return array(
                 'controler' =>substr($realRoute, 0, $pi),
                 'action'    =>substr($realRoute, $pi+2)
@@ -596,7 +644,7 @@ class CspRouter{
                     'route'         =>$realRouteShort,
                     'ctrl_file'     =>$ctrlFile1,
                     'action'        =>$actoin,
-                    'ctontroler'    =>$realRouteShort
+                    'controler'    =>$realRouteShort
                 );
             }
         }
@@ -606,7 +654,7 @@ class CspRouter{
                 'route'         =>$realRoute,
                 'ctrl_file'     =>$ctrlFile2,
                 'action'        =>'index',
-                'ctontroler'    =>$realRoute
+                'controler'    =>$realRoute
             );
         }
 

@@ -214,8 +214,6 @@ class Csphp {
         }
 
         self::router()->dump();
-
-
         //self::router()->getAction();
         //self::doFilters();
 
@@ -225,8 +223,11 @@ class Csphp {
     }
     //系统的访问控制检查
     public static function checkAccessControl($aclCfg=null){
-        if(empty($aclCfg)){
+        if($aclCfg===null){
             $aclCfg = self::appCfg('acl', array());
+        }
+        if(empty($aclCfg)){
+            return true;
         }
         foreach($aclCfg as $acl){
 
