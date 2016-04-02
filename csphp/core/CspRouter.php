@@ -316,7 +316,7 @@ class CspRouter{
         //检查是否存在 非规则的控制器, 存在 则直接返回
         $realRoute = $this->doRouteAfterAction($reqRoute, $rCfg);
         $isControlerExists = $this->isControlerExists($realRoute);
-        if(!empty($isControlerExists)){
+        if(!empty($isControlerExists) && isset($isControlerExists['controler'])){
             //print_r($isControlerExists);
             return array(
                 'route_type'    =>'real',
@@ -476,10 +476,12 @@ class CspRouter{
      * @return array
      */
     public function isControlerExists($realRoute){
+        //目标路由是一个闭包
         if(is_object($realRoute)){
             return $realRoute;
         }
 
+        //目标路由是 用户自定义的 callable 数组
         if(is_array($realRoute)){
             return array(
                 'controler' =>$realRoute[0],
@@ -489,43 +491,51 @@ class CspRouter{
 
         //目标路由 只能是 数组，字符串  和 闭包对象
         if(!is_string($realRoute)){
-            //todo error route
             return array();
         }
 
         //非绝对路由
         if($realRoute[0]!=='@'){
-            $realRoute = '@ctrl'.$realRoute;
+            $realRoute = '@m-ctrl'.$realRoute;
         }
         $realRoute = rtrim($realRoute, '/');
 
+        //目标路由为 用户自定义的 callable 字符串
         if($pi = strpos($realRoute, '::')){
             return array(
-                'controler' =>substr($realRoute,0,$pi),
-                'action'    =>substr($realRoute,$pi+2)
+                'controler' =>substr($realRoute, 0, $pi),
+                'action'    =>substr($realRoute, $pi+2)
             );
         }
+
 
         $paths = explode('/',$realRoute);
         $actoin = array_pop($paths);
         $realRouteShort = join('/', $paths);
 
-        $ctrlFile = Csphp::getPathByRoute($realRouteShort, '.php');
+        $ctrlFile1 = Csphp::getPathByRoute($realRouteShort, '.php');
         //echo $ctrlFile;
-        if(file_exists($ctrlFile)){
+        if(file_exists($ctrlFile1)){
             return array(
+                'route'         =>$realRouteShort,
+                'ctrl_file'     =>$ctrlFile1,
                 'action'        =>$actoin,
                 'ctontroler'    =>$realRouteShort
             );
         }
-        $ctrlFile =  Csphp::getPathByRoute($realRoute, '.php');
-        if(file_exists($ctrlFile)){
+        $ctrlFile2 =  Csphp::getPathByRoute($realRoute, '.php');
+        if(file_exists($ctrlFile2)){
             return array(
+                'route'         =>$realRoute,
+                'ctrl_file'     =>$ctrlFile2,
                 'action'        =>'index',
                 'ctontroler'    =>$realRoute
             );
         }
-        return array();
+        return array(
+            'not_ctrl_1'=>$ctrlFile1,
+            'not_ctrl_2'=>$ctrlFile2,
+        );
     }
 
     /**

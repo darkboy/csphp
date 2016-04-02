@@ -121,6 +121,12 @@ class Csphp {
     );
 
     /**
+     * 当前运行的模块数据
+     * @var array
+     */
+    public  static $curModule = array();
+
+    /**
      * 系统别名 字典，可以在配置路径 或者 的时候，使用 @aliasname 代表相应的目录
      * @var array
      */
@@ -170,6 +176,8 @@ class Csphp {
         //初始化请求信息
         self::request()->init();
 
+        //初始化当前模块配置
+        self::initModule();
         //cli 与 http 请求分别进行路由 和 初始化动作
         if(self::isCli()){
 
@@ -274,10 +282,64 @@ class Csphp {
     }
 
     /**
-     * todo
-     * 模块初始化，检查 当前运行的是什么模块，
+     * 模块初始化，检查 当前运行的是什么模块，并将模块信息提取
      */
-    private static function initModule(){}
+    private static function initModule(){
+        foreach(self::appCfg('modules') as $m){
+            if(self::request()->isMatch($m['filter'])){
+                self::$curModule = $m;
+                $appRoot = self::appCfg('app_base_path');
+                $appNs   = self::appCfg('app_namespace');
+
+                $ctrlNsModule = str_replace('/','\\', self::getModuleCtrlPath());
+                self::$aliasMap['@m-ctrl']  = array(
+                    $appRoot.'/controlers'.self::getModuleCtrlPath(),
+                    $appNs.'\\controlers'.$ctrlNsModule);
+
+                $viewNsModule = str_replace('/','\\', self::getModuleViewPath());
+                self::$aliasMap['@m-view']  = array(
+                    $appRoot.'/controlers'.self::getModuleViewPath(),
+                    $appNs.'\\views'.$viewNsModule);
+
+                return $m;
+            }
+        }
+
+
+        return self::appCfg('modules/www',array());
+    }
+
+    /**
+     * 获取当前模块的信息
+     * @return array
+     */
+    public  static function getModuleInfo(){
+        return self::$curModule;
+    }
+
+    /**
+     * 获取当前模块的名称
+     * @return mixed
+     */
+    public  static function getModuleName(){
+        return self::$curModule['module_name'];
+    }
+
+    /**
+     * 获取当前模块的 控制器基准目录
+     * @return string
+     */
+    public  static function getModuleCtrlPath(){
+        return '/'.trim(self::$curModule['ctrl_base'],'/');
+    }
+
+    /**
+     * 获取当前模块的 控示图基准目录
+     * @return string
+     */
+    public  static function getModuleViewPath(){
+        return '/'.trim(self::$curModule['view_base'],'/');
+    }
 
     /**
      * 初始化所有的 组件, 检查过滤器，初始化 组件配置选项，执行 start

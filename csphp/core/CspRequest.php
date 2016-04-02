@@ -286,6 +286,7 @@ class CspRequest{
             'httpMethod'    =>'*',   //可以是数组或者逗号隔开的 HTTP方法 列表如 “GET,POST”
             'requestType'   =>'*',   //可以是数组或者逗号隔开的 请求类型 列表如： “api,web,cli,ajax,jsonp”
             'entryName'     =>'*',   //可以是数组或者逗号隔开的 入口名 列表如 home,api,admin
+            'moduleName'    =>'*',   //可以是数组或者逗号隔开的 入口名 列表如 www,api,admin
 
             'urlPrefix'     =>'*',   //可以是数组或者逗号隔开的 前缀列表,如 “index/*,user/*”
             'urlSuffix'     =>'*',   //可以是数组或者逗号隔开的 后缀列表,如 ".html"
@@ -407,6 +408,27 @@ class CspRequest{
             return in_array(CSPHP_ENTRYNAME, $filterArg);
         }else{
             throw new CspException("Use  entryName filter , pls define CSPHP_ENTRYNAME const ");
+        }
+    }
+
+    /**
+     * 模块过滤器
+     *
+     * 检查请求是否从特定的入口进入，必须先在入口文件中配置 CSPHP_ENTRYNAME 常量
+     *
+     * @param $filterArg string 配置值可以是 逗号隔开的 入口名，或者数组 如 “home,admin”
+     * @return bool
+     * @throws \Csp\core\CspException
+     */
+    private function __rcf__moduleName($filterArg){
+        $mName = Csphp::getModuleName();
+        if($mName){
+            if(!is_array($filterArg)){
+                $filterArg = explode(',', $filterArg);
+            }
+            return in_array($mName, $filterArg);
+        }else{
+            throw new CspException("Use  moduleName filter , pls define CSPHP_ENTRYNAME const ");
         }
     }
 
