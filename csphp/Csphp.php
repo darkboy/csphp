@@ -66,9 +66,9 @@ class Csphp {
     const EVENT_CORE_AFTER_TPL_RENDER   = 'EVENT_CORE_AFTER_TPL_RANDER';
 
     /**
-     * 系统结束了动作
+     * 系统结束了action动作
      */
-    const EVENT_CORE_END_ACTION         = 'EVENT_CORE_END_ACTION';
+    const EVENT_CORE_AFTER_ACTION         = 'EVENT_CORE_AFTER_ACTION';
 
 
     /**
@@ -366,6 +366,13 @@ class Csphp {
      */
     public  static function getModuleViewPath(){
         return '/'.trim(self::$curModule['view_base'],'/');
+    }
+    /**
+     * 获取当前模块的默认路由
+     * @return string
+     */
+    public  static function getModuleDefaultRoute(){
+        return '/'.trim(self::$curModule['default_route'],'/');
     }
 
     /**

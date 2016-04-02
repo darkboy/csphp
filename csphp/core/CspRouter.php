@@ -136,10 +136,33 @@ class CspRouter{
     }
 
     /**
-     *
+     * 执行动作,产生相应的事件
      */
     public function doAction(){
+        $routeRst = $this->getParseRst();
+        //准备执行 action
+        Csphp::fireEvent(Csphp::EVENT_CORE_BEFORE_ACTION);
+        do{
+            //闭包路由
+            if(is_object($routeRst) && strtolower(get_class($routeRst))==='closure'){
+                $routeRst();
+                break;
+            }
 
+            //查找控制器失败
+            if(is_array($routeRst) && (!isset($routeRst['controler'])) || empty($routeRst['controler']) ){
+                //404...
+                echo '404:';print_r($routeRst);
+            }
+
+                //callable array
+            if(is_array($routeRst) && !isset($routeRst['controler'])){
+
+                //call_user_func($routeRst);
+            }
+        }while(false);
+        //执行 action 完成
+        Csphp::fireEvent(Csphp::EVENT_CORE_AFTER_ACTION);
     }
 
     /**
@@ -193,6 +216,19 @@ class CspRouter{
      */
     public function findRoute(){
         $sourceReqRoute = $this->getReqRoute();
+        //默认控制器
+        if(in_array($sourceReqRoute, array('/', '', 'index.php') ) ){
+
+            $defaultRoute = Csphp::getModuleDefaultRoute();
+            return array(
+                'route_type'    =>'default',
+                'route_var'     =>array(),
+                'match_key'     =>'',
+                'target_route'  =>$defaultRoute,
+                'parse_route'   =>$defaultRoute,
+                'parse_rst'     =>$this->isControlerExists($defaultRoute),
+            );
+        }
         foreach(Csphp::appCfg('router',array()) as $routeName=>$rCfg){
             if( !isset($rCfg['filter']) || $filterRst = Csphp::request()->isMatch($rCfg['filter']) ){
                 //对请求路由进行预处理，如删除 静态化 的后缀 .html 等
@@ -548,18 +584,21 @@ class CspRouter{
 
 
         $paths = explode('/',$realRoute);
-        $actoin = array_pop($paths);
-        $realRouteShort = join('/', $paths);
-
-        $ctrlFile1 = Csphp::getPathByRoute($realRouteShort, '.php');
-        //echo $ctrlFile;
-        if(file_exists($ctrlFile1)){
-            return array(
-                'route'         =>$realRouteShort,
-                'ctrl_file'     =>$ctrlFile1,
-                'action'        =>$actoin,
-                'ctontroler'    =>$realRouteShort
-            );
+        //print_r($paths);
+        $ctrlFile1 = '';
+        if(count($paths)>2){
+            $actoin = array_pop($paths);
+            $realRouteShort = join('/', $paths);
+            $ctrlFile1 = Csphp::getPathByRoute($realRouteShort, '.php');
+            //echo $ctrlFile;
+            if(file_exists($ctrlFile1)){
+                return array(
+                    'route'         =>$realRouteShort,
+                    'ctrl_file'     =>$ctrlFile1,
+                    'action'        =>$actoin,
+                    'ctontroler'    =>$realRouteShort
+                );
+            }
         }
         $ctrlFile2 =  Csphp::getPathByRoute($realRoute, '.php');
         if(file_exists($ctrlFile2)){
@@ -570,6 +609,7 @@ class CspRouter{
                 'ctontroler'    =>$realRoute
             );
         }
+
         return array(
             'not_ctrl_1'=>$ctrlFile1,
             'not_ctrl_2'=>$ctrlFile2,

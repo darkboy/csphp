@@ -22,7 +22,7 @@ return array(
         //路由列表, 配置规则为： 路由模板=>目标路由
         'rule_list'=>array(
             //别名
-            '/user/alias'           =>'/account/alias',
+            '/user/alias'           =>'/index',
             //闭包
             '/user/func'            =>function(){echo 'hello world';},
             //用户定义的 callable 结构，
