@@ -103,9 +103,8 @@ class CspTemplate{
      * @param $tplRoute string      渲染模板可用如下规则
      *        $tplRoute=""|null     空值,则表示自动根据控制器 计算 view
      *        $tplRoute=".pslName"   . 号开头，表示在当前控制器view目录中查找
-     *        $tplRoute="-pslName"   - 号开头，表示在当前模块的view基准目录的incluede中找
      *        $tplRoute="@pslName"   @ 号开头，表示绝对路由，
-     *        $tplRoute="pslName"    数字 字母开头，表示在当前模块的view目录中找
+     *        $tplRoute="pslName"    其它表示在当前模块的view目录中找
      * @param $isReturn bool
      */
     public function render($___data=array(), $___tplRoute='', $___isReturn=true){
@@ -150,7 +149,7 @@ class CspTemplate{
             return Csphp::getPathByRoute($tplRoute).$this->tplFileExt;
         }
 
-        return Csphp::getPathByRoute('@m-view/'.ltrim('/',$tplRoute)).$this->tplFileExt;
+        return Csphp::getPathByRoute('@m-view/'.ltrim($tplRoute, '/')).$this->tplFileExt;
     }
 
     /**

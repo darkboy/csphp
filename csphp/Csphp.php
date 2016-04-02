@@ -327,7 +327,7 @@ class Csphp {
 
                 $viewNsModule = str_replace('/','\\', self::getModuleViewPath());
                 self::$aliasMap['@m-view']  = array(
-                    $appRoot.'/controlers'.self::getModuleViewPath(),
+                    $appRoot.'/views'.self::getModuleViewPath(),
                     $appNs.'\\views'.$viewNsModule);
 
                 return $m;

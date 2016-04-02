@@ -1,0 +1,1 @@
+<div>Hello Tpl in widget: <?php echo time();?><div>
