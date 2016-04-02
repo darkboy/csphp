@@ -1,4 +1,7 @@
-Hello Tpl
+Hello Tpl in index:  <?php echo time();?>
+
+<?php $this->widget(array(),'.index_widget');?>
 <?php
 
-print_r($this);
+//echo Csphp::router()->getParseRoute();
+//print_r($controler);

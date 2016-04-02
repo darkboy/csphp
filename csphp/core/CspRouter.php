@@ -115,6 +115,14 @@ class CspRouter{
     }
 
     /**
+     * 获取解释后的路由
+     * @return string
+     */
+    public function getParseRoute(){
+        return is_object($this->routeInfo['parse_route']) ? 'anonymous' : $this->routeInfo['parse_route'];
+    }
+
+    /**
      * 当前的 action 名称
      * @return string
      */

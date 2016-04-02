@@ -14,7 +14,7 @@ class CspBaseControler {
      *
      */
     public function render($vars=array(), $tplRoute='', $isReturn=false){
-        return Csphp::tpl()->render($vars, $tplRoute, $isReturn);
+        Csphp::tpl()->render($vars, $tplRoute, $isReturn);
     }
 
     public function assign($k, $v=null){}

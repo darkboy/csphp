@@ -117,26 +117,34 @@ class CspTemplate{
         if(is_array($___data)){
             extract($___data, EXTR_OVERWRITE);
         }
+        //流入 控制器变量 到 模板，模板中可用 $this (模板类) $controler (当前控制器)
+        $controler = Csphp::controler();
 
+        if($___isReturn){
+            ob_start();
+            include $this->parseTplRoute($___tplRoute);
+            return ob_get_clean();
+        }else{
+            include $this->parseTplRoute($___tplRoute);
+        }
 
-        ob_start();
-
-        include $this->parseTplRoute($___tplRoute);
-
-        $data = ob_get_clean();
-        var_dump($data);
     }
+
+    public function widget($___data=array(), $___tplRoute='', $___isReturn=false){
+        $this->render($___data, $___tplRoute, $___isReturn);
+    }
+    public function plugin(){}
 
     /**
      *
      * @param string $tplRoute
      */
     public function parseTplRoute($tplRoute){
-        if(empty($tplRoute)){
+        if(empty($tplRoute) || $tplRoute==='-'){
             return $this->getCurTplFileForAction();
         }
         if($tplRoute[0]==='.'){
-            return $this->getCurTplPathForControler().substr($tplRoute, 1).$this->tplFileExt;
+            return $this->getCurTplPathForControler().'/'.substr($tplRoute, 1).$this->tplFileExt;
         }
         if($tplRoute[0]==='@'){
             return Csphp::getPathByRoute($tplRoute).$this->tplFileExt;
@@ -149,8 +157,6 @@ class CspTemplate{
      * 实现 PIPE 与 AJAX 异步 兼容
      */
     public function pls(){}
-    public function widget(){}
-    public function plugin(){}
 
     // 用于模板中输出，转义HTML 除非你完全确定被输出的内容是安全 HTML 否则VIEW模板中的内容要求统一用这个接口输出
     public static function o ($str, $quoteStyle = ENT_COMPAT) {

@@ -210,7 +210,7 @@ class Csphp {
             self::router()->parseRoute();
             self::fireEvent(self::EVENT_CORE_AFTER_ROUTE);
 
-            self::router()->dump();
+            //self::router()->dump();
             //执行控制器动作
             self::router()->doAction();
         }
