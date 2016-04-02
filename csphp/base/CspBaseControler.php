@@ -10,13 +10,14 @@ class CspBaseControler {
 
     }
 
-    public function render($tplRoute,$vars=array(),$isReturn){
-
+    public function render($vars=array(),$tplRoute='',$isReturn=false){
+        Csphp::tpl()->initByControler($this);
     }
     public function xpipeStart(){}
     public function assign($k, $v=null){}
     /**
-     * 控制器实例化的时候 被执行 主要用于 当前于整个控制器的初始化 和 访问控制
+     * 控制器实例化的时候 被执行 主要用于 访问控制
+     * 返回一个ACL 配置
      * @return array
      */
     public function filter(){
@@ -35,16 +36,14 @@ class CspBaseControler {
 
 
     /**
-     * 控制器前置HOOK，在某个 action 动作执行前 执行
+     * 控制器前置HOOK，action 动作执行前 执行
      */
     public function beforeAction(){
-
     }
     /**
-     * 控制器后置HOOK，在某个 action 动作执行后 执行
+     * 控制器后置HOOK，action 动作执行后 执行
      */
     public function afterAction(){
-
     }
 
 

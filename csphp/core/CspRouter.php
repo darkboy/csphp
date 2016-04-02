@@ -71,6 +71,7 @@ class CspRouter{
     /**
      * 某些场景下，项目会被安装在WEB站点的某个目录
      * 返回入口文件之前的路路径，不含最后的 / ，含左 /
+     * @return string
      */
     public function getSetupPath(){
         if(Csphp::request()->isCli()){
@@ -102,12 +103,36 @@ class CspRouter{
     public function getUri(){
         return $this->routeInfo['uri'];
     }
-    //获取匹配的规则
-    public function getMatchRule(){
+
+    /**
+     * 获取匹配的规则
+     * @return string
+     */
+    public function getHitRule(){
         return $this->routeInfo['hit_rule'];
     }
 
-    //获取路由解释结果
+    /**
+     * 当前的 action 名称
+     * @return string
+     */
+    public function getActionName(){
+
+        $parseRst = $this->getParseRst();
+        if(is_object($parseRst)){
+            return 'anonymous';
+        }
+        if(is_array($parseRst) && isset($parseRst['action'])){
+            return $parseRst['action'];
+        }
+        return '';
+    }
+
+
+    /**
+     * 获取路由解释结果 rst['controler'] rst['action']
+     * @return array|callable
+     */
     public function getParseRst(){
         return $this->routeInfo['parse_rst'];
     }
@@ -115,6 +140,7 @@ class CspRouter{
     /**
      * 获取路由变量
      * 获取路由解释过程中产生的变量
+     * @return array
      */
     public function getRouteVars(){
         return $this->routeInfo['route_var'];
@@ -122,8 +148,8 @@ class CspRouter{
 
     /**
      * 设置一个路由变量
-     * @param $k
-     * @param null $v
+     * @param string|array  $k
+     * @param null|mixed    $v
      */
     public function setRouteVar($k, $v=null){
         if(is_array($k)){

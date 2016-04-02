@@ -24,7 +24,7 @@ class index extends CspBaseControler{
     public function actionGet(){}
 
     public function actionIndex(){
-        echo 'Hello word index';
+        $this->render();
     }
 
 }
