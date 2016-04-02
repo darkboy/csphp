@@ -157,6 +157,30 @@ class CspTemplate{
      */
     public function pls(){}
 
+    /**
+     *
+     * @param $route
+     */
+    public function js($route){
+
+    }
+    public function css($route){
+
+    }
+
+    /**
+     *
+     */
+    public function fn(){}
+
+    /**
+     * 输出运行时的数据给 前端
+     * @param $route
+     */
+    public function data(){
+
+    }
+
     // 用于模板中输出，转义HTML 除非你完全确定被输出的内容是安全 HTML 否则VIEW模板中的内容要求统一用这个接口输出
     public static function o ($str, $quoteStyle = ENT_COMPAT) {
         echo  htmlspecialchars($str, $quoteStyle);
