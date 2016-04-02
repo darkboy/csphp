@@ -100,11 +100,7 @@ class CspTemplate{
     /**
      * 渲染一个模板
      * @param $data     array       传递到模块中的变量
-     * @param $tplRoute string      渲染模板可用如下规则
-     *        $tplRoute=""|null     空值,则表示自动根据控制器 计算 view
-     *        $tplRoute=".pslName"   . 号开头，表示在当前控制器view目录中查找
-     *        $tplRoute="@pslName"   @ 号开头，表示绝对路由，
-     *        $tplRoute="pslName"    其它表示在当前模块的view目录中找
+     * @param $tplRoute string      渲染模板可用规则，见解释函数
      * @param $isReturn bool
      */
     public function render($___data=array(), $___tplRoute='', $___isReturn=true){
@@ -135,7 +131,11 @@ class CspTemplate{
     public function plugin(){}
 
     /**
-     *
+     * 解释一个模板路由，返回示图文件地址，规则如下
+     *        $tplRoute=""|null|-    - 号 或者 空值,则表示自动根据控制器 计算 view 路径
+     *        $tplRoute=".pslName"   . 号开头，表示在当前控制器view目录中查找
+     *        $tplRoute="@pslName"   @ 号开头，表示绝对路由，
+     *        $tplRoute="pslName"    其它表示在当前模块的view目录中找
      * @param string $tplRoute
      */
     public function parseTplRoute($tplRoute){
@@ -152,26 +152,38 @@ class CspTemplate{
         return Csphp::getPathByRoute('@m-view/'.ltrim($tplRoute, '/')).$this->tplFileExt;
     }
 
+
     /**
-     * 实现 PIPE 与 AJAX 异步 兼容
+     * 支持三种 异步方式
+     */
+    public function async(){}
+    public function asyncByAjax(){}
+    public function asyncByPipe(){}
+    /**
+     * 实现 PIPE 流输出 asyncByPipe 的别名
      */
     public function pls(){}
+
 
     /**
      *
      * @param $route
      */
-    public function js($route){
+    public function js($routeList, $opt=array()){
 
     }
-    public function css($route){
+    public function css($routeList, $opt=array()){
 
     }
 
     /**
      *
      */
-    public function fn(){}
+    public function fn($route){
+        //扩展名
+        $ext = $opt['ext'].'?V='.Csphp::appCfg('app_version', '0.0.'.date('Hids'));
+
+    }
 
     /**
      * 输出运行时的数据给 前端
@@ -181,14 +193,29 @@ class CspTemplate{
 
     }
 
+
+
     // 用于模板中输出，转义HTML 除非你完全确定被输出的内容是安全 HTML 否则VIEW模板中的内容要求统一用这个接口输出
-    public static function o ($str, $quoteStyle = ENT_COMPAT) {
+    /**
+     * @param $str
+     * @param int $quoteStyle
+     * @return string
+     */
+    public function o ($str, $quoteStyle = ENT_COMPAT) {
         echo  htmlspecialchars($str, $quoteStyle);
         return '';
     }
-    //用于模板中输出，第一个为选择条件
-    public static function ifo($if,$yes,$no,$es=true){
-        echo $if ? ($es ? self::o($yes) : $yes) : ($es ? self::o($no) : $no);
+
+    //
+    /**
+     * 用于模板中输出，第一个为选择条件
+     * @param $if   bool 条件值
+     * @param $yes  string 条件值为 true  时输出的值
+     * @param $no   string 条件值为 false 时输出的值
+     * @param $es   bool   是否要对输出进行转义
+     */
+    public function ifo($if,$yes,$no,$es=true){
+        echo $if ? ($es ? $this->o($yes) : $yes) : ($es ? $this->o($no) : $no);
     }
 
 }
