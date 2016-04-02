@@ -1,5 +1,6 @@
 <?php
 namespace Csp\core;
+use Csp\base\CspBaseControler;
 use \Csphp;
 /*
  * Csphp 中关于url 的概念约定
@@ -45,7 +46,8 @@ class CspRouter{
             'action'    =>null
         ),
         //从路由规则中解释出来的 变量字典，可能是来自URL中的 /v1-v1/v2-v2 或者是 路由配置中的 "user/{actionVar}"
-        'route_var'     => array()
+        'route_var'     => array(),
+        'controler'     => null
     );
 
     public $cliInfo = array();
@@ -138,6 +140,13 @@ class CspRouter{
     }
 
     /**
+     * @return \Csp\base\CspBaseControler
+     */
+    public  function  getControler(){
+        return $this->routeInfo['controler'];
+    }
+
+    /**
      * 获取路由变量
      * 获取路由解释过程中产生的变量
      * @return array
@@ -171,6 +180,7 @@ class CspRouter{
         do{
             //闭包路由
             if(is_object($routeRst) && strtolower(get_class($routeRst))==='closure'){
+                $this->routeInfo['controler'] = $routeRst;
                 $routeRst();
                 break;
             }
@@ -197,6 +207,7 @@ class CspRouter{
                 }
 
                 $ctrlObj = new $controler();
+                $this->routeInfo['controler'] = $ctrlObj;
 
                 if(!method_exists($ctrlObj, $actionName)){
                     //404 can not find action in controler class

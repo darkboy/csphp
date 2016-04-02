@@ -14,7 +14,7 @@ class CspBaseControler {
      *
      */
     public function render($vars=array(), $tplRoute='', $isReturn=false){
-        Csphp::tpl()->initByControler($this);
+        return Csphp::tpl()->render($vars, $tplRoute, $isReturn);
     }
 
     public function assign($k, $v=null){}
@@ -59,6 +59,7 @@ class CspBaseControler {
 
 
     /**
+     * 接口API的标准输出
      * @param mixed     $rst
      * @param int       $code
      * @param string    $msg

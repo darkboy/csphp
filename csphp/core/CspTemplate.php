@@ -13,23 +13,28 @@ class CspTemplate{
      *
      * @var string
      */
-    public $viewBasePath    = '';
+    public $viewBasePath    = '@m-view';
+
     /**
-     * @var array
-     */
-    public $viewPathCfg     =array(
-        '-'=>'',
-        '.'=>''
-    );
-    /**
-     * 当前控制器 action 对应的 模板,
+     * 当前控制器 action 对应的 模板 文件路径,
      * 示图模板的目录规范:
      *      一个 action       对应一个模板文件
      *      一个 controler    对应一个模板目录
      *      目录层次与 控制器层次相同
      * @var string
      */
-    public $viewForCurAction = '';
+    public $curViewFileForAction    = '';
+    /**
+     * 当前控制器对应的 模板目录
+     * @var string
+     */
+    public $curViewPathForControler = '';
+    /**
+     * 当前公共模板目录，可放置 如 头 脚文件
+     * @var string
+     */
+    public $curViewPathForInclude = '';
+    public $tplFileExt = '.tpl.php';
     /**
      * xpipe 的标签占位符
      * @var string
@@ -38,17 +43,43 @@ class CspTemplate{
     public function __construct(){
     }
 
+    /**
+     * 获取当前 控制器 动作 对应的模板文件
+     * @return string
+     */
+    public function getCurTplFileForAction(){
+        if($this->curViewFileForAction){
+            return $this->curViewFileForAction;
+        }
+        $path = $this->getCurTplPathForControler();
+        $this->curViewFileForAction = $path.'/'.Csphp::router()->getActionName().$this->tplFileExt;
+        return $this->curViewFileForAction;
+    }
 
     /**
-     * 初始化 模板类
-     * @param $ctrlObj
+     * 获取当前控制器对应的模板目录
+     * @return string
      */
-    public function initByControler($ctrlObj){
-        $this->tplVars['controler'] = $ctrlObj;
-        $ctrlClsName    = get_class($ctrlObj);
-        $actionName     = Csphp::router()->getActionName();
-        $this->viewForCurAction = $actionName;
-        echo 'ctrlClsName:'.$ctrlClsName;
+    public function getCurTplPathForControler(){
+        if($this->curViewPathForControler){
+            return $this->curViewPathForControler;
+        }
+        $ctrlClsName = get_class(Csphp::controler());
+        $ctrlNs = Csphp::getNamespaceByAlias('@ctrl');
+        $tpl = substr($ctrlClsName, strlen($ctrlNs));
+        $tpl = str_replace('\\', '/', trim($tpl,'\\/'));
+        $this->curViewPathForControler = Csphp::getPathByRoute('@view/'.$tpl);
+        return $this->curViewPathForControler;
+    }
+
+    /**
+     * 获取当前模块的，共用模板目录
+     */
+    public function getCurViewIncludePath(){
+        if($this->curViewPathForInclude){
+            $this->curViewPathForInclude = Csphp::getPathByRoute('@m-view/common');
+        }
+        return $this->curViewPathForInclude;
     }
     /**
      * 给模板传递一个变量
@@ -77,21 +108,41 @@ class CspTemplate{
      *        $tplRoute="pslName"    数字 字母开头，表示在当前模块的view目录中找
      * @param $isReturn bool
      */
-    public function render($data=array(), $tplRoute='', $isReturn=true){
+    public function render($___data=array(), $___tplRoute='', $___isReturn=true){
 
+        //释放模板变量
         if(is_array($this->tplVars)){
             extract($this->tplVars, EXTR_SKIP);
         }
-        $tplTargetFile = $this->parseTplRoute($tplRoute);
+        if(is_array($___data)){
+            extract($___data, EXTR_OVERWRITE);
+        }
+
+
         ob_start();
 
-        require $tplTargetFile;
+        include $this->parseTplRoute($___tplRoute);
+
         $data = ob_get_clean();
+        var_dump($data);
     }
+
+    /**
+     *
+     * @param string $tplRoute
+     */
     public function parseTplRoute($tplRoute){
         if(empty($tplRoute)){
-            $tplTargetFile = $this->viewForCurAction;
+            return $this->getCurTplFileForAction();
         }
+        if($tplRoute[0]==='.'){
+            return $this->getCurTplPathForControler().substr($tplRoute, 1).$this->tplFileExt;
+        }
+        if($tplRoute[0]==='@'){
+            return Csphp::getPathByRoute($tplRoute).$this->tplFileExt;
+        }
+
+        return Csphp::getPathByRoute('@m-view/'.ltrim('/',$tplRoute)).$this->tplFileExt;
     }
 
     /**

@@ -753,6 +753,11 @@ class Csphp {
     public static function router(){
         return self::$coreObjs['router'];;
     }
+
+    public static function controler(){
+        return self::router()->getControler();
+    }
+
     /**
      * @return CspCliConsole
      */
