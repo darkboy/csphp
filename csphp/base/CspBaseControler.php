@@ -58,6 +58,13 @@ class CspBaseControler {
     }
 
 
+    /**
+     * @param mixed     $rst
+     * @param int       $code
+     * @param string    $msg
+     * @param string    $tips
+     * @return string   JSON str
+     */
     public function apiRst($rst, $code=0, $msg='OK', $tips=''){
         return Csphp::wrapJsonApiData($rst, $code, $msg, $tips);
     }
