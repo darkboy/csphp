@@ -64,7 +64,7 @@ class CspRouter{
 
 
     public function dump(){
-        echo "\n\n".'<pre>'.__CLASS__.'::'.__METHOD__;
+        echo "\n\n".'<pre>'."\n".__METHOD__." \n\n";
         print_r($this->routeInfo);
     }
 
@@ -262,7 +262,7 @@ class CspRouter{
     public function findRoute(){
         $sourceReqRoute = $this->getReqRoute();
         //默认控制器
-        if(in_array($sourceReqRoute, array('/', '', 'index.php') ) ){
+        if(in_array($sourceReqRoute, array('/', '', '/index.php') ) ){
 
             $defaultRoute = Csphp::getModuleDefaultRoute();
             return array(

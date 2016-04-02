@@ -209,11 +209,12 @@ class Csphp {
             //解释路由信息
             self::router()->parseRoute();
             self::fireEvent(self::EVENT_CORE_AFTER_ROUTE);
+
+            self::router()->dump();
             //执行控制器动作
             self::router()->doAction();
         }
 
-        self::router()->dump();
         //self::router()->getAction();
         //self::doFilters();
 
@@ -1160,7 +1161,7 @@ class Csphp {
         //var_dump(self::newClass('@ctrl/api/index',array('var'=>'yxh')));
         //var_dump(self::newClass('@ctrl/api/index',array('var'=>'yxh2')));
         //var_dump(self::newClass('@ctrl/api/index',array('var'=>'yxh2'), false));
-        echo self::getTimeUse();
-        print_r($_SERVER);
+        echo "\n\nTime use: ".self::getTimeUse();
+        //print_r($_SERVER);
     }
 }

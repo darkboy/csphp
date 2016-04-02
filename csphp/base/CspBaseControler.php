@@ -10,6 +10,11 @@ class CspBaseControler {
 
     }
 
+    public function render($tplRoute,$vars=array(),$isReturn){
+
+    }
+    public function xpipeStart(){}
+    public function assign($k, $v=null){}
     /**
      * 控制器实例化的时候 被执行 主要用于 当前于整个控制器的初始化 和 访问控制
      * @return array
