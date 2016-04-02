@@ -123,6 +123,10 @@ class CspCliConsole{
     public static function parseRoute(){
 
     }
+    public static function doAction(){
+
+    }
+
     public static function cliHelp() {
         echo "\n", "  欢迎使用Csphp命令行模式，命令格式如下:", "\n";
         echo "\n\t", "cli.php <Routename> [-xvalue ...] [-x value ...] [--argname value ...]  [--argname=value ...]  [\"<C|P|G>:<Querystring>\" ...] ", "\n";

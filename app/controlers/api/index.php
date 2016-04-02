@@ -1,7 +1,9 @@
 <?php
 namespace App\controlers\api;
+use \Csp\base\CspBaseControler;
+use \Csphp;
 
-class index {
+class index extends CspBaseControler{
     public $var= 'test';
 
     public function __construct(){

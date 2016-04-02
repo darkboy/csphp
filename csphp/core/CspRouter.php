@@ -29,10 +29,21 @@ class CspRouter{
         'entry_file'    =>null,
         //URI 中 清除 变量路由 和 安装目录 后的路由
         'req_route'     =>null,
+        //当前路由类型
+        'route_type'    =>null,
+        //匹配到的目标路由，可能是 闭包 数组 或者 包含变量的路由模板
+        'target_route'  =>"",
+        //解释 target_route 变量后的路由
+        'parse_route'   =>"",
         //命中中的 路由规则名
         'hit_rule'      =>'',
-        //解释后最终要执行的路由
-        'real_rule'     =>'',  //最终要执行的 路由
+        //匹配到的路由模板
+        'match_key'     =>'',
+        //解释结果，最终要执行的 路由信息
+        'parse_rst'     =>array(
+            'controler' =>null,
+            'action'    =>null
+        ),
         //从路由规则中解释出来的 变量字典，可能是来自URL中的 /v1-v1/v2-v2 或者是 路由配置中的 "user/{actionVar}"
         'route_var'     => array()
     );
@@ -47,11 +58,16 @@ class CspRouter{
         $this->routeInfo['uri']        = Csphp::request()->getReqUri();
         $this->routeInfo['setup_path'] = $this->getSetupPath();
         $this->routeInfo['entry_file'] = $this->getEntryFile();
+        //初步解释URL上的路由变量，并提取 reqRoute
+        $this->parseUrl();
     }
+
+
     public function dump(){
         echo '<pre>';
         print_r($this->routeInfo);
     }
+
     /**
      * 某些场景下，项目会被安装在WEB站点的某个目录
      * 返回入口文件之前的路路径，不含最后的 / ，含左 /
@@ -86,6 +102,15 @@ class CspRouter{
     public function getUri(){
         return $this->routeInfo['uri'];
     }
+    //获取匹配的规则
+    public function getMatchRule(){
+        return $this->routeInfo['hit_rule'];
+    }
+
+    //获取路由解释结果
+    public function getParseRst(){
+        return $this->routeInfo['parse_rst'];
+    }
 
     /**
      * 获取路由变量
@@ -110,15 +135,28 @@ class CspRouter{
         }
     }
 
+    /**
+     *
+     */
+    public function doAction(){
+
+    }
 
     /**
      * 解释当前请求 路由
      */
     public function parseRoute(){
-        $this->parseUrl();
         $findRst = $this->findRoute();
-
+        foreach($findRst as $k=>$v){
+            if($k==='route_var'){
+                $this->setRouteVar($v);
+            }else{
+                $this->routeInfo[$k] = $v;
+            }
+        }
+        return true;
     }
+
 
     /**
      * 解释路径,提取路径中的变量，返回 reqRoute
@@ -168,7 +206,7 @@ class CspRouter{
                 if(!empty($findRst) ){
                     $findRst['hit_rule'] = $routeName."::".$findRst['match_key'];
                 }
-                echo "<pre>Route find: \n";print_r($findRst);//exit;
+                //echo "<pre>Route find: \n";print_r($findRst);//exit;
                 return $findRst;
             }
             //echo "Filter rst: ".var_dump($filterRst);
@@ -309,7 +347,7 @@ class CspRouter{
                 'match_key'     =>$reqRoute,
                 'target_route'  =>$rCfg['rule_list'][$reqRoute],
                 'parse_route'   =>$rCfg['rule_list'][$reqRoute],
-                'real_route'    =>$this->isControlerExists($rCfg['rule_list'][$reqRoute])
+                'parse_rst'     =>$this->isControlerExists($rCfg['rule_list'][$reqRoute])
             );
         }
 
@@ -324,7 +362,7 @@ class CspRouter{
                 'match_key'     =>'',
                 'target_route'  =>'',
                 'parse_route'   =>'',
-                'real_route'    =>$isControlerExists
+                'parse_rst'     =>$isControlerExists
             );
         }
 
@@ -369,7 +407,7 @@ class CspRouter{
                         'match_key'     =>$rTpl,
                         'target_route'  =>$targetSourceRoute,
                         'parse_route'   =>$targetSourceRoute,
-                        'real_route'    =>$this->isControlerExists($targetSourceRoute)
+                        'parse_rst'     =>$this->isControlerExists($targetSourceRoute)
                     );
                 }else{
                     continue;
@@ -412,7 +450,7 @@ class CspRouter{
             'match_key'     =>$matchKey,
             'target_route'  =>$targetSourceRoute,
             'parse_route'   =>$parseRoute,
-            'real_route'    =>$this->isControlerExists($parseRoute)
+            'parse_rst'     =>$this->isControlerExists($parseRoute)
         );
     }
 

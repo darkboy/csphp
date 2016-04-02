@@ -39,9 +39,13 @@ class Csphp {
      * 通过变更  app response request route tpl 进行 数据更改 和 流程干预
      */
     /**
-     * 核心架构 准备完毕事件，已完成 配置，初始化，和 路由解释
+     * 核心架构 准备完毕事件，已完成 配置，初始化
      */
     const EVENT_CORE_AFTER_INIT         = 'EVENT_CORE_AFTER_INIT';
+    /**
+     * 路由解释 结束
+     */
+    const EVENT_CORE_AFTER_ROUTE        = 'EVENT_CORE_AFTER_ROUTE';
     /**
      * 用户以 及 系统配置的 组件初始化完成，即：已调用完他们的 start 方法
      */
@@ -178,43 +182,66 @@ class Csphp {
 
         //初始化当前模块配置
         self::initModule();
+
         //cli 与 http 请求分别进行路由 和 初始化动作
         if(self::isCli()){
-
             //初始化
             self::cliConsole()->init();
+            //系统初始化结束
+            self::fireEvent(self::EVENT_CORE_AFTER_INIT);
+            //初始化组件
+            self::initComponents();
             //解释路由信息
             self::cliConsole()->parseRoute();
+            self::fireEvent(self::EVENT_CORE_AFTER_ROUTE);
+            //执行命令行动作
+            self::cliConsole()->doAction();
 
         }else{
-
             //初始化路由信息
             self::router()->init();
+            //系统初始化结束
+            self::fireEvent(self::EVENT_CORE_AFTER_INIT);
+            //访问控制检查
+            self::checkAccessControl();
+            //初始化组件
+            self::initComponents();
             //解释路由信息
             self::router()->parseRoute();
-
+            self::fireEvent(self::EVENT_CORE_AFTER_ROUTE);
+            //执行控制器动作
+            self::router()->doAction();
         }
 
         self::router()->dump();
-
-        self::fireEvent(self::EVENT_CORE_AFTER_INIT);
-
-        //初始化组件
-        self::initComponents();
-
-        self::fireEvent(self::EVENT_CORE_AFTER_COMP_INIT);
 
 
         //self::router()->getAction();
         //self::doFilters();
 
+
         self::tmp();
+        self::exitApp();
     }
+    //系统的访问控制检查
+    public static function checkAccessControl($aclCfg=null){
+        if(empty($aclCfg)){
+            $aclCfg = self::appCfg('acl', array());
+        }
+        foreach($aclCfg as $acl){
+
+        }
+    }
+
     /**
      * 应用退出
      */
     public static function exitApp(){
+        self::fireEvent(self::EVENT_CORE_BEFORE_SEND_RESP);
         self::response()->send();
+        self::fireEvent(self::EVENT_CORE_AFTER_SEND_RESP);
+
+
     }
 
     /**
@@ -348,6 +375,7 @@ class Csphp {
         self::initComponentsByCfg( self::appCfg('components', array()) );
         //后加载 sys 组件 ，如果 access_key 有冲突,则以 sys 为准
         self::initComponentsByCfg( self::sysCfg('components', array()) );
+        self::fireEvent(self::EVENT_CORE_AFTER_COMP_INIT);
     }
 
     /**
