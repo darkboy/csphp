@@ -11,32 +11,6 @@ class CspBaseControler {
     }
 
     /**
-     * 渲染一个模板
-     * @param string    $tplRoute
-     * @param array     $vars
-     * @param bool      $isReturn
-     */
-    public function render($tplRoute='', $vars=array(), $isReturn=false){
-        Csphp::tpl()->render($tplRoute, $vars, $isReturn);
-    }
-
-    /**
-     * 给模板赋值
-     * @param string    $k
-     * @param null      $v
-     */
-    public function assign($k, $v=null){
-        Csphp::tpl()->assign($k, $v);
-    }
-
-    /**
-     *
-     */
-    public function xpipeStart(){}
-
-    public function xpipe(){}
-
-    /**
      * 控制器实例化的时候 被执行 主要用于 访问控制
      * 返回一个ACL 配置
      * @return array
@@ -66,6 +40,32 @@ class CspBaseControler {
      */
     public function afterAction(){
     }
+
+    /**
+     * 渲染一个模板
+     * @param string    $tplRoute
+     * @param array     $vars
+     * @param bool      $isReturn
+     */
+    public function render($tplRoute='', $vars=array(), $isReturn=false){
+        return Csphp::tpl()->render($tplRoute, $vars, $isReturn);
+    }
+
+    /**
+     * 给模板赋值
+     * @param string    $k
+     * @param null      $v
+     */
+    public function assign($k, $v=null){
+        Csphp::tpl()->assign($k, $v);
+    }
+
+    public function layout($layoutRoute, $tplRoute='', $vars=array(), $isReturn=false){
+        return Csphp::tpl()->layout($layoutRoute, $tplRoute, $vars, $isReturn);
+    }
+
+    public function xpipe(){}
+    public function async(){}
 
 
     /**

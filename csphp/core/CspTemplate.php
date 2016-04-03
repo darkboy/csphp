@@ -102,6 +102,7 @@ class CspTemplate{
      * @param $data     array       传递到模块中的变量
      * @param $tplRoute string      渲染模板可用规则，见解释函数
      * @param $isReturn bool
+     * @return string
      */
     public function render($___tplRoute='', $___data=array(), $___isReturn=true){
 
@@ -122,7 +123,7 @@ class CspTemplate{
         }else{
             include $this->parseTplRoute($___tplRoute);
         }
-
+        return '';
     }
 
     /**
