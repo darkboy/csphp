@@ -126,14 +126,24 @@ class CspTemplate{
     }
 
     /**
-     * @param array     $___data
-     * @param string    $___tplRoute
-     * @param bool      $___isReturn
+     * @param array     $data
+     * @param string    $tplRoute
+     * @param bool      $isReturn
      */
-    public function widget($___tplRoute='', $___data=array(), $___isReturn=false){
-        $this->render($___tplRoute, $___data, $___isReturn);
+    public function widget($tplRoute='', $data=array(), $isReturn=false){
+        return $this->render($tplRoute, $data, $isReturn);
     }
-    public function plugin(){}
+
+    /**
+     * 使用布局 进行渲染
+     * @param string $layout
+     * @param string $tplRoute
+     * @param array $data
+     * @param bool $isReturn
+     */
+    public function layout($layout,  $tplRoute='', $data=array(), $isReturn=false){
+        return $this->render('@m-view/'.$layout,array( 'content'=>$this->render($tplRoute, $data, true)), $isReturn);
+    }
 
     /**
      * 解释一个模板路由，返回示图文件地址，规则如下
