@@ -10,14 +10,24 @@ class CspBaseControler {
 
     }
 
-    /*
-     *
+    /**
+     * 渲染一个模板
+     * @param string    $tplRoute
+     * @param array     $vars
+     * @param bool      $isReturn
      */
     public function render($tplRoute='', $vars=array(), $isReturn=false){
         Csphp::tpl()->render($tplRoute, $vars, $isReturn);
     }
 
-    public function assign($k, $v=null){}
+    /**
+     * 给模板赋值
+     * @param string    $k
+     * @param null      $v
+     */
+    public function assign($k, $v=null){
+        Csphp::tpl()->assign($k, $v);
+    }
 
     /**
      *
