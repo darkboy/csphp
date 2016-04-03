@@ -125,6 +125,11 @@ class CspTemplate{
 
     }
 
+    /**
+     * @param array     $___data
+     * @param string    $___tplRoute
+     * @param bool      $___isReturn
+     */
     public function widget($___data=array(), $___tplRoute='', $___isReturn=false){
         $this->render($___data, $___tplRoute, $___isReturn);
     }
@@ -157,6 +162,10 @@ class CspTemplate{
      * 支持三种 异步方式
      */
     public function async(){}
+
+    /**
+     * 将一个请求拆成N个请求
+     */
     public function asyncByAjax(){}
     public function asyncByPipe(){}
     /**
