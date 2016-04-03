@@ -1,10 +1,12 @@
 <?php
 namespace Csp\base;
-use \Csphp as Csphp;
+use \Csphp;
 
-class CspBaseObject{
-    public function __construct(){
+class CspBaseObject {
+
+    public $jsonpCallbackName = null;
+
+    public function __construct() {
 
     }
-
 }
