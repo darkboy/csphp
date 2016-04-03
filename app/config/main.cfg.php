@@ -76,7 +76,7 @@ $systemCfg = array(
         )
     ),
 
-    //日志相关
+    //日志相关-将 覆盖 系统 的配置
     'log_key_separator'=>'#####',
     'log_base_path'    =>__DIR__,
     'log_stay_days'    =>7,

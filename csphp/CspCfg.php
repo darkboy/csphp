@@ -1,12 +1,11 @@
 <?php
 //系统配置文件
 $systemConfig=array(
-    'app_start_time'    =>microtime(true),
+    'csphp_start_time'  =>microtime(true),
     //框架所在目录
     'system_base_path'  =>__DIR__,
-
     //是否开启调试
-    'is_debug'      =>false,
+    'is_debug'          =>false,
 
 
     //请求类型的判断条件 配置项 是一个 $requestFilter 过滤器条件
@@ -33,7 +32,7 @@ $systemConfig=array(
 
     //日志相关
     'log_key_separator'=>'#####',
-    'log_base_path'    =>__DIR__,
+    'log_base_path'    =>__DIR__.'/log',
     'log_stay_days'    =>7,
     'is_log_info'      =>true,
     'is_log_debug'     =>true,
@@ -44,6 +43,8 @@ $systemConfig=array(
     'ip_keys_order'     =>array(
         'HTTP_X_REAL_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP',
         'HTTP_X_CLIENT_IP', 'HTTP_X_CLUSTER_CLIENT_IP', 'REMOTE_ADDR'),
+
+    //
 
 
 );

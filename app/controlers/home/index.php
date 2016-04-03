@@ -22,7 +22,14 @@ class index extends CspBaseControler{
 
     public function actionGet(){}
 
+    /**
+     * 示例 action
+     */
     public function actionIndex(){
+        $this->render();
+    }
+    public function pageletIndex(){
+
         $this->render();
     }
 
