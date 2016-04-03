@@ -1,1 +1,1 @@
-<div>Hello Tpl in widget: <?php echo time();?><div>
+<div>Hello widget called by <?php $this->o($by);?> : <?php echo time();?><div>
