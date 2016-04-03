@@ -17,6 +17,7 @@
         <hr>
         <div><?php $this->o('<div></div>');?></div><br>
         <div><?php $this->ifo(true,"yes","no");?></div><br>
-        <?php $this->widget(array(),'.index_widget');?>
+        <?php $this->widget('.index_widget');?>
+        <pre><?php print_r(Csphp::router()->routeInfo);?></pre>
     </body>
 </html>

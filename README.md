@@ -8,14 +8,14 @@ A Concise but not Simple PHP framework
 Plan
 =====
 
-	1. Core, config, validator, log ,envnt
-	2. request, response, router
-	3. core, comp, comp-flow and event 
-	4. core,tpl,asset
-	5. link all feature: core, config,request,router,response,component,ext,event,log
-	6. all baseClass ,model,controler,comp,obj
-	7. all components
-	8. test and debug........
+    1. cli  route input and out support
+    2. assets  publish statics resources
+    3. implement 4  base:  obj ctrl  comp mod
+    4. template  support，async (pipe ajax)  feature
+    5. js css manger in tpl
+    6. url  creator considering for migration
+    7. log review and debug
+    8. event review and debug
 
 
 

@@ -103,7 +103,7 @@ class CspTemplate{
      * @param $tplRoute string      渲染模板可用规则，见解释函数
      * @param $isReturn bool
      */
-    public function render($___data=array(), $___tplRoute='', $___isReturn=true){
+    public function render($___tplRoute='', $___data=array(), $___isReturn=true){
 
         //释放模板变量
         if(is_array($this->tplVars)){
@@ -130,8 +130,8 @@ class CspTemplate{
      * @param string    $___tplRoute
      * @param bool      $___isReturn
      */
-    public function widget($___data=array(), $___tplRoute='', $___isReturn=false){
-        $this->render($___data, $___tplRoute, $___isReturn);
+    public function widget($___tplRoute='', $___data=array(), $___isReturn=false){
+        $this->render($___tplRoute, $___data, $___isReturn);
     }
     public function plugin(){}
 

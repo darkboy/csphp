@@ -28,6 +28,11 @@ class index extends CspBaseControler{
     public function actionIndex(){
         $this->render();
     }
+
+    public function actionHome(){
+        $this->render('.index');
+    }
+
     public function pageletIndex(){
 
         $this->render();

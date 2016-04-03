@@ -426,6 +426,10 @@ class CspResponse{
         echo $this->bodyStr;
     }
 
+    public function sendChunkHeader(){
+        //Transfer-Encoding: chunked
+    }
+
 
 
 

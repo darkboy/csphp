@@ -29,7 +29,7 @@ return array(
         //模块名，不能重复，模块名用于 访问控制 或者 过滤器
         'module_name'   =>'www',
         //默认的控制器，即首页
-        'default_route' =>'index',
+        'default_route' =>'index/home',
         //控制器目录，基准目录为 @ctrl
         'ctrl_base'    =>'home',
         //示图，模板目录
