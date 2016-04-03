@@ -153,7 +153,6 @@ class CspTemplate{
         if($tplRoute[0]==='@'){
             return Csphp::getPathByRoute($tplRoute).$this->tplFileExt;
         }
-
         return Csphp::getPathByRoute('@m-view/'.ltrim($tplRoute, '/')).$this->tplFileExt;
     }
 
