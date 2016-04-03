@@ -64,10 +64,6 @@ class CspBaseControler {
         return Csphp::tpl()->layout($layoutRoute, $tplRoute, $vars, $isReturn);
     }
 
-    public function xpipe(){}
-    public function async(){}
-
-
     /**
      * 接口API的标准输出
      * @param mixed     $rst

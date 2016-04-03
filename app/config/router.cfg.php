@@ -2,6 +2,18 @@
 namespace App;
 //路由的配置示例
 return array(
+
+    'rpc_server'=>array(
+
+        //请求过滤器，在什么条件下使用该路由规则 !filter 则表示反规则, 详见 CspRequest  过滤器  中的描述
+        'filter'=>array(),
+        //路由列表, 配置规则为： 路由模板=>目标路由
+        'rule_list'=>array(
+            //别名
+            '/yar'           =>'@ctrl/rpc/yar/start',
+        )
+    ),
+
     //规则名称=>规则内容
     'demo_rule'=>array(
 

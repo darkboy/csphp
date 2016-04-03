@@ -31,6 +31,7 @@
         <?php $this->widget('@view/home/index/index_widget',array('by'=>'four'));?>
 
         <pre><?php print_r(Csphp::router()->routeInfo);?></pre>
+        <?php $this->xpipe();?>
 
     </body>
 </html>

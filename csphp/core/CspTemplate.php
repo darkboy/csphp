@@ -167,21 +167,21 @@ class CspTemplate{
         return Csphp::getPathByRoute('@m-view/'.ltrim($tplRoute, '/')).$this->tplFileExt;
     }
 
+    /**
+     *
+     */
+    public function ajax($route, $args=array(), $assets=array()){}
 
     /**
-     * 支持三种 异步方式
+     * 一个 pipe 的输出结构
+     * pipeJson = {pid='', html=>'', assets=>array(), pipedata=>array()}
+     * @param $route
+     * @param array $args
+     * @param array $assets
      */
-    public function async(){}
+    public function xpipe($route, $args=array(), $assets=array()){
 
-    /**
-     * 将一个请求拆成N个请求
-     */
-    public function asyncByAjax(){}
-    public function asyncByPipe(){}
-    /**
-     * 实现 PIPE 流输出 asyncByPipe 的别名
-     */
-    public function pls(){}
+    }
 
 
     /**

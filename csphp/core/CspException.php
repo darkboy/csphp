@@ -42,6 +42,7 @@ class CspException extends \Exception{
     public function __toString() {
         echo '<pre>';
         echo Csphp::trace($this->getTrace());
+        print_r(Csphp::router()->routeInfo);
         return "Exception Code is: [{$this->code}]; Msg: {$this->message}";
     }
 }
