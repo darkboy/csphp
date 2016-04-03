@@ -190,7 +190,7 @@ class CspTemplate{
      */
     public function fn($route){
         //扩展名
-        $ext = $opt['ext'].'?V='.Csphp::appCfg('app_version', '0.0.'.date('Hids'));
+        //$ext = $opt['ext'].'?V='.Csphp::appCfg('app_version', '0.0.'.date('Hids'));
 
     }
 
