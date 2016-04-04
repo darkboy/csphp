@@ -94,9 +94,9 @@ class CspValidator{
 
     /**
      * 通用的输入获取器
-     * @param $argValue         等检查的值，NULL为未提供
+     * @param $argValue         mixed 等待检查的值，NULL 表示为未提供
      *                          如 g:name = $_GET[name] c:ck=$_COOKIE['ck'] p:text=$_POST[text]
-     * @param $ruleList         规则列表,规则说明如下：
+     * @param $ruleList         string 规则列表,规则说明如下：
      *    1. 单个规则的定义语法为 <rule_name>[:rule_arg]
      *    2. 多个规则可用 , 隔开
      *    3. 检查时从前面开始检查，只要有一个不符合则返回
