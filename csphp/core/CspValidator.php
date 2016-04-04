@@ -29,7 +29,7 @@ class CspValidator{
 
     /**
      * 注册一个正则表达式规则
-     * @param $regexpName   正则表达式名称，可用于 regexp 的参数如 “require,regexp:regexpName”
+     * @param $regexpName   string 正则表达式名称，可用于 regexp 的参数如 “require,regexp:regexpName”
      * @param $regexp
      */
     public static function registerRegexpRule($regexpName, $regexp){
@@ -38,8 +38,8 @@ class CspValidator{
 
     /**
      * 注册一个自定义的 验证方法
-     * @param $name 验证器名称
-     * @param $callableExp 自定义的验证方法 ruleFunc($argValue, $ruleArg){};
+     * @param $name string 验证器名称
+     * @param $callableExp callable 自定义的验证方法 ruleFunc($argValue, $ruleArg){};
      * @param $regexp
      */
     public static function registerValidator($name, $callableExp){
@@ -48,8 +48,8 @@ class CspValidator{
 
     /**
      * 注册 枚举数据字典，存储的值为数组
-     * @param $name         枚举名称
-     * @param $dataArrOrStr 枚举数组 或者是以 | 号分隔的字符串
+     * @param $name         string name 枚举名称
+     * @param $dataArrOrStr array|string 枚举数组 或者是以 | 号分隔的字符串
      */
     public static function registerEnumMap($emumName, $dataArrOrStr){
         self::$enumMapList[$emumName] = is_array($dataArrOrStr) ? $dataArrOrStr : explode('|', $dataArrOrStr);

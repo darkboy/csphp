@@ -19,6 +19,7 @@ class CspBaseModel {
      */
     protected $__formater = array();
 
+
     public function __construct($tableName,$dbName,$pkName = 'id' ) {
         $this->db = Csphp::comp('mysql');
     }
