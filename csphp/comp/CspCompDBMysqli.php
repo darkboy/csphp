@@ -338,7 +338,7 @@ class CspCompDBMysqli extends CspBaseComponent {
     public static function getInstance() {
         return self::$_instance;
     }
-
+    //----------------------------------------------------------------------------
     /**
      * Reset states after an execution
      *

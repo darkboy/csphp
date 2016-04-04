@@ -50,7 +50,7 @@ class CspBaseModel {
 
 
     public function find($cond,$page,$pageSize){}
-    public function formatFind($cond,$page,$pageSize){}
+    public function formatFind($fk,$cond,$page,$pageSize){}
 
     public function dataFormater($data, $isMulti=false){}
 
