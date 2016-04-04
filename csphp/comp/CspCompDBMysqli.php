@@ -16,8 +16,12 @@ use \Exception;
  *
  * 修改自: 开源基础上 http://github.com/joshcam/PHP-MySQLi-Database-Class
  *
- * 增加主从支持
+ * todo...
+ * 增加主从，读写分离，支持
  * 增加多库支持
+ * 增加 find 函数
+ * 增加 数组 条件构造器
+ * fix andy bug
  *
  * @package Csp\comp
  */
