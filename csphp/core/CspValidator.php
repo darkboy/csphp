@@ -119,12 +119,6 @@ class CspValidator{
      *          wblen:0-14      表示参数微博长度必须在某个范围，微博长度的计算方法为: 一个汉字计2 一个单字节字符计 1
      *          regexp:reg_str" 表示参数必须符合 reg_str 正则表示规则（高级应用）
      *
-     * @param $argDesc          自定义的参数错误提示信息
-     * @param $voidCallBack     是否在参数错误时自动处理，在API JSAPI CLI 模式时 建议使用默认值 true
-     *                          如果设置为 false , 用户可通过返回值是否 ===false 判断参数是否合法
-     *                          且可以通过 control::lastParamError() 获取参数错误的描述与错误码
-     *                          $callBack 参数除了 布尔值外，也可以是一个 callbackAble 值
-     *
      *
      * 代码示例:
      *      CspValidator::validate($value, "num,enum:1|2|3");
