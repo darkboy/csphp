@@ -4,6 +4,9 @@ namespace Csp\comp;
 use \Csp\base\CspBaseControler;
 use \Csp\base\CspBaseComponent;
 use \Csphp;
+use \mysqli_stmt;
+use \mysqli;
+use \stdClass;
 
 
 /**
@@ -110,47 +113,56 @@ class CspCompDBMysqli extends CspBaseComponent {
      * @var bool
      */
     protected $isSubQuery = false;
+
     /**
      * Name of the auto increment column
      * @var int
      */
     protected $_lastInsertId = null;
+
     /**
      * Column names for update when using onDuplicate method
      * @var array
      */
     protected $_updateColumns = null;
+
     /**
      * Return type: 'array' to return results as array, 'object' as object
      * 'json' as json string
      * @var string
      */
     public $returnType = 'array';
+
     /**
      * Should join() results be nested by table
      * @var bool
      */
     protected $_nestJoin = false;
+
     /**
      * Table name (with prefix, if used)
      * @var string
      */
     private $_tableName = '';
+
     /**
      * FOR UPDATE flag
      * @var bool
      */
     protected $_forUpdate = false;
+
     /**
      * LOCK IN SHARE MODE flag
      * @var bool
      */
     protected $_lockInShareMode = false;
+
     /**
      * Key field for Map()'ed result array
      * @var string
      */
     protected $_mapKey = null;
+
     /**
      * Variables for query execution tracing
      */
@@ -337,6 +349,7 @@ class CspCompDBMysqli extends CspBaseComponent {
         $params = array(''); // Create the empty 0 index
         $this->_query = $query;
         $stmt = $this->_prepareQuery();
+
         if (is_array($bindParams) === true) {
             foreach ($bindParams as $prop => $val) {
                 $params[0] .= $this->_determineType($val);
@@ -344,11 +357,14 @@ class CspCompDBMysqli extends CspBaseComponent {
             }
             call_user_func_array(array($stmt, 'bind_param'), $this->refValues($params));
         }
+
         $stmt->execute();
+
         $this->count = $stmt->affected_rows;
         $this->_stmtError = $stmt->error;
         $this->_lastQuery = $this->replacePlaceHolders($this->_query, $params);
         $res = $this->_dynamicBindResults($stmt);
+
         $this->reset();
         return $res;
     }
@@ -481,8 +497,7 @@ class CspCompDBMysqli extends CspBaseComponent {
         } else {
             $this->_tableName = $tableName;
         }
-        $this->_query = 'SELECT ' . implode(' ', $this->_queryOptions) . ' ' .
-            $column . " FROM " . $this->_tableName;
+        $this->_query = 'SELECT ' . implode(' ', $this->_queryOptions) . ' ' . $column . " FROM " . $this->_tableName;
         $stmt = $this->_buildQuery($numRows);
         if ($this->isSubQuery) {
             return $this;
@@ -938,7 +953,7 @@ class CspCompDBMysqli extends CspBaseComponent {
      *                               or only $count
      * @param array $tableData Should contain an array of data for updating the database.
      *
-     * @return mysqli_stmt Returns the $stmt object.
+     * @return \mysqli_stmt Returns the $stmt object.
      */
     protected function _buildQuery($numRows = null, $tableData = null) {
         $this->_buildJoin();
@@ -977,7 +992,8 @@ class CspCompDBMysqli extends CspBaseComponent {
      *
      * @return array The results of the SQL fetch.
      */
-    protected function _dynamicBindResults(mysqli_stmt $stmt) {
+    protected function _dynamicBindResults(\mysqli_stmt $stmt) {
+
         $parameters = array();
         $results = array();
         /**
@@ -1005,6 +1021,7 @@ class CspCompDBMysqli extends CspBaseComponent {
                 $parameters[] = &$row[$field->name];
             }
         }
+
         // avoid out of memory bug in php 5.2 and 5.3. Mysqli allocates lot of memory for long*
         // and blob* types. So to avoid out of memory issues store_result is used
         // https://github.com/joshcam/PHP-MySQLi-Database-Class/pull/119
@@ -1050,6 +1067,7 @@ class CspCompDBMysqli extends CspBaseComponent {
             $stmt->free_result();
         }
         $stmt->close();
+
         // stored procedures sometimes can return more then 1 resultset
         if ($this->mysqli()->more_results()) {
             $this->mysqli()->next_result();
@@ -1298,7 +1316,7 @@ class CspCompDBMysqli extends CspBaseComponent {
      * Method attempts to prepare the SQL query
      * and throws an error if there was a problem.
      *
-     * @return mysqli_stmt
+     * @return \mysqli_stmt
      */
     protected function _prepareQuery() {
         if (!$stmt = $this->mysqli()->prepare($this->_query)) {
