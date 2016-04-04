@@ -5,11 +5,14 @@ use \Csphp;
 class CspBaseModel {
 
     protected $__curDB = null;
+    protected $__pk    = null;
     /**
      * 模型字段描述
      * @var array
      */
-    protected $__tableFields = array();
+    protected $__tableFields = array(
+        //'fieldName'=>array('format', 'create_validator','update_validator'),
+    );
     /**
      * 数据格式描述
      * @var array
