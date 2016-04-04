@@ -188,6 +188,73 @@ class CspCompDBMysqli extends CspBaseComponent {
      */
     public $totalPages = 0;
 
+
+    /**
+     * mysqli 链接池
+     *          [dbName][r]=>mysqliObj
+     *          [dbName][w]=>mysqliObj
+     * @var array
+     */
+    public static $mysqliObjPoll = array();
+    public static $mysqlCfg      = array();
+
+    /**
+     * 通过主从配置初始化数据库连接，配置 格式如下
+    array(
+    'db_name'=>array(
+    'master'=>array(
+    'charset'   =>'utf8',
+    'user'      =>'root',
+    'pwd'       =>'123456',
+    'port'      =>'3306',
+    'db_name'   =>'test',
+    'tb_prefix' =>'csp_',
+    'init_sql'  =>'',
+
+    ),
+    'slaves'=>array(
+    array('host'=>'slave1.db.host'),
+    array('host'=>'slave2.db.host'),
+    ),
+    ),
+    );
+     * @param $dbCfg
+     */
+    public function initByMsConfig($dbCfg){
+
+    }
+
+    //连接类型
+    const  CONNECT_TYPE_WRITE   = 'w';
+    const  CONNECT_TYPE_READ    = 'r';
+    const  CONNECT_TYPE_AUTO    = 'auto';
+    public $cnnTypeSelect       = 'auto';
+
+    public function useWriteConnect(){
+        $this->cnnTypeSelect = self::CONNECT_TYPE_WRITE;
+    }
+    public function useReadConnect(){
+        $this->cnnTypeSelect = self::CONNECT_TYPE_READ;
+    }
+    public function useAutoConnect(){
+        $this->cnnTypeSelect = self::CONNECT_TYPE_AUTO;
+    }
+
+
+    /**
+     * 根据SQL判断 是使用主库还是从库
+     * @param string    $sql
+     * @return string   返回类型 w r
+     */
+    public function getConnectTypeBySql($sql){
+        $wCmds = array('insert', 'update', 'delete', 'replace', 'alter', 'create', 'drop', 'rename', 'truncate');
+        if ($sql !== '') {
+            $sql = explode(' ', substr((string)$sql, 0, 10));
+        }
+
+        return ($sql === '' || !in_array(strtolower($sql[0]), $wCmds)) ? self::CONNECT_TYPE_READ : self::CONNECT_TYPE_WRITE;
+    }
+
     /**
      * @param string $host
      * @param string $username

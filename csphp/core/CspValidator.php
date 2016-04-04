@@ -4,6 +4,15 @@ use \Csphp;
 use \Csp\core\CspException;
 
 
+/**
+ *usage:
+ *
+ * $validRst = CspValidator::validate($v, $rule);
+ * $voidInfo = CspValidator::getVoidInfo($vName, $tips);
+ *
+ * Class CspValidator
+ * @package Csp\core
+ */
 class CspValidator{
     //自定义的正则规则列表 name=>regexpStr
     public static $regexpRuleList = array(

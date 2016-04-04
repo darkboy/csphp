@@ -231,6 +231,8 @@ class Csphp {
             return true;
         }
         foreach($aclCfg as $acl){
+            if(empty($acl)){continue;}
+
 
         }
     }
@@ -314,11 +316,11 @@ class Csphp {
      * 模块初始化，检查 当前运行的是什么模块，并将模块信息提取
      */
     private static function initModule(){
+        $appRoot = self::appCfg('app_base_path');
+        $appNs   = self::appCfg('app_namespace');
         foreach(self::appCfg('modules') as $mName=>$m){
             if(self::request()->isMatch($m['filter'])){
                 self::$curModule = $m;
-                $appRoot = self::appCfg('app_base_path');
-                $appNs   = self::appCfg('app_namespace');
 
                 $ctrlNsModule = str_replace('/','\\', self::getModuleCtrlPath());
                 self::$aliasMap['@m-ctrl']  = array(
@@ -928,15 +930,20 @@ class Csphp {
 
     /**
      * URL 构造器
-     * @param $r
-     * @param $paramArrOrStr
-     * @param $anchor
-     * @param string $hostKey
+     * @param string        $r
+     * @param string|array  $paramArrOrStr
+     * @param string        $anchor
+     * @param string        $hostKey
      * @return string url
      */
-    public static function url($r, $paramArrOrStr, $anchor, $hostKey='_default'){
+    public static function url($r, $paramArrOrStr='', $anchor='', $hostKey='_default'){
+        if(is_array($paramArrOrStr)){
+            $paramArrOrStr = http_build_query($paramArrOrStr);
+        }
+
 
     }
+
     public static function coreError($msg){
         self::trace();
         echo htmlspecialchars($msg);
