@@ -200,27 +200,28 @@ class CspCompDBMysqli extends CspBaseComponent {
 
     /**
      * 通过主从配置初始化数据库连接，配置 格式如下
-    array(
-    'db_name'=>array(
-    'master'=>array(
-    'charset'   =>'utf8',
-    'user'      =>'root',
-    'pwd'       =>'123456',
-    'port'      =>'3306',
-    'db_name'   =>'test',
-    'tb_prefix' =>'csp_',
-    'init_sql'  =>'',
-
-    ),
-    'slaves'=>array(
-    array('host'=>'slave1.db.host'),
-    array('host'=>'slave2.db.host'),
-    ),
-    ),
-    );
+     * array(
+     *  'db_name'=>array(
+     *
+     *      'master'=>array(
+     *              'charset'   =>'utf8',
+     *              'user'      =>'root',
+     *              'pwd'       =>'123456',
+     *              'port'      =>'3306',
+     *              'db_name'   =>'test',
+     *              'tb_prefix' =>'csp_'
+     *      ),
+     *
+     *      'slaves'=>array(
+     *              array('host'=>'slave1.db.host'),
+     *              array('host'=>'slave2.db.host'),
+     *      ),
+     *  ),
+     *
+     * );
      * @param $dbCfg
      */
-    public function initByMsConfig($dbCfg){
+    public function initByConfig($dbCfg){
 
     }
 
@@ -335,8 +336,14 @@ class CspCompDBMysqli extends CspBaseComponent {
      *
      * @return CspCompDBMysqli Returns the current instance.
      */
-    public static function getInstance() {
-        return self::$_instance;
+    public static function getInstance($dbCfgName) {
+        if(!isset(self::$_instance[$dbCfgName])){
+
+            //self::$_instance[$dbCfgName] = new self();
+            //self::$_instance[$dbCfgName]
+        }
+
+        return self::$_instance[$dbCfgName];
     }
     //----------------------------------------------------------------------------
     /**
