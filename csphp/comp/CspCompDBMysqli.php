@@ -7,6 +7,7 @@ use \Csphp;
 use \mysqli_stmt;
 use \mysqli;
 use \stdClass;
+use \Exception;
 
 
 /**
@@ -1619,7 +1620,7 @@ class CspCompDBMysqli extends CspBaseComponent {
      * @return CspCompDBMysqli
      */
     public function setTrace($enabled, $stripPrefix = null) {
-        $this->traceEnabled = $enabled;
+        $this->traceEnabled     = $enabled;
         $this->traceStripPrefix = $stripPrefix;
         return $this;
     }
@@ -1685,9 +1686,25 @@ class CspCompDBMysqli extends CspBaseComponent {
      * @return array
      */
     public function paginate($table, $page, $fields = null) {
-        $offset = $this->pageLimit * ($page - 1);
+        $offset = $this->pageLimit * (max($page, 1) - 1);
         $res = $this->withTotalCount()->get($table, Array($offset, $this->pageLimit), $fields);
         $this->totalPages = ceil($this->totalCount / $this->pageLimit);
         return $res;
+    }
+
+    /**
+     * todo....
+     * @param string        $table
+     * @param string|array  $fields
+     * @param array         $cond
+     * @param int           $page
+     * @param null|int      $pageSize
+     */
+    public function find($table, $fields='*', $cond=array(), $page=1, $pageSize=null){
+        if($pageSize){
+            $this->pageLimit = $pageSize;
+        }
+        $offset = $this->pageLimit * (max($page, 1) - 1);
+        $res = $this->withTotalCount()->get($table, Array($offset, $this->pageLimit), $fields);
     }
 }
