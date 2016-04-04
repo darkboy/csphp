@@ -10,13 +10,13 @@ return array(
             //这条规则表示只在 www.csphp.com 下使用该模块
             'requestType'=>'cli'
         ),
-        //模块名
+        //模块名, 在 控制器 示图  和 静态资源 目录下 是以模块名 命名的相关资源，
         'module_name'   =>'cli',
         'default_route' =>'help',
-        //控制器目录，基准目录为 @ctrl
-        'ctrl_base'    =>'cli',
-        //示图，模板目录
-        'view_base'    =>'cli',
+        //当前模块的 默认控制器 基准目录
+        //'ctrl_base'    =>'cli',
+        //当前模块的 默认模板 基准目录
+        //'view_base'    =>'@view/$module_name',
     ),
 
     //------ 示例配置, 建议将默认模块 放在最后面 将过滤器设置为空 ------
@@ -31,9 +31,9 @@ return array(
         //默认的控制器，即首页
         'default_route' =>'index/home',
         //控制器目录，基准目录为 @ctrl
-        'ctrl_base'    =>'home',
-        //示图，模板目录
-        'view_base'    =>'home',
+        //'ctrl_base'    =>'cli',
+        //当前模块的 默认模板 基准目录
+        //'view_base'    =>'@view/$module_name',
 
 
     )

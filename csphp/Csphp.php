@@ -295,9 +295,9 @@ class Csphp {
         self::$aliasMap['@view']    = array($appRoot.'/views',$appNs.'\\views');
         self::$aliasMap['@tpl']     = array($appRoot.'/views',$appNs.'\\views');
         self::$aliasMap['@mod']     = array($appRoot.'/models',$appNs.'\\models');
-        self::$aliasMap['@pub']     = array($appRoot.'/../public',$appNs);
+        self::$aliasMap['@pub']     = array(dirname($appRoot).'/public',$appNs);
         self::$aliasMap['@log']     = array($appRoot.'/var/log',$appNs);
-        self::$aliasMap['@upload']  = array($appRoot.'/../public/upload',$appNs);
+        self::$aliasMap['@upload']  = array(dirname($appRoot).'/public/upload',$appNs);
 
         self::$aliasMap['@f-comp']  = array($sysRoot.'/comp','Csp\\comp');
         self::$aliasMap['@f-ext']   = array($sysRoot.'/ext','Csp\\ext');
@@ -314,7 +314,7 @@ class Csphp {
      * 模块初始化，检查 当前运行的是什么模块，并将模块信息提取
      */
     private static function initModule(){
-        foreach(self::appCfg('modules') as $m){
+        foreach(self::appCfg('modules') as $mName=>$m){
             if(self::request()->isMatch($m['filter'])){
                 self::$curModule = $m;
                 $appRoot = self::appCfg('app_base_path');
