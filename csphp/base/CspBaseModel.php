@@ -73,7 +73,7 @@ class CspBaseModel {
     protected function initFormaters($formater=array()){
         return array(
             'fkName'=>array(
-                'fields'=>"id,text=json,ids=list,<nodeName as abc>",
+                'fields'=>"*-a,b,c,d::id,text=json,ids=list,<nodeName as abc>",
                 '-'=>"",
                 "+"=>"<nodeName:>"
             ),
@@ -82,44 +82,46 @@ class CspBaseModel {
 
 
     /**
-     * 定义一对多的 模型关系
-     * @param $targetModRoute
+     * 定义 一对多 的模型关系
+     * @param string $targetModRoute
      * @param string $targetField
      * @param string $myFieldForLink
      * @param string $relName
      */
-    protected function initRelHasMany($targetModRoute, $targetField='', $myFieldForLink='', $relName=''){
+    protected function initHasManyRelation($targetModRoute, $targetField='', $myFieldForLink='', $relName=''){
 
     }
-
-    protected function relGet($relName){
-
-    }
-
-    protected function relGets($relName, $pageSize=20, $page=1){
-
-    }
-
     /**
      * 定义 一对一 的模型关系
-     * @param $targetModRoute
+     * @param string $targetModRoute
      * @param string $targetField
      * @param string $myFieldForLink
      * @param string $relName
      */
-    protected function initRelHasOne($targetModRoute, $targetField='', $myFieldForLink='', $relName=''){
+    protected function initHasOneRelation($targetModRoute, $targetField='', $myFieldForLink='', $relName=''){
 
 
     }
+
+    protected function relationGet($relName){
+
+    }
+
+    protected function relationGets($relName, $pageSize=20, $page=1){
+
+    }
+
+
 
 
 
     public function save($data=null){}
     public function insert($data=null){}
     public function create($data=null){}
-    public function batchInsert($data=null){}
-    public function batchCreate($data=null){}
-    public function batchSave($data=null){}
+
+    public function batchInsert($data){}
+    public function batchCreate($data){}
+    public function batchSave($data){}
 
     public function update($data=null){}
     public function delete($condOrPk){}
