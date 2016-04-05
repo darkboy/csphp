@@ -60,6 +60,9 @@ class CspBaseModel {
      * @param array $fields
      */
     protected function initFields($fields=array()){
+        return array(
+            //'fieldName'=>array('type', 'create_validator','update_validator'),
+        );
 
     }
 
@@ -68,18 +71,45 @@ class CspBaseModel {
      * @param array $formater
      */
     protected function initFormaters($formater=array()){
-
+        return array(
+            'fkName'=>array(
+                'fields'=>"id,text=json,ids=list,<nodeName as abc>",
+                '-'=>"",
+                "+"=>"<nodeName:>"
+            ),
+        );
     }
 
 
     /**
-     * 定义模型关系
-     * @param array $formater
+     * 定义一对多的 模型关系
+     * @param $targetModRoute
+     * @param string $targetField
+     * @param string $myFieldForLink
+     * @param string $relName
      */
-    protected function initRelation($rel=array()){
-        return array(
-            'hasMany'=>array('targetModName','uid','uid', 'nodeName'),
-        );
+    protected function initRelHasMany($targetModRoute, $targetField='', $myFieldForLink='', $relName=''){
+
+    }
+
+    protected function relGet($relName){
+
+    }
+
+    protected function relGets($relName, $pageSize=20, $page=1){
+
+    }
+
+    /**
+     * 定义 一对一 的模型关系
+     * @param $targetModRoute
+     * @param string $targetField
+     * @param string $myFieldForLink
+     * @param string $relName
+     */
+    protected function initRelHasOne($targetModRoute, $targetField='', $myFieldForLink='', $relName=''){
+
+
     }
 
 
