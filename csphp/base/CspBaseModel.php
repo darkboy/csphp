@@ -97,8 +97,9 @@ class CspBaseModel {
     }
 
     /**
-     * 初始化模型数据格式
+     * 初始化模型数据格式,格式名称=>格式规则
      *
+     *      <formatName>=><formatRule>
      * @param array $formater
      */
     protected function initFormaters($formater=array()){
@@ -197,4 +198,20 @@ class CspBaseModel {
      *
      */
     public function __call(){}
+
+    /**
+     * __udt__ 开头的成员方法是 用户自定义类型的系列化 和 反系列化方法
+     *
+     * __udt__<typeName>_encode
+     * __udt__<typeName>_decode
+     *
+     * @param $v
+     */
+    final protected function __udt__list_encode($v){}
+    final protected function __udt__list_decode($str){}
+
+    final protected function __udt__json_encode($str){}
+    final protected function __udt__json_decode($str){}
+
+
 }
