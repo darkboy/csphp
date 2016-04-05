@@ -30,8 +30,11 @@
         <?php $this->widget('@m-view/index/index_widget',array('by'=>'three'));?>
         <?php $this->widget('@view/home/index/index_widget',array('by'=>'four'));?>
 
-        <pre><?php print_r(Csphp::router()->routeInfo);?></pre>
         <?php $this->xpipe('');?>
+        <?php $this->ajax('');?>
+
+        <pre><?php print_r(Csphp::router()->routeInfo);?></pre>
+
 
     </body>
 </html>

@@ -72,6 +72,17 @@ class CspBaseModel {
     }
 
 
+    /**
+     * 定义模型关系
+     * @param array $formater
+     */
+    protected function initRelation($rel=array()){
+        return array(
+            'hasMany'=>array('targetModName','uid','uid', 'nodeName'),
+        );
+    }
+
+
 
     public function save($data=null){}
     public function insert($data=null){}
