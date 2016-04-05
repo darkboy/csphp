@@ -24,11 +24,11 @@ class CspBaseModel {
         //是否对返回的数据 做 k v 映射，通常情况下 使用 主键 做 k 对组织数据有帮助
         'use_map'   =>false,
         //当前模型: 'fieldName'=>array('typeOrFormat', 'create_validator','update_validator','default')
-        'tb_fields'=>array(),
+        'tb_fields' =>array(),
         //模型数据格式定义 fromaterName=>ruleStr
-        'formaters'=>array(),
+        'formaters' =>array(),
         //模型关系定义 relName=>array(relType, targetMod, targetFieldName, myField)
-        'relations'=>array()
+        'relations' =>array()
     );
 
     /**
@@ -50,10 +50,10 @@ class CspBaseModel {
 
     /**
      * 如果未对数据表定义对应的 model 也可以直接 获取对应的模型操作
-     * @param $tbName
-     * @param $pkName
-     * @param bool $useCache
-     * @param string $dbCfgName
+     * @param string    $tbName
+     * @param string    $pkName
+     * @param bool      $useCache
+     * @param string    $dbCfgName
      * @return \Csp\base\CspBaseModel
      */
     public static function getModel($tbName, $pkName, $useCache=false, $dbCfgName = null){
@@ -99,20 +99,24 @@ class CspBaseModel {
     /**
      * 初始化模型数据格式,格式名称=>格式规则
      *
+     *
      *      <formatName>=><formatRule>
      * @param array $formater
      */
     protected function initFormaters($formater=array()){
         return array(
-            'fkName1'=>"id,text=json,ids=list,<hasOneRelName>",
+            'fkName1'=>"id,text=json,ids=list,<hasOneRelName:subFk>",
             'fkName2'=>"*-a,b,c,d;",
-            'fkName3'=>"*-a,b,c,d; id,text=json,ids=list,<hasManyRelName:alias:num>",
+            'fkName3'=>"*-a,b,c,d; id,text=json,ids=list,<hasManyRelName:subFk:alias:num>",
         );
     }
 
 
     /**
      * 定义 一对多 的模型关系
+     *
+     * userInfo ,   uid<-->user.uid
+     * myFriends ,  uid<-->friendList.uid <--> friendList.fuid<-->user.uid
      * @param string $targetModRoute
      * @param string $targetField
      * @param string $myFieldForLink
