@@ -31,9 +31,9 @@ return array(
         //默认的控制器，即首页
         'default_route' =>'index/home',
         //控制器目录，基准目录为 @ctrl
-        //'ctrl_base'    =>'cli',
+        'ctrl_base'    =>'/home',
         //当前模块的 默认模板 基准目录
-        //'view_base'    =>'@view/$module_name',
+        'view_base'    =>'/home',
 
 
     )

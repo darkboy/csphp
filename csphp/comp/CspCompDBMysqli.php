@@ -18,9 +18,9 @@ use \Exception;
  *
  * todo...
  * 增加主从，读写分离，支持
- * 增加多库支持
+ * 增加 多库 支持
  * 增加 find 函数
- * 增加 数组 条件构造器
+ * 增加 数组 条件构造器 $cond
  * fix andy bug
  *
  * @package Csp\comp
