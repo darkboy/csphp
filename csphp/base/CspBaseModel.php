@@ -7,7 +7,9 @@ use \Csp\comp\CspCompDBMysqli;
 class CspBaseModel {
 
     /**
-     * 减少模型属性，将基类要用到的属性封装在一个总配置中，访问，模型使用对象模式
+     * 减少模型基类属性，将基类要用到的属性封装在一个总配置中
+     * 通过 setOption getOption 访问，
+     * 以减少模型基类对 模型使用对象模式时的干扰
      * @var array
      */
     protected $___modBaseAttr = array(
@@ -18,35 +20,16 @@ class CspBaseModel {
         //主键 字段名
         'pk'=>null,
         //是否使用缓存 false true string
-        'use_cache'=>false,
+        'use_cache' =>false,
+        //是否对返回的数据 做 k v 映射，通常情况下 使用 主键 做 k 对组织数据有帮助
+        'use_map'   =>false,
         //当前模型: 'fieldName'=>array('typeOrFormat', 'create_validator','update_validator','default')
         'tb_fields'=>array(),
-        //模型数据格式定义
+        //模型数据格式定义 fromaterName=>ruleStr
         'formaters'=>array(),
-        //模型关系定义
+        //模型关系定义 relName=>array(relType, targetMod, targetFieldName, myField)
         'relations'=>array()
     );
-
-    /**
-     * @var CspCompDBMysqli
-     */
-    protected $__DB = null;
-    protected $__TB = null;
-    protected $__pk = null;
-    /**
-     * 模型字段描述
-     * @var array
-     */
-    protected $__tableFields = array(
-        //'fieldName'=>array('typeOrFormat', 'create_validator','update_validator'),
-    );
-    /**
-     * 数据格式描述配置
-     * @var array
-     */
-    protected $__formater = array();
-
-
 
     /**
      * @param string    $tbName
@@ -79,18 +62,28 @@ class CspBaseModel {
     }
 
 
-    public function setOption($k, $v){
+    /**
+     * @param $k
+     * @param $v
+     */
+    final public function setOption($k, $v){
         $this->___modBaseAttr[$k] = $v;
     }
-    public function getOption($k){
+
+    /**
+     * @param $k
+     * @return null
+     */
+    final public function getOption($k){
         return isset($this->___modBaseAttr[$k]) ? $this->___modBaseAttr[$k] : null;
     }
 
     /**
+     * 获取一个DB实例
      * @return CspCompDBMysqli
      */
-    public function db(){
-        return $this->getOption('db');
+    final public function db($dbCfgName=null){
+        return $dbCfgName==null ? $this->getOption('db') : CspCompDBMysqli::getInstance($dbCfgName);
     }
     /**
      * 初始化模型字段
@@ -110,7 +103,7 @@ class CspBaseModel {
     protected function initFormaters($formater=array()){
         return array(
             'fkName'=>array(
-                'fields'=>"*-a,b,c,d::id,text=json,ids=list,<nodeName as abc>",
+                'fields'=>"*-a,b,c,d; id,text=json,ids=list,<relName:alias:num>",
                 '-'=>"",
                 "+"=>"<nodeName:>"
             ),
@@ -125,7 +118,7 @@ class CspBaseModel {
      * @param string $myFieldForLink
      * @param string $relName
      */
-    protected function initHasManyRelation($targetModRoute, $targetField='', $myFieldForLink='', $relName=''){
+    protected function relationHasMany($targetModRoute, $targetField='', $myFieldForLink='', $relName=''){
 
     }
     /**
@@ -135,7 +128,7 @@ class CspBaseModel {
      * @param string $myFieldForLink
      * @param string $relName
      */
-    protected function initHasOneRelation($targetModRoute, $targetField='', $myFieldForLink='', $relName=''){
+    protected function relationHasOne($targetModRoute, $targetField='', $myFieldForLink='', $relName=''){
 
 
     }
@@ -145,6 +138,14 @@ class CspBaseModel {
     }
 
     protected function relationGets($relName, $pageSize=20, $page=1){
+
+    }
+
+    protected function checkModelData(){
+
+    }
+
+    protected function withMap($k=null){
 
     }
 
