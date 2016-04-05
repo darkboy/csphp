@@ -98,15 +98,14 @@ class CspBaseModel {
 
     /**
      * 初始化模型数据格式
+     *
      * @param array $formater
      */
     protected function initFormaters($formater=array()){
         return array(
-            'fkName'=>array(
-                'fields'=>"*-a,b,c,d; id,text=json,ids=list,<relName:alias:num>",
-                '-'=>"",
-                "+"=>"<nodeName:>"
-            ),
+            'fkName1'=>"id,text=json,ids=list,<hasOneRelName>",
+            'fkName2'=>"*-a,b,c,d;",
+            'fkName3'=>"*-a,b,c,d; id,text=json,ids=list,<hasManyRelName:alias:num>",
         );
     }
 
@@ -169,24 +168,33 @@ class CspBaseModel {
 
     public function get($condOrPk){}
     public function gets($condOrPks){}
-    public function formatGet($fk,$condOrPk){}
-    public function formatGets($fk,$condOrPks){}
+    public function formatGet($fk, $condOrPk){}
+    public function formatGets($fk, $pks){}
 
 
-    public function find($cond,$page,$pageSize){}
-    public function formatFind($fk,$cond,$page,$pageSize){}
+    public function find($cond, $page, $pageSize){}
+    public function formatFind($fk, $cond, $page,$pageSize){}
 
     public function dataFormater($data, $isMulti=false){}
 
 
+    /**
+     *
+     */
     public function __get() {
 
     }
 
 
+    /**
+     *
+     */
     public function __set() {
 
     }
 
+    /**
+     *
+     */
     public function __call(){}
 }
