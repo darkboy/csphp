@@ -41,52 +41,58 @@ class Csphp {
     /**
      * 核心架构 准备完毕事件，已完成 配置，初始化
      */
-    const EVENT_CORE_AFTER_INIT         = 'EVENT_CORE_AFTER_INIT';
+    const EVENT_CORE_AFTER_INIT         = 'event.core.init';
     /**
      * 路由解释 结束
      */
-    const EVENT_CORE_AFTER_ROUTE        = 'EVENT_CORE_AFTER_ROUTE';
+    const EVENT_CORE_AFTER_ROUTE        = 'event.core.route.alfter';
     /**
      * 用户以 及 系统配置的 组件初始化完成，即：已调用完他们的 start 方法
      */
-    const EVENT_CORE_AFTER_COMP_INIT    = 'EVENT_CORE_AFTER_COMP_INIT';
+    const EVENT_CORE_AFTER_COMP_INIT    = 'event.core.after.comp.init';
+
     /**
      * 系统准备开始 执行 Action请求运作
      */
-    const EVENT_CORE_BEFORE_ACTION      = 'EVENT_CORE_BEFORE_ACTION';
+    const EVENT_CORE_BEFORE_ACTION      = 'event.core.before.action';
 
 
     /**
      * 开始渲染一个模板，可能被触发多次
      */
-    const EVENT_CORE_BEFORE_TPL_RENDER  = 'EVENT_CORE_BEFORE_TPL_RANDER';
+    const EVENT_CORE_BEFORE_TPL_RENDER  = 'event.core.before.tpl.render';
     /**
      * 结束渲染一个模板，可能被触发多次
      */
-    const EVENT_CORE_AFTER_TPL_RENDER   = 'EVENT_CORE_AFTER_TPL_RANDER';
+    const EVENT_CORE_AFTER_TPL_RENDER   = 'event.core.after.tpl.render';
+
 
     /**
      * 系统结束了action动作
      */
-    const EVENT_CORE_AFTER_ACTION         = 'EVENT_CORE_AFTER_ACTION';
+    const EVENT_CORE_AFTER_ACTION       = 'event.core.after.action';
 
 
     /**
      * 所有数据准备就续，准备发送
      */
-    const EVENT_CORE_BEFORE_SEND_RESP   = 'EVENT_CORE_BEFORE_SEND_RESP';
+    const EVENT_CORE_BEFORE_SEND_RESP   = 'event.core.before.send.resp';
+
+
     /**
      * 所有数据发送完毕
      */
-    const EVENT_CORE_AFTER_SEND_RESP    = 'EVENT_CORE_AFTER_SEND_RESP';
+    const EVENT_CORE_AFTER_SEND_RESP    = 'event.core.after.send.resp';
+
     /**
      * 应用退出
      */
-    const EVENT_CORE_EXIT               = 'EVENT_CORE_EXIT';
+    const EVENT_CORE_EXIT               = 'envent.core.app.exit';
+
     /**
      * PHP进程退出
      */
-    const EVENT_CORE_PHP_EXIT           = 'EVENT_CORE_PHP_EXIT';
+    const EVENT_CORE_PHP_SHUTDOWN       = 'event.php.shutdown';
 
 
     /**
@@ -98,8 +104,9 @@ class Csphp {
      * @var Csphp
      */
     public static $app = null;
+
     /**
-     * @var csp core root path
+     * @var string, core root path
      */
     public static $coreRootPath = null;
 
@@ -115,7 +122,7 @@ class Csphp {
     public static $sysCfg = null;
 
     //挂载的 核心 对象
-    private static $coreObjs = array(
+    private static $objContainer = array(
         'request'   =>null,
         'router'    =>null,
         'response'  =>null,
@@ -173,10 +180,13 @@ class Csphp {
 
         //初始化核心对象
         self::initCoreObjs();
+
         //初始化别名配置
         self::initAliasMap();
+
         //导入应用定义的预加载文件
         self::loadAutoloadFiles();
+
         //初始化请求信息
         self::request()->init();
 
@@ -292,14 +302,14 @@ class Csphp {
 
         self::$aliasMap['@comp']    = array($appRoot.'/components', $appNs.'\\components');
         self::$aliasMap['@cfg']     = array($appRoot.'/config', $appNs.'\\config');
-        self::$aliasMap['@ctrl']    = array($appRoot.'/controlers',$appNs.'\\controlers');
+        self::$aliasMap['@ctrl']    = array($appRoot.'/controlers', $appNs.'\\controlers');
         self::$aliasMap['@ext']     = array($appRoot.'/exts', $appNs.'\\exts');
         self::$aliasMap['@view']    = array($appRoot.'/views',$appNs.'\\views');
         self::$aliasMap['@tpl']     = array($appRoot.'/views',$appNs.'\\views');
         self::$aliasMap['@mod']     = array($appRoot.'/models',$appNs.'\\models');
-        self::$aliasMap['@pub']     = array(dirname($appRoot).'/public',$appNs);
-        self::$aliasMap['@log']     = array($appRoot.'/var/log',$appNs);
-        self::$aliasMap['@upload']  = array(dirname($appRoot).'/public/upload',$appNs);
+        self::$aliasMap['@pub']     = array(dirname($appRoot).'/public', $appNs);
+        self::$aliasMap['@log']     = array($appRoot.'/var/log', $appNs);
+        self::$aliasMap['@upload']  = array(dirname($appRoot).'/public/upload', $appNs);
 
         self::$aliasMap['@f-comp']  = array($sysRoot.'/comp','Csp\\comp');
         self::$aliasMap['@f-ext']   = array($sysRoot.'/ext','Csp\\ext');
@@ -318,6 +328,7 @@ class Csphp {
     private static function initModule(){
         $appRoot = self::appCfg('app_base_path');
         $appNs   = self::appCfg('app_namespace');
+
         foreach(self::appCfg('modules') as $mName=>$m){
             if(self::request()->isMatch($m['filter'])){
                 self::$curModule = $m;
@@ -718,14 +729,14 @@ class Csphp {
      *init core objs
      */
     private static function initCoreObjs(){
-        self::$coreObjs['request']  = new CspRequest();
-        self::$coreObjs['router']   = new CspRouter();
-        self::$coreObjs['response'] = new CspResponse();
-        self::$coreObjs['log']      = new CspLog();
-        self::$coreObjs['tpl']      = new CspTemplate();
-        self::$coreObjs['validator']= new CspValidator();
+        self::$objContainer['request']  = new CspRequest();
+        self::$objContainer['router']   = new CspRouter();
+        self::$objContainer['response'] = new CspResponse();
+        self::$objContainer['log']      = new CspLog();
+        self::$objContainer['tpl']      = new CspTemplate();
+        self::$objContainer['validator']= new CspValidator();
         if(self::isCli()){
-            self::$coreObjs['cliConsole'] = new CspCliConsole();
+            self::$objContainer['cliConsole'] = new CspCliConsole();
         }
     }
 
@@ -741,19 +752,19 @@ class Csphp {
      * @return CspRequest
      */
     public static function request(){
-        return self::$coreObjs['request'];
+        return self::$objContainer['request'];
     }
     /**
      * @return CspResponse
      */
     public static function response(){
-        return self::$coreObjs['response'];
+        return self::$objContainer['response'];
     }
     /**
      * @return CspRouter
      */
     public static function router(){
-        return self::$coreObjs['router'];;
+        return self::$objContainer['router'];
     }
 
     public static function controler(){
@@ -764,7 +775,7 @@ class Csphp {
      * @return CspCliConsole
      */
     public static function cliConsole(){
-        return self::$coreObjs['cliConsole'];
+        return self::$objContainer['cliConsole'];
     }
 
 
@@ -774,14 +785,14 @@ class Csphp {
      * @return CspLog
      */
     public static function log(){
-        return self::$coreObjs['log'];
+        return self::$objContainer['log'];
     }
 
     /**
      * @return CspTemplate
      */
     public static function tpl(){
-        return self::$coreObjs['tpl'];
+        return self::$objContainer['tpl'];
     }
 
     /**
@@ -948,8 +959,6 @@ class Csphp {
         self::trace();
         echo htmlspecialchars($msg);
         throw new CspException($msg, 10000);
-
-        //trigger_error($msg, E_USER_ERROR);
     }
 
     /**
@@ -1007,10 +1016,11 @@ class Csphp {
 
 
     /**
+     * 获取程序从启动现当前所用的时间
      * @return mixed
      */
-    public static function getTimeUse(){
-        return microtime(true) - self::$appStartTime;
+    public static function getTimeUse($dotLen=8){
+        return sprintf("%.".$dotLen."f",microtime(true) - self::$appStartTime);
     }
 
     public static function bmkStart($flagKey){
