@@ -1,5 +1,6 @@
 <?php
 namespace Csp\core;
+
 use \Csphp;
 
 /**
@@ -25,30 +26,30 @@ use \Csphp;
  * @package Csp\core
  *
  */
-class CspResponse{
+class CspResponse {
 
-    public $httpVer  = '1.1';
+    public $httpVer = '1.1';
 
     private $httpCode = 200;
-    private $bodyStr  = '';
-    private $headers  = array();
+    private $bodyStr = '';
+    private $headers = array();
 
     //是否已经发送送信息
-    public $headersHadSend  = false;
+    public $headersHadSend = false;
 
     //重定向的类型
-    const REDIRECT_TYPE_301         = 'REDIRECT_TYPE_301';
-    const REDIRECT_TYPE_302         = 'REDIRECT_TYPE_302';
-    const REDIRECT_TYPE_LOCATION    = 'REDIRECT_TYPE_LOCATION';
-    const REDIRECT_TYPE_JS_BY_TAG   = 'REDIRECT_TYPE_JS_BY_TAG';
-    const REDIRECT_TYPE_JS_TOP_TAG  = 'REDIRECT_TYPE_JS_TOP_TAG';
+    const REDIRECT_TYPE_301 = 'REDIRECT_TYPE_301';
+    const REDIRECT_TYPE_302 = 'REDIRECT_TYPE_302';
+    const REDIRECT_TYPE_LOCATION = 'REDIRECT_TYPE_LOCATION';
+    const REDIRECT_TYPE_JS_BY_TAG = 'REDIRECT_TYPE_JS_BY_TAG';
+    const REDIRECT_TYPE_JS_TOP_TAG = 'REDIRECT_TYPE_JS_TOP_TAG';
 
 
     /**
      * http code 对应的信息描述
      * @var array
      */
-    public $httpCodeMap = array (
+    public $httpCodeMap = array(
         100 => "HTTP/1.1 100 Continue",
         101 => "HTTP/1.1 101 Switching Protocols",
         200 => "HTTP/1.1 200 OK",
@@ -232,20 +233,21 @@ class CspResponse{
         'ice'     => 'x-conference/x-cooltalk',
     );
 
-    public function __construct(){
+    public function __construct() {
 
     }
 
 
     /**
      * 更改响应数据
-     * @param string $str       响应字符串
-     * @param bool   $isAppend  是否追加到末尾
+     *
+     * @param string $str      响应字符串
+     * @param bool   $isAppend 是否追加到末尾
      */
-    public function setBodyStr($str, $isAppend=false){
-        if($isAppend){
-            $this->bodyStr.= $str;
-        }else{
+    public function setBodyStr($str, $isAppend = false) {
+        if ($isAppend) {
+            $this->bodyStr .= $str;
+        } else {
             $this->bodyStr = $str;
         }
     }
@@ -255,37 +257,26 @@ class CspResponse{
      *      如果是传递一个参数，则整个字符串作为一个header信息
      *      如果是传递二个参数，则第一个参数为 header name, 后面的为值
      *
-     * @param string $k   头信息串 或者头信息名
-     * @param null   $v   头信息值
+     * @param string $k 头信息串 或者头信息名
+     * @param null   $v 头信息值
      */
-    public function setHeader($k,$v=null){
-        if(func_num_args()==1){
+    public function setHeader($k, $v = NULL) {
+        if (func_num_args() == 1) {
             $this->headers[] = is_numeric($k) ? $this->httpCodeMap[$k] : $k;
-        }else{
-            $this->headers[] = $k.' '.$v;
+        } else {
+            $this->headers[] = $k . ' ' . $v;
         }
     }
 
-    /**
-     *
-     * @param       $code
-     * @param array $context
-     */
-    public function abort($code, $context=array()){
-        if(is_string($context)){
-            $context=array('msg'=>$context);
-        }
-
-
-    }
 
     /**
      * 设置一个http响应码
+     *
      * @param $code
      */
-    public function setHttpCode($code){
+    public function setHttpCode($code) {
         $this->httpCode = $code;
-        if($code!=200){
+        if ($code != 200) {
             $this->setHeader($code);
         }
     }
@@ -293,42 +284,60 @@ class CspResponse{
 
     /**
      * 设置一个 cookie
-     * @param $cookieName       cookie 名
-     * @param $v                cookie 值
-     * @param int $ttl          有效期，默认为 0 即浏览期间，可以是正负值，秒为单位
-     * @param string $path      默认为 /
-     * @param null $domain      默认为当前域名
-     * @param bool $secure      如果设置为 true 则只能在https中使用
-     * @param bool $httpOnly    如果设置为 true 则不能通过js编辑
+     *
+     * @param        $cookieName       cookie 名
+     * @param        $v                cookie 值
+     * @param int    $ttl              有效期，默认为 0 即浏览期间，可以是正负值，秒为单位
+     * @param string $path             默认为 /
+     * @param null   $domain           默认为当前域名
+     * @param bool   $secure           如果设置为 true 则只能在https中使用
+     * @param bool   $httpOnly         如果设置为 true 则不能通过js编辑
      */
-    public function setCookie($cookieName,$v, $ttl=0, $path='/',$domain=null, $secure=false, $httpOnly=false){
-        if($domain===null){
+    public function setCookie($cookieName, $v, $ttl = 0, $path = '/', $domain = NULL, $secure = false, $httpOnly = false) {
+        if ($domain === NULL) {
             $domain = Csphp::request()->getHost();
         }
-        $expire = $ttl===0 ? 0 : time()+$ttl;
-        setcookie($cookieName, $v, $expire, $path, $domain,$secure, $httpOnly);
+        $expire = $ttl === 0 ? 0 : time() + $ttl;
+        setcookie($cookieName, $v, $expire, $path, $domain, $secure, $httpOnly);
     }
+
     /*
      * 删除一个cookie
      */
-    public function delCookie($ckNameOrNameArr){
-        $ckArr = is_array($ckNameOrNameArr) ? : array($ckNameOrNameArr);
-        foreach($ckArr as $ck){
+    public function delCookie($ckNameOrNameArr) {
+        $ckArr = is_array($ckNameOrNameArr) ?: array($ckNameOrNameArr);
+        foreach ($ckArr as $ck) {
             $this->setCookie($ck, -1000);
         }
     }
 
+
+    /**
+     * 中断请求
+     *
+     * @param       $code
+     * @param array $context
+     */
+    public function abort($code, $context = array()) {
+        if (is_string($context)) {
+            $context = array('msg' => $context);
+        }
+
+    }
+
     /**
      * 程序重定向
+     *
      * @param string $target 重定向目标
      * @param string $type   类型      CspResponse::REDIRECT_TYPE_*
+     *
      * @throws \Csp\core\CspException
      */
-    public function redirect($target, $type=self::REDIRECT_TYPE_LOCATION){
+    public function redirect($target, $type = self::REDIRECT_TYPE_LOCATION) {
 
         $url = '';
 
-        switch (strtoupper($type)){
+        switch (strtoupper($type)) {
             //慎用 301 浏览器会缓存，
             case self::REDIRECT_TYPE_301 :
                 $this->setHeader("HTTP/1.1 301 Moved Permanently");
@@ -341,20 +350,21 @@ class CspResponse{
                 break;
 
             case self::REDIRECT_TYPE_JS_BY_TAG :
-                $this->setBodyStr('<script>window.location.href="'.addslashes($url).'";</script>');
+                $this->setBodyStr('<script>window.location.href="' . addslashes($url) . '";</script>');
                 break;
 
             //用于iframe等框架集中的页面
             case self::REDIRECT_TYPE_JS_TOP_TAG :
-                $this->setBodyStr('<script>window.top.location.href="'.addslashes($url).'";</script>');
+                $this->setBodyStr('<script>window.top.location.href="' . addslashes($url) . '";</script>');
                 break;
 
             default:
                 throw new CspException("Error redirect type : : {$type} ");
                 break;
-		}
+        }
         $this->send();
     }
+
 
     /**
      * 用于跨域COOKIE
@@ -370,35 +380,38 @@ class CspResponse{
      * IE有安全策略限制页面不带cookie，但是如果我们加上P3P，就没有这策略的限制。
      *
      * JS使用P3P协议
-     * xmlhttp.setRequestHeader( "P3P" , 'CP="CURa ADMa DEVa PSAo PSDo OUR BUS UNI PUR INT DEM STA PRE COM NAV OTC NOI DSP COR"' );
+     * xmlhttp.setRequestHeader( "P3P" , 'CP="CURa ADMa DEVa PSAo PSDo OUR BUS UNI PUR INT DEM STA PRE COM NAV OTC NOI
+     * DSP COR"' );
      */
-    public function sendP3P(){
+    public function sendP3P() {
         header("P3P: CP=CURa ADMa DEVa PSAo PSDo OUR BUS UNI PUR INT DEM STA PRE COM NAV OTC NOI DSP COR");
     }
+
     /**
      * 发送401认证登录框，提交的用户名密码将存储在
      *      $_SERVER['PHP_AUTH_USER'] $_SERVER['PHP_AUTH_PW']
      *
      */
-    public function sendAuth401($tips='请输入你的账号'){
-        $this->setHeader('WWW-Authenticate: Basic realm="'.$tips.'"');
+    public function sendAuth401($tips = '请输入你的账号') {
+        $this->setHeader('WWW-Authenticate: Basic realm="' . $tips . '"');
         $this->setHeader(401);
         //$_SERVER['PHP_AUTH_USER'] $_SERVER['PHP_AUTH_PW']
     }
 
     /**
      * 发送一个文件给客户端，浏览器端通常表现为 打开下载窗口
-     * @param string $file          实际要发送的文件路径
-     * @param null $saveName        自动保存时的文件名
-     * @param string $contentType   内容类型,可以是 $this->mimetypes 的Key
+     *
+     * @param string $file        实际要发送的文件路径
+     * @param string $saveName    自动保存时的文件名
+     * @param string $contentType 内容类型,可以是 $this->mimetypes 的Key
      */
-    public function sendFile($file, $saveName=null, $contentType='application/octet-stream'){
+    public function sendFile($file, $saveName = NULL, $contentType = 'application/octet-stream') {
 
-        if(isset($this->mimetypes[$contentType])){
+        if (isset($this->mimetypes[$contentType])) {
             $contentType = $this->mimetypes[$contentType];
         }
         $this->setHeader('Content-Type', $contentType);
-        if($saveName===null){
+        if ($saveName === NULL) {
             $saveName = basename($file);
         }
         $this->setHeader('Content-Disposition: attachment; filename="' . $saveName . '"');
@@ -408,19 +421,21 @@ class CspResponse{
 
     /**
      * 设置一个 content-type
+     *
      * @param string $typeOrName 可能是一个标准的 content-type 值或者 名称 如 json
      */
-    public function setContentType($typeOrName){
-        if(isset($this->mimetypes[strtolower($typeOrName)])){
+    public function setContentType($typeOrName) {
+        if (isset($this->mimetypes[strtolower($typeOrName)])) {
             $typeOrName = $this->mimetypes[$typeOrName];
         }
         $this->setHeader('Content-Type', $typeOrName);
     }
 
+
     /**
      * 发送响应数据，先发送 header 再 发送 数据
      */
-    public function send(){
+    public function send() {
         $this->sendHeader();
         $this->sendBody();
     }
@@ -428,8 +443,8 @@ class CspResponse{
     /**
      * 发送头信息
      */
-    private function sendHeader(){
-        foreach($this->headers as $hs){
+    private function sendHeader() {
+        foreach ($this->headers as $hs) {
             header($hs);
         }
         $this->headersHadSend = true;
@@ -438,16 +453,9 @@ class CspResponse{
     /**
      * 发送响应数据
      */
-    private function sendBody(){
+    private function sendBody() {
         echo $this->bodyStr;
     }
-
-    public function sendChunkHeader(){
-        //Transfer-Encoding: chunked
-    }
-
-
-
 
 }
 /*

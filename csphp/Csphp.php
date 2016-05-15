@@ -188,50 +188,57 @@ class Csphp {
         self::loadAutoloadFiles();
 
         //初始化请求信息
-        self::request()->init();
+        //self::request()->init();
 
         //初始化当前模块配置
         self::initModule();
 
         //cli 与 http 请求分别进行路由 和 初始化动作
         if(self::isCli()){
-            //初始化
-            self::cliConsole()->init();
-            //系统初始化结束
-            self::fireEvent(self::EVENT_CORE_AFTER_INIT);
-            //初始化组件
-            self::initComponents();
-            //解释路由信息
-            self::cliConsole()->parseRoute();
-            self::fireEvent(self::EVENT_CORE_AFTER_ROUTE);
-            //执行命令行动作
-            self::cliConsole()->doAction();
-
+            self::handlerCliRequest();
         }else{
-            //初始化路由信息
-            self::router()->init();
-            //系统初始化结束
-            self::fireEvent(self::EVENT_CORE_AFTER_INIT);
-            //访问控制检查
-            self::checkAccessControl();
-            //初始化组件
-            self::initComponents();
-            //解释路由信息
-            self::router()->parseRoute();
-            self::fireEvent(self::EVENT_CORE_AFTER_ROUTE);
-
-            //self::router()->dump();
-            //执行控制器动作
-            self::router()->doAction();
+            self::handlerWebRequest();
         }
-
         //self::router()->getAction();
         //self::doFilters();
 
-
-        self::tmp();
+        //self::tmp();
         self::exitApp();
     }
+
+    protected static function handlerCliRequest(){
+        //初始化
+        self::cliConsole()->init();
+        //系统初始化结束
+        self::fireEvent(self::EVENT_CORE_AFTER_INIT);
+        //初始化组件
+        self::initComponents();
+        //解释路由信息
+        self::cliConsole()->parseRoute();
+        self::fireEvent(self::EVENT_CORE_AFTER_ROUTE);
+        //执行命令行动作
+        self::cliConsole()->doAction();
+        return true;
+    }
+    ///处理 WEB 请求
+    protected static function handlerWebRequest(){
+        //初始化路由信息
+        self::router()->init();
+        //系统初始化结束
+        self::fireEvent(self::EVENT_CORE_AFTER_INIT);
+        //访问控制检查
+        self::checkAccessControl();
+        //初始化组件
+        self::initComponents();
+        //解释路由信息
+        self::router()->parseRoute();
+        self::fireEvent(self::EVENT_CORE_AFTER_ROUTE);
+
+        //self::router()->dump();
+        //执行控制器动作
+        self::router()->doAction();
+    }
+
     //系统的访问控制检查
     public static function checkAccessControl($aclCfg=null){
         if($aclCfg===null){
@@ -254,8 +261,6 @@ class Csphp {
         self::fireEvent(self::EVENT_CORE_BEFORE_SEND_RESP);
         self::response()->send();
         self::fireEvent(self::EVENT_CORE_AFTER_SEND_RESP);
-
-
     }
 
     /**
@@ -282,7 +287,6 @@ class Csphp {
             }
         }
     }
-
 
 
     /**
@@ -314,7 +318,7 @@ class Csphp {
         self::$aliasMap['@f-comp']  = array($sysRoot.'/comp','Csp\\comp');
         self::$aliasMap['@f-ext']   = array($sysRoot.'/ext','Csp\\ext');
 
-        //把用户定义的路径加载进来, 可以覆盖以上的内容路径
+        //把用户定义的路径别名加载进来, 可以覆盖以上的内容路径
         foreach(self::$appCfg['alias_path_config'] as $aliasName=>$v){
             $ns     = is_array($v) ? $v[1] : $appNs;
             $path   = is_array($v) ? $v[0] : $v;
@@ -726,6 +730,7 @@ class Csphp {
         return json_encode($r);
     }
     /**
+     * 初始化一些核心类
      *init core objs
      */
     private static function initCoreObjs(){

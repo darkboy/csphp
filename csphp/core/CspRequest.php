@@ -152,7 +152,7 @@ class CspRequest{
                     $ipTmp = $_SERVER[$k];
                 }
                 $ipPattern = '/^((25[0-5]|2[0-4]\d|(1\d|[1-9])?\d)\.){3}(25[0-5]|2[0-4]\d|(1\d|[1-9])?\d)$/';
-                //为保证安全，过滤掉不安排的IP
+                //为保证安全，过滤非法的IP
                 $ip = preg_match($ipPattern, $ipTmp) ? $ipTmp : '0.0.0.0';
 
             }
@@ -216,6 +216,14 @@ class CspRequest{
     }
 
     /**
+     *
+     * @param $dataType
+     */
+    public function data($dataType='row'){
+
+    }
+
+    /**
      * 获取POST原始输入
      * @return string
      */
@@ -229,6 +237,15 @@ class CspRequest{
         if(self::$reqType!==null){
             return self::$reqType;
         }
+        return $this->initRequestType();
+    }
+
+    /**
+     * 初始化 请求类型
+     * @return null|string
+     * @throws \Csp\core\CspException
+     */
+    public function initRequestType(){
         if(strtolower(PHP_SAPI)==='cli'){
             self::$reqType = self::REQ_TYPE_CLI;
             return self::$reqType;
@@ -251,8 +268,6 @@ class CspRequest{
         }
         self::$reqType = self::REQ_TYPE_WEB;
         return self::$reqType;
-
-
     }
 
     /**
