@@ -1785,4 +1785,19 @@ class CspCompDBMysqli extends CspBaseComponent {
         $offset = $this->pageLimit * (max($page, 1) - 1);
         $res = $this->withTotalCount()->get($table, Array($offset, $this->pageLimit), $fields);
     }
+
+    /**TODO...
+     * @param        $table
+     * @param string $fields
+     * @param array  $cond
+     * @param int    $page
+     * @param null   $pageSize
+     */
+    public function findOne($table, $fields='*', $cond=array(), $page=1, $pageSize=null){
+        if($pageSize){
+            $this->pageLimit = $pageSize;
+        }
+        $offset = $this->pageLimit * (max($page, 1) - 1);
+        $res = $this->withTotalCount()->get($table, Array($offset, $this->pageLimit), $fields);
+    }
 }

@@ -56,7 +56,7 @@ return array(
             '/match/*'              => '/match',
 
             //选择语法1，如下表示， 只有 /swyes/y1 和 /swyes/y2 会被匹配，例如 /swyes/y3 是不匹配的
-            '/swyes/{vn-(y1|y2)}'   => '/switch/catch_yes_sw1_sw2/{vn}',
+            '/swyes/{vn-(y1|y2)}'   => '/switch/catch_yes_y1_y2/{vn}',
             //选择语法2,跟上面相反，是除了 /swno/n1 和 /swno/n2 外 ，例如 /swno/n3 是匹配的
             '/swno/{vn-(?!n1|n2)}'  => '/switch/catch_no_n1_n2/{vn}',
 

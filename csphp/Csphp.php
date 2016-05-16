@@ -260,6 +260,9 @@ class Csphp {
         self::fireEvent(self::EVENT_CORE_BEFORE_SEND_RESP);
         self::response()->send();
         self::fireEvent(self::EVENT_CORE_AFTER_SEND_RESP);
+        if(function_exists('fastcgi_finish_request')){
+            fastcgi_finish_request();
+        }
     }
 
     /**
@@ -1015,37 +1018,52 @@ class Csphp {
     //----------------------------------------------------------------------------------
 
     /**
-     * 四种日志记录 Debug info warning error
-     * @param $type string 错误的类型，用于分类错误信息
-     * @param $msg  string
-     * @param $context  array or null 上下文字典信息，$msg 中的 {{keyname}} 会替换为 $context[keyname]
+     * 四种日志记录: debug info warning error
+     *
+     * @param mixed  $msg     日志信息，可以是包含 {{keyname}} 的字符串，或者一个数组
+     * @param null   $context 上下文字典信息，$msg 中的 {{keyname}} 会替换为 $context[keyname]
+     * @param string $type    日志的分类标识
      */
-    public static function logDebug($type, $msg, $context=null){
-        self::log()->logDebug($type, $msg, $context);
+    public static function logDebug($msg, $context = NULL, $type = '') {
+        self::log()->logDebug($msg, $context,$type);
     }
-    public static function logInfo($type, $msg, $context=null){
-        self::log()->logInfo($type, $msg, $context);
+    public static function logInfo($msg, $context = NULL, $type = ''){
+        self::log()->logInfo($msg, $context,$type);
     }
-    public static function logWarning($type,$msg, $context=null){
-        self::log()->logWarning($type, $msg, $context);
+    public static function logWarning($msg, $context = NULL, $type = ''){
+        self::log()->logWarning($msg, $context,$type);
     }
-    public static function logError($type, $msg, $context=null){
-        self::log()->logError($type, $msg, $context);
+    public static function logError($msg, $context = NULL, $type = ''){
+        self::log()->logError($msg, $context,$type);
     }
 
 
+    //-------------------------------------------------------------------------
     /**
      * 获取程序从启动现当前所用的时间
+     *
      * @return mixed
      */
     public static function getTimeUse($dotLen=8){
         return sprintf("%.".$dotLen."f",microtime(true) - self::$appStartTime);
     }
 
+    /**
+     * 用于计算时间的 开始位置
+     *
+     * @param string $flagKey
+     */
     public static function bmkStart($flagKey){
         self::$bankmarkData[$flagKey] = microtime(true);
 
     }
+
+    /**
+     * @param string $flagKey
+     * @param int    $dotLen
+     *
+     * @return string
+     */
     public static function bmkEnd($flagKey, $dotLen=6){
         return sprintf("%.".$dotLen."f",microtime(true) - self::$bankmarkData[$flagKey]);
     }
@@ -1109,10 +1127,12 @@ class Csphp {
         if ($isExit) exit();
     }
 
+    //-------------------------------------------------------------------------
     /**
      * get system cfg
-     * @param $k
-     * @param null $def
+     *
+     * @param string $k
+     * @param null   $def
      */
     public static function sysCfg($k, $def=null){
         $vKeys = explode('/', $k);
@@ -1155,6 +1175,7 @@ class Csphp {
     }
 
 
+    //-------------------------------------------------------------------------
     /**
      * 触发一个事件
      * @param string    $eventName  事件名
@@ -1193,6 +1214,7 @@ class Csphp {
     public static function listen($eventName, $eventListener){
         CspEvent::on($eventName, $eventListener);
     }
+    //-------------------------------------------------------------------------
 
     public static function tmp(){
 

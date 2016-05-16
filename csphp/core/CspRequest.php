@@ -147,6 +147,7 @@ class CspRequest{
         }else{
             //用户可以指定 获取ip的尝试顺序，注，在使用 反向代理后，一般不能使用 REMOTE_ADDR ，不同的服务器，可能设置为不同的KEY
             $ipKeysOrder = Csphp::sysCfg('ip_keys_order', array('HTTP_X_FORWARDED_FOR','REMOTE_ADDR'));
+            $ipTmp = '';
             foreach($ipKeysOrder as $k){
                 if (isset($_SERVER[$k]) && $_SERVER[$k]) {
                     $ipTmp = $_SERVER[$k];
