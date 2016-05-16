@@ -19,18 +19,23 @@ return array(
         //'view_base'    =>'@view/$module_name',
     ),
 
-    //------ 示例配置, 建议将默认模块 放在最后面 将过滤器设置为空 ------
-    'www'=>array(
+    //------ 示例配置 ------
+    'home'=>array(
+
         //模块识别过滤器，系统 在什么条件下 识别为正在访问该模块，通常是域名，或者URL前缀
         'filter'=>array(
             //这条规则表示只在 www.csphp.com 下使用该模块
-            'host'=>'www.csphp.com'
+            //'host'=>'www.csphp.com'
+            'host'=>'*'//这条规则表示 任意域名
         ),
+        //'host'          => '*',
+        //是否默认模块
+        'is_default'    => true,
         //模块名，不能重复，模块名用于 访问控制 或者 过滤器
-        'module_name'   =>'www',
+        'module_name'   =>'home',
         //默认的控制器，即首页
         'default_route' =>'index/home',
-        //控制器目录，基准目录为 @ctrl
+        //控制器目录，基准目录为 @ctrl/{module_name}
         'ctrl_base'    =>'/home',
         //当前模块的 默认模板 基准目录
         'view_base'    =>'/home',

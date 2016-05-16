@@ -161,19 +161,24 @@ class CspTemplate{
         if($tplRoute[0]==='.'){
             return $this->getCurTplPathForControler().'/'.substr($tplRoute, 1).$this->tplFileExt;
         }
+
         if($tplRoute[0]==='@'){
             return Csphp::getPathByRoute($tplRoute).$this->tplFileExt;
+        }
+
+        if($tplRoute[0]==='/'){
+            return Csphp::getPathByRoute('@view'.$tplRoute).$this->tplFileExt;
         }
         return Csphp::getPathByRoute('@m-view/'.ltrim($tplRoute, '/')).$this->tplFileExt;
     }
 
     /**
-     *
+     * 向前
      */
     public function ajax($route, $args=array(), $assets=array()){}
 
     /**
-     * 一个 pipe 的输出结构
+     * 一个 pipe 标记的输出，
      * pipeJson = {pid='', html=>'', assets=>array(), pipedata=>array()}
      * @param $route
      * @param array $args
@@ -208,14 +213,14 @@ class CspTemplate{
      * 输出运行时的数据给 前端
      * @param $route
      */
-    public function data(){
+    public function jsData($k=null, $v=null){
 
     }
 
 
 
-    // 用于模板中输出，转义HTML 除非你完全确定被输出的内容是安全 HTML 否则VIEW模板中的内容要求统一用这个接口输出
     /**
+     * 用于模板中输出，转义HTML 除非你完全确定被输出的内容是安全 HTML 否则VIEW模板中的内容要求统一用这个接口输出
      * @param $str
      * @param int $quoteStyle
      * @return string

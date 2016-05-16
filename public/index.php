@@ -14,14 +14,13 @@ $appMainCfg = require(APP_ROOT_PATH.'/app/config/main.cfg.php');
 //加载框架文件
 require(APP_ROOT_PATH.'/csphp/Csphp.php');
 
-//xhprof 开启
-//Csphp::ext('xhprof')->start();
+//start xhprof
+require '/srv/nwww/xhprof/ext_inc_lib/start.xhprof.php';
 
 //创建并运行一个运用
 Csphp::createApp($appMainCfg)->run();
-
-//xhprof 结束
-//Csphp::ext('xhprof')->end();
+//end xhprof
+require '/srv/nwww/xhprof/ext_inc_lib/end.xhprof.php';
 
 
 

@@ -157,20 +157,19 @@ class Csphp {
      */
     private static $bankmarkData = array();
 
+    private static $isDebug = false;
     /**
      * 应用 对象构造函数
-     * @param null $appCfg 应用配置数据
      */
-    public function __construct($appCfg=null){
-        $this->initConfig($appCfg);
+    public function __construct(){
     }
 
     /**
      * @param $appConfig array
      */
     public static function createApp($appConfig=array()){
-        self::$app = new self($appConfig);
-        return self::$app;
+        self::$app = new self();
+        return self::$app->initConfig($appConfig);
     }
 
     /**
@@ -286,6 +285,7 @@ class Csphp {
                 self::$sysCfg[$k] = $v;
             }
         }
+        return $this;
     }
 
 
@@ -746,7 +746,7 @@ class Csphp {
     }
 
 
-
+    //------------------------------------------------------------------------------
     /**
      * @return Csphp
      */
@@ -783,9 +783,6 @@ class Csphp {
         return self::$objContainer['cliConsole'];
     }
 
-
-
-
     /**
      * @return CspLog
      */
@@ -799,6 +796,7 @@ class Csphp {
     public static function tpl(){
         return self::$objContainer['tpl'];
     }
+    //------------------------------------------------------------------------------
 
     /**
      * @param $vr //vr变量路由 规则如下
@@ -945,6 +943,7 @@ class Csphp {
     }
 
     /**
+     * todo ...
      * URL 构造器
      * @param string        $r
      * @param string|array  $paramArrOrStr
@@ -966,6 +965,7 @@ class Csphp {
         throw new CspException($msg, 10000);
     }
 
+    //----------------------------------------------------------------------------------
     /**
      * 判断当前是否运行在生产环境
      * @return bool
@@ -987,6 +987,7 @@ class Csphp {
     public static function isDevEnv(){
         return CSPHP_ENV_TYPE === self::ENV_TYPE_DEV;
     }
+    //----------------------------------------------------------------------------------
 
     /**
      * 判断当前是否运行在 CLI 环境
@@ -996,9 +997,22 @@ class Csphp {
         return strtolower(PHP_SAPI)==='cli';
     }
 
+    /**
+     * 当前是否调试 模式，非调试模式 不输出 info log
+     * @return bool
+     */
     public static function isDebug(){
         return true;
     }
+
+    /**
+     * 设置为debug模式
+     * @param bool $debug
+     */
+    public static function setDebug($debug=true){
+        self::$isDebug = $debug;
+    }
+    //----------------------------------------------------------------------------------
 
     /**
      * 四种日志记录 Debug info warning error

@@ -42,5 +42,9 @@ class index extends CspBaseControler{
         $this->render();
     }
 
+    public function actionDebug(){
+        echo 'Hello world!';
+    }
+
 }
 
