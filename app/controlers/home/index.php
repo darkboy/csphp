@@ -39,11 +39,22 @@ class index extends CspBaseControler{
 
     public function pageletIndex(){
 
-        $this->render();
+        //$this->render();
     }
 
     public function actionDebug(){
         echo 'Hello world!';
+    }
+
+
+    //日志使用示例
+    public function actionLog(){
+        /*日志测试，4种常日志 */
+        Csphp::logDebug("logDebug...");
+        Csphp::logInfo("logInfo {{test}}",['test'=>'demoLogVar']);
+        Csphp::logWarning("logWarning {{test}}",['test'=>'demoLogVar']);
+        Csphp::logError(['err'=>'errmsg'],['test'=>'demoLogVar']);
+        Csphp::logError(['err'=>'errmsg'],['test'=>'demoLogVar'],'sql');
     }
 
 }
