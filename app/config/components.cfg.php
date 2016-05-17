@@ -16,44 +16,55 @@ return array(
 
     //示例配置------
     //这个 key 供后续在应用中可以通过 Csphp::comp($access_key) 引用组件
-    'access_key'=>array(
+    'access_key' => [
         //目标类，可以是类别名路由 类名 闭包
-        'class' =>'@comp/demoComp',
-        //是否 是中间件
-        'is_middle_ware' =>false,
+        'class'         => '@comp/demoComp',
+        'is_singleton'  => true,
+        // 用于初始化选项的成员方法，默认为  setInitOptions
+        'option_method' => 'setInitOptions',
         //组件的配置选项字典列表，每个key将作来组件的属性被赋值
-        'options'=>array(
-        )
+        'options'       => []
 
-    ),
+    ],
+
     //-------------
-
     //这个 key 供后续在应用中可以通过 Csphp::comp($access_key) 引用组件
-    'DB'=>array(
-        //类对象路由
-        'class' =>'@comp/demoComp',
+    'DB' => [
+        //目标类，可以是类别名路由 类名 闭包
+        'class'         => '@comp/demoComp',
+        'is_singleton'  => true,
+        // 用于初始化选项的成员方法，默认为  setInitOptions
+        'option_method' => 'setInitOptions',
         //组件的配置选项字典列表，每个key将作来组件的属性被赋值
-        'options'=>array(
+        'options'       => []
 
-        )
+    ],
 
-    ),
     //-------------
-
     //这个 key 供后续在应用中可以通过 Csphp::comp($access_key) 引用组件
-    'CACHE'=>array(
-        //类对象路由
-        'class' =>'@comp/demoComp',
+    'CACHE' => [
+        //目标类，可以是类别名路由 类名 闭包
+        'class'         => '@comp/demoComp',
+        'is_singleton'  => true,
+        // 用于初始化选项的成员方法，默认为  setInitOptions
+        'option_method' => 'setInitOptions',
         //组件的配置选项字典列表，每个key将作来组件的属性被赋值
-        'options'=>array(
+        'options'       => []
 
-        )
+    ],
 
-    ),
     //-------------
+    //这个 key 供后续在应用中可以通过 Csphp::comp($access_key) 引用组件
+    'REDIS' => [
+        //目标类，可以是类别名路由 类名 闭包
+        'class'         => '@comp/demoComp',
+        'is_singleton'  => true,
+        // 用于初始化选项的成员方法，默认为  setInitOptions
+        'option_method' => 'setInitOptions',
+        //组件的配置选项字典列表，每个key将作来组件的属性被赋值
+        'options'       => []
 
-
-
-
+    ],
+    //-------------
 
 );
