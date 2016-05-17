@@ -160,9 +160,15 @@ class CspRequest{
             return $ip;
         }
     }
-    //todo uri 清除路由变量,querystring,  左 / ,
+
+    /**
+     *
+     * 获取当前请求路径
+     * uri 清除路由变量, querystring,  左 /
+     * @return mixed
+     */
     public function getReqRoute(){
-        return '';
+        return Csphp::router()->getReqRoute();
     }
 
     /**

@@ -260,9 +260,11 @@ class Csphp {
         self::fireEvent(self::EVENT_CORE_BEFORE_SEND_RESP);
         self::response()->send();
         self::fireEvent(self::EVENT_CORE_AFTER_SEND_RESP);
+        self::logInfo('exitApp');
         if(function_exists('fastcgi_finish_request')){
             fastcgi_finish_request();
         }
+        exit();
     }
 
     /**
