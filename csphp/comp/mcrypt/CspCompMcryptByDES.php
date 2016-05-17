@@ -11,15 +11,12 @@ use \Csphp;
  * @package Csp\comp
  */
 class CspCompMcrypt extends CspBaseComponent {
-
+    protected $key = '';
     public function __construct() {
         parent::__construct();
     }
 
-    public function start(){
-        //Csphp::request();
-    }
-
-
-
+    public function setKey($key){}
+    public function encode($s,$key=null){}
+    public function decode($s,$key=null){}
 }
