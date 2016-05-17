@@ -3,7 +3,8 @@ namespace App\config;
 //配置示例
 $appConfig = array(
     //应用名称
-    'app_name'      =>'demo app',
+    'app_name'      =>'demoApp',
+
     //应用的版本号 规则为 Ymd.no.svnno
     'app_version'   =>'20160301.01.xxxx',
 
@@ -25,15 +26,16 @@ $appConfig = array(
         '@demo'=>array('@cfg/demo','')
     ),
 
-    //应用所用的host url 前缀，用于组装URL，拼接静态文件，等
-    'host_key'=>array(
+    //应用 的一些 url 前缀，用于组装URL，拼接静态文件，等
+    'urls'=>array(
         '_default'	=>'http://www.domain.com/',
         'home'		=>'http://www.domain.com/',
         'admin'		=>'http://admin.domain.com/',
-        'statics'	=>'http://admin.domain.com/',
         'api'		=>'http://api.domain.com/',
+        'statics'	=>'http://statics.domain.com/statics/',
 
     ),
+
     //主页
     'home_url'      =>'/',
 
