@@ -1,11 +1,12 @@
 <?php
 namespace App;
 /**
- * 组件的配置:
+ * 组件的配置说明:
  *
  *  组件 是包含一系列独立功能的类集合，如 DB CACHE ， Csphp 将所有的类封装都看作组件
  *
- *  组件配置 解决的是 类的实例化方式, 包括如下信息
+ *  组件配置提供的信息主要用于类的实例化, 包括如下信息
+ *
  *  access_key          =>   访问别名, 可以用 Csphp::make($access_key) 获取实例
  *      class           =>   是什么类, 可以是一个类名路由，字符串，或者闭包
  *      options         =>   类选项, 类选项, Csphp 要求 组件有一个 初始化选项的成员方法 默认为 setInitOptions
@@ -15,7 +16,7 @@ namespace App;
  *
  */
 
-return array(
+return [
 
     //示例配置------
     //这个 key 供后续在应用中可以通过 Csphp::comp($access_key) 引用组件
@@ -70,4 +71,4 @@ return array(
     ],
     //-------------
 
-);
+];
