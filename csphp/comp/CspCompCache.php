@@ -6,7 +6,7 @@ use \Csphp;
 
 
 
-class CspCompFileCache extends CspBaseComponent {
+class CspCompCache extends CspBaseComponent {
 
     public function __construct() {
         parent::__construct();

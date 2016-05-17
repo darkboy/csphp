@@ -15,6 +15,9 @@ $appConfig = array(
     //应用命名空间
     'app_namespace' =>'App',
 
+    //用于加解密的KEY
+    'app_secret_key'=>'Kals266kAd;@s2E30#Sdlk9,a.Ke',
+
     //在框架引导期间 会自动加载的目录或者文件 如果是一个目录，刚加载这个目录下的所有PHP文件
     'auto_include_path'=>array(
         //fileOrDir
@@ -80,7 +83,7 @@ $systemCfg = array(
     ),
 
     //-------------------------------------------------------------------------
-    //日志相关-将 覆盖 系统 的配置
+    //日志相关的配置
     'log_key_separator'=>'#####',
     'log_base_path'    =>dirname(__DIR__).'/var/log',
     'log_stay_days'    =>7,
