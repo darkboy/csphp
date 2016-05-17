@@ -325,7 +325,7 @@ class Csphp {
         foreach(self::$appCfg['alias_path_config'] as $aliasName=>$v){
             $ns     = is_array($v) ? $v[1] : $appNs;
             $path   = is_array($v) ? $v[0] : $v;
-            self::$aliasMap[$aliasName] = array( self::getPathByRoute($path), $ns );
+            self::$aliasMap[$aliasName] = [ self::getPathByRoute($path), $ns ];
         }
     }
 

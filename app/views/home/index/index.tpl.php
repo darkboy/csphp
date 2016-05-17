@@ -21,8 +21,9 @@
     <body>
         <h1>Hello Csphp, now is <?php echo date("Y-m-d H:i:s");?></h1>
         <hr>
-        <div>Ouput html: <?php $this->o('<div></div>');?></div><br>
-        <div>ifo output: <?php $this->ifo(true,"yes","no");?></div><br>
+        <div>html Ouput : <?php $this->o('<div></div>');?></div><br>
+        <div>ifo Output: <?php $this->ifo(true,"yes","no");?></div><br>
+        <div>ifo Output: <?php $this->ifo(false,"yes","no");?></div><br>
 
         <!-- 加载子模板的几种方式 -->
         <!-- 当前控制器的模板目录 可以用 . 表示 -->
