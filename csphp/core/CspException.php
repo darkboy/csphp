@@ -4,9 +4,20 @@ use \Csphp;
 
 
 class CspException extends \Exception{
+    //框架自身相关的异常
+    const CORE_EXCEPTION            = 'CORE_EXCEPTION';
+    //文件无法找到的异常
+    const FILE_NOT_FOUND_EXCEPTION  = 'FILE_NOT_FOUND_EXCEPTION';
+    //路由错误的异常
+    const ROUTE_NOT_FOUND_EXCEPTION = 'ROUTE_NOT_FOUND_EXCEPTION';
+    //数据库查询异常
+    const DB_QUERY_EXCEPTION        = 'DB_QUERY_EXCEPTION';
+    //文件IO异常
+    const FILE_IO_EXCEPTION         = 'FILE_IO_EXCEPTION';
 
+    public $exceptionType           = 'CORE_EXCEPTION';
     private $msgData = null;
-    public function __construct($message, $code = 0){
+    public function __construct($message, $code = 0,$type='CORE_EXCEPTION'){
         $this->msgData = $message;
 
         if(is_array($message)) {
@@ -44,6 +55,18 @@ class CspException extends \Exception{
         echo Csphp::trace($this->getTrace());
         print_r(Csphp::router()->routeInfo);
         return "Exception Code is: [{$this->code}]; Msg: {$this->message}";
+    }
+
+    /**
+     * 获取异常类型
+     * @return string
+     */
+    public function getExceptionType(){
+        return $this->exceptionType;
+    }
+
+    public function handler(){
+
     }
 }
 

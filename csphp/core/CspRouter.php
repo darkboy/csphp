@@ -155,6 +155,15 @@ class CspRouter{
     }
 
     /**
+     * 获取路由信息
+     * @param null $k
+     * @return array
+     */
+    public function getRouteInfo($k=null){
+        return $k===null ? $this->routeInfo : $this->routeInfo[$k];
+    }
+
+    /**
      * 获取路由变量
      * 获取路由解释过程中产生的变量
      * @return array
