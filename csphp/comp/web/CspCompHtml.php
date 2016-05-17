@@ -7,10 +7,10 @@ use \Csphp;
 
 /**
  *
- * Class CspCompMcrypt
+ * Class CspCompUpload
  * @package Csp\comp
  */
-class CspCompPermission extends CspBaseComponent {
+class CspCompZip extends CspBaseComponent {
 
     public function __construct() {
         parent::__construct();
