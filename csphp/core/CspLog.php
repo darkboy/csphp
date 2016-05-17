@@ -176,7 +176,7 @@ class CspLog {
         if (is_array($logStrOrArr)) {
             $logStr = "LogData:".json_encode($logStrOrArr);
             if (is_array($context)) {
-                $logStr .= " Context: " . json_encode($context);
+                $logStr .= "\tlogContext: " . json_encode($context);
             }
         } else {
             $logStr = $logStrOrArr;
@@ -185,7 +185,7 @@ class CspLog {
                 foreach ($context as $k => $v) {
                     $logStr = str_replace("{{" . $k . "}}", $v, $logStr);
                 }
-                $logStr .= " Context: " . json_encode($context);
+                $logStr .= "\tlogContext: " . json_encode($context);
             }
         }
 
