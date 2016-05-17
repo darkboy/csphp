@@ -55,6 +55,11 @@ class index extends CspBaseControler{
         Csphp::logWarning("logWarning {{test}}",['test'=>'demoLogVar']);
         Csphp::logError(['err'=>'errmsg'],['test'=>'demoLogVar']);
         Csphp::logError(['err'=>'errmsg'],['test'=>'demoLogVar'],'sql');
+
+    }
+
+    public function acctionHelper(){
+
     }
 
 }

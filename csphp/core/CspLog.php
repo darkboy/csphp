@@ -209,20 +209,66 @@ class CspLog {
             if(file_exists($logFile)){
                 $logInfoText = "\n".$logInfoText;
             }
-            if (!@file_put_contents($logFile, $logInfoText, FILE_APPEND)) {
+            if (!$this->logIOWrite($logFile, $logInfoText)) {
                 throw CspException('Can not write log file: ' . $logFile . " log info is " . htmlspecialchars($logInfoText));
             }
         }
+        //日志清理 与日志写入 一个请求只做一次 且在请求完成后写入 不影响用户体验
         $this->cleanLogFiles();
     }
 
     /**
-     * todo 清理日志
+     * 清理日志 只保留 log_stay_days 天的日志，日志是按天存放
      */
-    public function cleanLogFiles() {
+    private function cleanLogFiles() {
         $stayDays = $this->option('log_stay_days');
+        $path = rtrim($this->option('log_base_path'), '/\\');
+        $fs = glob($path."/*");
 
+        $stayDays = 1;
+        $expireTime = strtotime("-{$stayDays} day");
+        $expireDate = date("Ymd", $expireTime);
+
+        foreach($fs as $f){
+            if(is_dir($f)){
+                $logDate = substr($f,-8);
+                if(+$logDate <= +$expireDate){
+                    $this->rmDir($f);
+                }
+            }
+        }
+        //echo "<pre>\n",date("Y-m-d", $expireTime); print_r(glob($path."/*"));
+    }
+
+    /**
+     * 递归删除一个目录以及它包括的文件
+     * @param $dir
+     *
+     * @return bool
+     */
+    private function rmDir($dir){
+        //先删除目录下的文件：
+        $dh=opendir($dir);
+        while ($file=readdir($dh)) {
+            if($file!="." && $file!="..") {
+                $fullpath=$dir."/".$file;
+                if(!is_dir($fullpath)) {
+                    unlink($fullpath);
+                } else {
+                    $this->rmDir($fullpath);
+                }
+            }
+        }
+        closedir($dh);
+        //删除当前文件夹：
+        return !!rmdir($dir);
     }
 
 
+    /**
+     * 日志的IO
+     */
+    private function logIOWrite($logFile, $logInfoText){
+        return @file_put_contents($logFile, $logInfoText, FILE_APPEND);
+    }
 }
