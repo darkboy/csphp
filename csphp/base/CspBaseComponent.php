@@ -7,4 +7,7 @@ class CspBaseComponent {
     public function __construct() {
 
     }
+
+
+    public function setInitOtions($optArr){}
 }
