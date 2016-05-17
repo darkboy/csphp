@@ -155,8 +155,8 @@ class CspRouter{
     }
 
     /**
-     * 获取路由信息
-     * @param null $k
+     * 获取全部或者一项路由信息
+     * @param null|string $k 路由信息的key
      * @return array
      */
     public function getRouteInfo($k=null){

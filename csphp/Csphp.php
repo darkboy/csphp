@@ -336,26 +336,44 @@ class Csphp {
         $appRoot = self::appCfg('app_base_path');
         $appNs   = self::appCfg('app_namespace');
 
+        $defaultModule = [];
         foreach(self::appCfg('modules') as $mName=>$m){
-            if(self::request()->isMatch($m['filter'])){
+            if(empty($defaultModule) && isset($m['is_default']) && $m['is_default']){
+                $defaultModule = $m;
+            }
+            $filter = isset($m['filter']) ?  $m['filter'] : [];
+
+            //可以将常用的 过滤规则直接写在模块配置中 如 host,!host
+            foreach(['host','!host','urlPrefix','urlSuffix', 'match','requestType'] as $filterName){
+                if(isset($m[$filterName])){
+                    $filter[$filterName] = $m[$filterName];
+                }
+                $filterNameNot = '!'.$filterName;
+                if(isset($m[$filterNameNot])){
+                    $filter[$filterNameNot] = $m[$filterNameNot];
+                }
+            }
+
+            //过滤器检查
+            if(self::request()->isMatch($filter)){
                 self::$curModule = $m;
-
-                $ctrlNsModule = str_replace('/','\\', self::getModuleCtrlPath());
-                self::$aliasMap['@m-ctrl']  = array(
-                    $appRoot.'/controlers'.self::getModuleCtrlPath(),
-                    $appNs.'\\controlers'.$ctrlNsModule);
-
-                $viewNsModule = str_replace('/','\\', self::getModuleViewPath());
-                self::$aliasMap['@m-view']  = array(
-                    $appRoot.'/views'.self::getModuleViewPath(),
-                    $appNs.'\\views'.$viewNsModule);
-
-                return $m;
+                break;
+            }
+        }
+        // 模块 查找的优先级为 先找 过滤器 匹配，找不到 就找 home www api 模块
+        if(empty(self::$curModule)){
+            if(empty($defaultModule)){
+                self::$curModule = self::appCfg('modules/home', self::appCfg('modules/www', self::appCfg('modules/api', []) ) );
+            }else{
+                self::$curModule = $defaultModule;
             }
         }
 
+        $mName = self::$curModule['name'];
+        self::$aliasMap['@m-ctrl']  = [$appRoot.'/controlers/'.$mName, $appNs.'\\controlers\\'.$mName];
+        self::$aliasMap['@m-view']  = [$appRoot.'/views/'.$mName, $appNs.'\\views\\'.$mName];
 
-        return self::appCfg('modules/www',array());
+        return self::$curModule;
     }
 
     /**
@@ -368,27 +386,12 @@ class Csphp {
 
     /**
      * 获取当前模块的名称
-     * @return mixed
+     * @return string
      */
     public  static function getModuleName(){
-        return self::$curModule['module_name'];
+        return self::$curModule['name'];
     }
 
-    /**
-     * 获取当前模块的 控制器基准目录
-     * @return string
-     */
-    public  static function getModuleCtrlPath(){
-        return '/'.trim(self::$curModule['ctrl_base'],'/');
-    }
-
-    /**
-     * 获取当前模块的 控示图基准目录
-     * @return string
-     */
-    public  static function getModuleViewPath(){
-        return '/'.trim(self::$curModule['view_base'],'/');
-    }
     /**
      * 获取当前模块的默认路由
      * @return string
