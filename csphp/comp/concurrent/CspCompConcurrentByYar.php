@@ -1,5 +1,5 @@
 <?php
-namespace Csp\comp;
+namespace Csp\comp\concurrent;
 use \Csp\base\CspBaseControler;
 use \Csp\base\CspBaseComponent;
 use \Csphp;
