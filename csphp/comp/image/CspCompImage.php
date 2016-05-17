@@ -5,12 +5,21 @@ use \Csp\base\CspBaseComponent;
 use \Csphp;
 
 
-
-class CspCompCache extends CspBaseComponent {
+/**
+ *
+ * Class CspCompImageImagick
+ * @package Csp\comp
+ */
+class CspCompImageImagick extends CspBaseComponent {
 
     public function __construct() {
         parent::__construct();
     }
+
+    public function start(){
+        //Csphp::request();
+    }
+
 
 
 }
