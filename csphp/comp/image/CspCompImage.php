@@ -10,7 +10,7 @@ use \Csphp;
  * Class CspCompImageImagick
  * @package Csp\comp
  */
-class CspCompImageImagick extends CspBaseComponent {
+class CspCompImage extends CspBaseComponent {
 
     public function __construct() {
         parent::__construct();

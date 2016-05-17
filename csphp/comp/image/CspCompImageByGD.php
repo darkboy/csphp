@@ -1,5 +1,5 @@
 <?php
-namespace Csp\comp;
+namespace Csp\comp\image;
 use \Csp\base\CspBaseControler;
 use \Csp\base\CspBaseComponent;
 use \Csphp;
@@ -7,10 +7,10 @@ use \Csphp;
 
 /**
  *
- * Class CspCompImageGD
+ * Class CspCompImageByGD
  * @package Csp\comp
  */
-class CspCompImageGD extends CspBaseComponent {
+class CspCompImageByGD extends CspBaseComponent {
 
     public function __construct() {
         parent::__construct();

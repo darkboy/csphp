@@ -10,7 +10,7 @@ use \Csphp;
  * Class CspCompHttpClientByCurl
  * @package Csp\comp
  */
-class CspCompHttpClientByCurl extends CspBaseComponent {
+class CspCompHttpClient extends CspBaseComponent {
 
     public function __construct() {
         parent::__construct();
