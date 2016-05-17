@@ -1,4 +1,4 @@
-//与 服务端通讯 用的 JS客户端库
+//与 服务端通讯 用的 JS客户端库,依赖JQ
 (function($,name){
     var me = {};
 
@@ -10,7 +10,7 @@
 
 
 
-    me.prototype.ajax()
+    me.prototype.ajax();
     //
     window[name] = me;
-})(jQuery,'CspJS');
+})(jQuery,'CsphpJS');
