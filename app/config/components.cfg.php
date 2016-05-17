@@ -1,27 +1,28 @@
 <?php
 namespace App;
-//组件的配置示例, 组件是包含一系列独立功能的类，如 DB CACHE 或者应用相关的一些主要类
+/**
+ * 组件的配置:
+ *  组件 是包含一系列独立功能的类集合，如 DB CACHE ， Csphp 将所有的封装都看作组件
+ *  组件配置 解决的是 类的实例化方式, 包括如下信息
+ *      access_key      =>   访问别名, 可以用 Csphp::comp($access_key) 获取实例
+ *      class           =>   是什么类, 可以是一个类名路由，字符串，或者闭包
+ *      options         =>   类选项, 类选项, Csphp 要求 组件有一个 初始化选项的成员方法 默认为 setInitOptions
+ *      is_singleton    =>   是否是单例,默认为是
+ *      option_method   =>   用于初始化选项的成员方法，默认为  setInitOptions
+ *
+ */
+
 return array(
 
     //示例配置------
     //这个 key 供后续在应用中可以通过 Csphp::comp($access_key) 引用组件
     'access_key'=>array(
-        //类对象路由
+        //目标类，可以是类别名路由 类名 闭包
         'class' =>'@comp/demoComp',
         //是否 是中间件
         'is_middle_ware' =>false,
-        //请求过滤器，在什么条件下使用该组件 !filter 则不在过滤中使用组件, 详见 过滤器描述
-        'filter'=>array(
-            //这条规则表示访问 /user/* 时启用这个组件
-            'match'=>"/user/*",
-            //这条规则表示，只在本机使用
-            'ip'=>"127.0.0.1,::1",
-            //这条规则表示只在 domain.com 下使用
-            'host'=>'*.domain.com'
-        ),
         //组件的配置选项字典列表，每个key将作来组件的属性被赋值
         'options'=>array(
-
         )
 
     ),
@@ -31,17 +32,6 @@ return array(
     'DB'=>array(
         //类对象路由
         'class' =>'@comp/demoComp',
-        //是否 是中间件
-        'is_middle_ware' =>false,
-        //请求过滤器，在什么条件下使用该组件 !filter 则不在过滤中使用组件, 详见 过滤器描述
-        'filter'=>array(
-            //这条规则表示访问 /user/* 时启用这个组件
-            'match'=>"/user/*",
-            //这条规则表示，只在本机使用
-            'ip'=>"127.0.0.1,::1",
-            //这条规则表示只在 domain.com 下使用
-            'host'=>'*.domain.com'
-        ),
         //组件的配置选项字典列表，每个key将作来组件的属性被赋值
         'options'=>array(
 
@@ -54,17 +44,6 @@ return array(
     'CACHE'=>array(
         //类对象路由
         'class' =>'@comp/demoComp',
-        //是否 是中间件
-        'is_middle_ware' =>false,
-        //请求过滤器，在什么条件下使用该组件 !filter 则不在过滤中使用组件, 详见 过滤器描述
-        'filter'=>array(
-            //这条规则表示访问 /user/* 时启用这个组件
-            'match'=>"/user/*",
-            //这条规则表示，只在本机使用
-            'ip'=>"127.0.0.1,::1",
-            //这条规则表示只在 domain.com 下使用
-            'host'=>'*.domain.com'
-        ),
         //组件的配置选项字典列表，每个key将作来组件的属性被赋值
         'options'=>array(
 
