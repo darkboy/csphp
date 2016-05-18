@@ -64,12 +64,6 @@ class CspRouter{
         $this->parseUrl();
     }
 
-
-    public function dump(){
-        echo "\n\n".'<pre>'."\n".__METHOD__." \n\n";
-        print_r($this->routeInfo);
-    }
-
     /**
      * 某些场景下，项目会被安装在WEB站点的某个目录
      * 返回入口文件之前的路路径，不含最后的 / ，含左 /
@@ -141,7 +135,7 @@ class CspRouter{
 
     /**
      * 获取路由解释结果 rst['controler'] rst['action']
-     * @return array|callable
+     * @return array|callable| \Closure
      */
     public function getParseRst(){
         return $this->routeInfo['parse_rst'];
@@ -194,11 +188,13 @@ class CspRouter{
         $routeRst = $this->getParseRst();
         //准备执行 action
         Csphp::fireEvent(Csphp::EVENT_CORE_BEFORE_ACTION);
+        $hasDoAction = false;
         do{
             //闭包路由
-            if(is_object($routeRst) && strtolower(get_class($routeRst))==='closure'){
+            if(is_object($routeRst) && ($routeRst instanceof \Closure)){
                 $this->routeInfo['controler'] = $routeRst;
                 $routeRst();
+                $hasDoAction = true;
                 break;
             }
 
@@ -248,6 +244,8 @@ class CspRouter{
                 //实际执行action
                 $ctrlObj->$actionName();
 
+                $hasDoAction = true;
+
                 //执行 afterAction
                 if(method_exists($ctrlObj, 'afterAction')){
                     $ctrlObj->afterAction();
@@ -255,11 +253,15 @@ class CspRouter{
 
                 //call_user_func($routeRst);
             }else{
-                print_r($routeRst);
+                //print_r($routeRst);
                 throw new CspException('404 can not find route '.json_encode($routeRst));
             }
             //error route rst
         }while(false);
+
+        if($hasDoAction == false){
+            //any thing to do...
+        }
         //执行 action 完成
         Csphp::fireEvent(Csphp::EVENT_CORE_AFTER_ACTION);
     }

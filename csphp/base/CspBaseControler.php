@@ -52,16 +52,24 @@ class CspBaseControler {
     }
 
     /**
+     * @param        $layoutTpl
+     * @param string $tplRoute
+     * @param array  $vars
+     * @param bool   $isReturn
+     *
+     * @return string
+     */
+    public function renderBylayout($layoutTpl, $tplRoute='', $vars=array(), $isReturn=false){
+        return Csphp::view()->renderBylayout($layoutTpl, $tplRoute, $vars, $isReturn);
+    }
+
+    /**
      * 给模板赋值
      * @param string    $k
      * @param null      $v
      */
     public function assign($k, $v=null){
         Csphp::view()->assign($k, $v);
-    }
-
-    public function layout($layoutRoute, $tplRoute='', $vars=array(), $isReturn=false){
-        return Csphp::view()->layout($layoutRoute, $tplRoute, $vars, $isReturn);
     }
 
     /**

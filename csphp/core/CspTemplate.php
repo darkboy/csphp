@@ -35,6 +35,7 @@ class CspTemplate{
      */
     public $curViewPathForInclude = '';
     public $tplFileExt = '.tpl.php';
+    public $tplLayoutExt = '.layout.php';
     /**
      * xpipe 的标签占位符
      * @var string
@@ -142,8 +143,16 @@ class CspTemplate{
      * @param array $data
      * @param bool $isReturn
      */
-    public function layout($layout,  $tplRoute='', $data=array(), $isReturn=false){
-        return $this->render('@m-view/'.$layout,array( 'content'=>$this->render($tplRoute, $data, true)), $isReturn);
+    public function renderBylayout($layout,  $tplRoute='', $data=array(), $isReturn=false){
+        $subTpls = [];
+        if (is_string($tplRoute)){
+            $subTpls['content'] = $tplRoute;
+        }
+        $layoutVars = [];
+        foreach($subTpls as $ctxName=>$tplRoute){
+            $layoutVars[$ctxName] = $this->render($tplRoute, $data, true);
+        }
+        return $this->render('@m-view/'.$layout.$this->tplLayoutExt, $layoutVars, $isReturn);
     }
 
     /**
@@ -159,17 +168,25 @@ class CspTemplate{
             return $this->getCurTplFileForAction();
         }
         if($tplRoute[0]==='.'){
-            return $this->getCurTplPathForControler().'/'.substr($tplRoute, 1).$this->tplFileExt;
+            return $this->getCurTplPathForControler().'/'.substr($tplRoute, 1).$this->getTplFileExt($tplRoute);
         }
 
         if($tplRoute[0]==='@'){
-            return Csphp::getPathByRoute($tplRoute).$this->tplFileExt;
+            return Csphp::getPathByRoute($tplRoute).$this->getTplFileExt($tplRoute);
         }
 
         if($tplRoute[0]==='/'){
-            return Csphp::getPathByRoute('@view'.$tplRoute).$this->tplFileExt;
+            return Csphp::getPathByRoute('@view'.$tplRoute).$this->getTplFileExt($tplRoute);
         }
-        return Csphp::getPathByRoute('@m-view/'.ltrim($tplRoute, '/')).$this->tplFileExt;
+        return Csphp::getPathByRoute('@m-view/'.ltrim($tplRoute, '/')).$this->getTplFileExt($tplRoute);
+    }
+
+    private function getTplFileExt($tplRoute=null){
+        $layoutExt = $this->tplLayoutExt;
+        if($tplRoute && substr($tplRoute,-strlen($layoutExt))==$layoutExt){
+            return '';
+        }
+        return $this->tplFileExt;
     }
 
     /**
