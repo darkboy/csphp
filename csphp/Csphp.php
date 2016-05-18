@@ -187,8 +187,8 @@ class Csphp {
         //初始化别名配置
         self::initAliasMap();
 
-        //导入应用定义的预加载文件
-        self::loadAutoloadFiles();
+        //导入 helpers，自动加载， helpers/*.preload.php 与 helpers/*/*.preload.php
+        self::loadHelperFiles();
 
         //初始化请求信息
         //self::request()->init();
@@ -321,6 +321,7 @@ class Csphp {
         self::$aliasMap['@cfg']     = array($appRoot.'/config', $appNs.'\\config');
         self::$aliasMap['@ctrl']    = array($appRoot.'/controlers', $appNs.'\\controlers');
         self::$aliasMap['@ext']     = array($appRoot.'/exts', $appNs.'\\exts');
+        self::$aliasMap['@helper']  = array($appRoot.'/helpers', $appNs.'\\helpers');
         self::$aliasMap['@view']    = array($appRoot.'/views',$appNs.'\\views');
         self::$aliasMap['@tpl']     = array($appRoot.'/views',$appNs.'\\views');
         self::$aliasMap['@mod']     = array($appRoot.'/models',$appNs.'\\models');
@@ -485,28 +486,22 @@ class Csphp {
     }
 
     /**
-     * 加载应用配置中指定的需要自动加载的文件
+     * 自动加载 helpers 中的 *.preload.php 文件 ，扫苗2层目录
      * @throws \Csp\core\CspException
      */
-    private static function loadAutoloadFiles(){
-        foreach (self::appCfg('auto_include_path',array()) as $path=>$level){
-            $realPath = self::getPathByRoute($path);
-            if(is_file($realPath)){
-                include ($realPath);
-            }else{
-                if(file_exists($realPath) && is_dir($realPath)){
-                    $realPath = rtrim($realPath, '\\/');
-
-                    $pathArr = glob($realPath.'/*.php');
-                    if(is_array($pathArr)){
-                        foreach($pathArr as $f){
-                            require_once($f);
-                        }
-                    }
-
-                }else{
-                    throw new CspException("Error config: auto_include_path path : [$path => $realPath ] ");
-                }
+    private static function loadHelperFiles(){
+        $helperBasePath = self::appCfg('app_base_path').'/helpers';
+        $preloadExt = '*.preload.php';
+        $level1Files = glob($helperBasePath.'/'.$preloadExt);
+        if(is_array($level1Files) && !empty($level1Files)){
+            foreach($level1Files as $f){
+                require $f;
+            }
+        }
+        $level2Files = glob($helperBasePath.'/*/'.$preloadExt);
+        if(is_array($level2Files) && !empty($level2Files)){
+            foreach($level2Files as $f){
+                require $f;
             }
         }
     }

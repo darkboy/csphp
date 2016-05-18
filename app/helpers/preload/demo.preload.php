@@ -1,6 +1,6 @@
 <?php
 /**
- * 放在 app/helpers/ 目录中，并且 以 .preload.php 命名的php文件 将会被预加载
+ * 系统将自动加载 helpers 中的 *.preload.php 文件 ，扫苗2层目录
  *
  */
 

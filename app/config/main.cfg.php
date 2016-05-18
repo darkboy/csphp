@@ -18,12 +18,7 @@ $appConfig = array(
     //用于加解密的KEY
     'app_secret_key'=>'Kals266kAd;@s2E30#Sdlk9,a.Ke',
 
-    //在框架引导期间 会自动加载的目录或者文件 如果是一个目录，刚加载这个目录下的所有PHP文件
-    'auto_include_path'=>array(
-        //fileOrDir
-    ),
-
-    //路径别名配置
+    //路径别名 自定义配置
     'alias_path_config'=>array(
         //@aliasname=>array(path-实际路径,nsPrefix-命名空间不需要时置空)
         '@demo'=>array('@cfg/demo','')

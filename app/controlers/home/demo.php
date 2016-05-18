@@ -49,6 +49,13 @@ class demo extends CspBaseControler{
         $this->renderBylayout('index','.tpl');
     }
 
+    public function actionPreload(){
+        echo '<pre>',"\n";
+        preload_function_demo1();
+        echo "\n",'preload_function_demo2'.(function_exists('preload_golbal_function_demo2') ? 'true' : 'false');
+        preload_function_demo3();
+    }
+
 
 }
 
