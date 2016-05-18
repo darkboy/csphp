@@ -9,7 +9,7 @@ class CspBaseControler {
     public function __construct(){
 
     }
-
+    //--------------------------------------------------------------------------------
     /**
      * 控制器实例化的时候 被执行 主要用于 访问控制
      * 返回一个ACL 配置
@@ -41,6 +41,7 @@ class CspBaseControler {
     public function afterAction(){
     }
 
+    //--------------------------------------------------------------------------------
     /**
      * 渲染一个模板
      * @param string    $tplRoute
@@ -71,6 +72,7 @@ class CspBaseControler {
     public function assign($k, $v=null){
         Csphp::view()->assign($k, $v);
     }
+    //--------------------------------------------------------------------------------
 
     /**
      * 接口API的标准输出

@@ -30,8 +30,11 @@ class demo extends CspBaseControler{
      */
     public function actionTpl(){
         Csphp::view()->jsData('varKey','value assign in Controler');
+        //单个 赋值
         $this->assign('c_v1', 'c-v1');
+        //一次性赋值多个
         $this->assign(['c_v2'=>'c-v2<hello>']);
+        //不提供参数将自动根据 控制器 以及 action 到 当前模块的 模板目录下去找对应的模板
         $this->render();
     }
 
