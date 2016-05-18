@@ -21,7 +21,7 @@ return array(
             //这条规则表示访问 /user/* 时启用这个组件
             //'match'=>"/user/*",
             //这条规则表示只在 domain.com 下使用
-            'host'=>'*.csphp.com'
+            '!host'=>'api.*'
         ),
 
         //actionName::actionArg 如: del_suffix::.html
