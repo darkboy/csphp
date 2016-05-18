@@ -4,6 +4,6 @@
  *
  */
 
-function preload_golbal_function_demo2(){
+function preload_function_demo2(){
     echo 'Hello: '.__FUNCTION__;
 }

@@ -49,11 +49,12 @@ class demo extends CspBaseControler{
         $this->renderBylayout('index','.tpl');
     }
 
+    //helpers 中 以 .preload.php 结尾 的文件将会被自动预加载
     public function actionPreload(){
         echo '<pre>',"\n";
-        preload_function_demo1();
-        echo "\n",'preload_function_demo2'.(function_exists('preload_golbal_function_demo2') ? 'true' : 'false');
-        preload_function_demo3();
+        echo "\n",'preload_function_demo1 exists : '.(function_exists('\preload_function_demo1') ? 'true' : 'false');
+        echo "\n",'preload_function_demo2 exists : '.(function_exists('\preload_function_demo2') ? 'true' : 'false');
+        echo "\n",'preload_function_demo3 exists : '.(function_exists('\preload_function_demo3') ? 'true' : 'false');
     }
 
 
