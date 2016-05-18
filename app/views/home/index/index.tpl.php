@@ -10,9 +10,12 @@
         <meta name="description" content="" />
 
         <!--
+
         静态资源引入相关
+
         可以一次性 引入多个资源
         <?php $this->js("demo,-demo,/demo,-dirname/abc");?>
+
         -->
 
         <!--
@@ -33,18 +36,31 @@
 
         获取静态资源版本号: <?php echo $this->getStaticsVersion();?>
 
-        给苛个第三方资源加上版本号: <?php echo $this->wrapByStaticsVersion('http://www.a.com/abc.js');?>
+        给某个第三方资源加上版本号: <?php echo $this->wrapByStaticsVersion('http://www.a.com/abc.js');?>
+
         -->
 
-        <!-- some data register by app output json format with js like var=$csphpConfig={}; -->
+        <!--
+
+        给页面注入 JS 数据
+        可以在模模中 通过 $this->jsData('test','test-v1'); 注入，
+        或者 在其它任意位置 Csphp::view()->jsData('test3','v3');
+        注入的JS变量名为 $csphpConfig
+        如 var $csphpConfig={};
+
+        -->
         <?php
         //你可以在模板中为 $csphpConfig 注入数据，
         $this->jsData('test','test-v1');
+        //可以直接给数组
         $this->jsData(['test2'=>'test-v2']);
+
         //你也可以在 程序的任意地方调用
         Csphp::view()->jsData('test3','v3');
 
-        $this->jsData();?>
+        //不带参数时表示在模板中输出 JS变量数据
+        $this->jsData();
+        ?>
 
 
 
@@ -56,7 +72,8 @@
         <div>html Ouput : <?php $this->o('<div></div>');?></div><br>
         <div>ifo Output: <?php $this->ifo(true,"yes","no");?></div><br>
         <div>ifo Output: <?php $this->ifo(false,"yes","no");?></div><br>
-
+        <div><?php printf("TimeUse: %.4fms ", Csphp::getTimeUse()*1000);;?></div><br>
+        <hr>
         <!-- 加载子模板的几种方式 -->
         <!-- 当前控制器的模板目录 可以用 . 表示 -->
         <?php $this->widget('.index_widget',                array('by'=>'tpl_1')); $ti=2;?>
@@ -72,7 +89,7 @@
         <?php $this->xpipe('');?>
         <?php $this->ajax('');?>
 
-        <pre><?php printf("\n\nTimeUse:%.4f\n", Csphp::getTimeUse()); print_r(Csphp::router()->routeInfo);?></pre>
+        <pre><?php print_r(Csphp::router()->routeInfo);?></pre>
 
 
     </body>
