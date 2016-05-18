@@ -58,5 +58,11 @@ class demo extends CspBaseControler{
     }
 
 
+    public function actionInput(){
+        //$a = Csphp::request()->get('a',1,'require,num');
+        $a = Csphp::request()->get('abcd',1,'require');
+        Csphp::dump($a);
+    }
+
 }
 

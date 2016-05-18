@@ -337,6 +337,7 @@ class Csphp {
         }
     }
 
+    //------------------------------------------------------------------------------
     /**
      * 模块初始化，检查 当前运行的是什么模块，并将模块信息提取
      */
@@ -407,6 +408,8 @@ class Csphp {
     public  static function getModuleDefaultRoute(){
         return '/'.trim(self::$curModule['default_route'],'/');
     }
+    //------------------------------------------------------------------------------
+
 
     /**
      * 初始化所有的 组件, 检查过滤器，初始化 组件配置选项，执行 start
@@ -709,12 +712,15 @@ class Csphp {
         return self::newClass('@ext/'.$route, $cfg, $isSingleton);
     }
 
+
     /**
      * 统一规范 rest 接口，ajax ,以及 jsonp 接口 数据格式
-     * @param $rst
-     * @param int $code
+     *
+     * @param mixed  $rst
+     * @param int    $code
      * @param string $msg
      * @param string $tips
+     *
      * @return string jsonString
      */
     public static function wrapJsonApiData($rst, $code=0, $msg='OK', $tips=''){
@@ -876,18 +882,25 @@ class Csphp {
         }
 
         $v  = null;
+        $noFound = false;
         while ( $fk = array_shift($vKes) ) {
             if($v==null){
                 if( isset($inputCache[$vType][$fk]) ){
                     $v = $inputCache[$vType][$fk];
                 }else{
-                    return $def;
+                    $noFound = true;
+                    $v = $def;
+                    break;
+                    //return $def;
                 }
             }else{
                 if(isset($v[$fk])){
                     $v = $v[$fk];
                 }else{
-                    return $def;
+                    $noFound = true;
+                    $v = $def;
+                    break;
+                    //return $def;
                 }
             }
         }
@@ -899,7 +912,7 @@ class Csphp {
         }
 
         //验证检查 缓存 返回
-        if( CspValidator::validate($v, $rule) ){
+        if( CspValidator::validate(($noFound ? null : $v), $rule) ){
             $vCache[$vr] = $v;
             return $v;
         }else{
@@ -907,12 +920,12 @@ class Csphp {
             if($errHandle){
                 //todo 替换为 内部扩展的 call_user_function
                 if(!is_callable($errHandle)){
-                    throw new CspException('Param errHandle is not callable: '.json_encode($errHandle), 10000);
+                    throw new CspException('Param errHandle is not callable: '.json_encode($errHandle), 10000, CspException::PARAM_INPUT_EXCEPTION);
                 }
                 call_user_func($errHandle, $voidInfo);
             }else{
 
-                throw new CspException($voidInfo['tips'], $voidInfo['code']*1);
+                throw new CspException($voidInfo['tips'], $voidInfo['code']*1, CspException::PARAM_INPUT_EXCEPTION);
             }
             return null;
         }

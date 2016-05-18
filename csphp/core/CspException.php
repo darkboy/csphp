@@ -14,6 +14,8 @@ class CspException extends \Exception{
     const DB_QUERY_EXCEPTION        = 'DB_QUERY_EXCEPTION';
     //文件IO异常
     const FILE_IO_EXCEPTION         = 'FILE_IO_EXCEPTION';
+    //参数异常，不符合标准
+    const PARAM_INPUT_EXCEPTION     = 'PARAM_INPUT_EXCEPTION';
 
     public $exceptionType           = 'CORE_EXCEPTION';
     private $msgData = null;
@@ -38,6 +40,7 @@ class CspException extends \Exception{
         if(is_array($message)){
             $message = join(' ; ',$message);
         }
+        $this->exceptionType = $type;
         parent::__construct($message, $code);
     }
 
@@ -54,7 +57,7 @@ class CspException extends \Exception{
         echo '<pre>';
         echo Csphp::trace($this->getTrace());
         print_r(Csphp::router()->routeInfo);
-        return "Exception Code is: [{$this->code}]; Msg: {$this->message}";
+        return "Exception[{$this->exceptionType}] Code is: [{$this->code}]; Msg: {$this->message}";
     }
 
     /**
