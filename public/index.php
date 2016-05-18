@@ -14,8 +14,12 @@ define('APP_ROOT_PATH', realpath(dirname(__FILE__).'/../'));
 //加载 应用主配置文件
 $appMainCfg = require(APP_ROOT_PATH.'/app/config/main.cfg.php');
 
-//加载框架文件
+//加载Autoload 和 框架主文件
+require(APP_ROOT_PATH.'/csphp/CsphpAutoload.php');
 require(APP_ROOT_PATH.'/csphp/Csphp.php');
+
+//使用 xhporf 进行 性能分析，你也可以显式的调用使用 Csphp::xhporfEnd(); 结束 xhprof
+Csphp::xhporfEnable();
 
 //创建并运行一个运用
 Csphp::createApp($appMainCfg)->run();

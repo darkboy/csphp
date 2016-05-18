@@ -14,7 +14,7 @@ use Csp\core\CspCliConsole;
 use Csp\core\CspTemplate;
 use Csp\core\CspValidator;
 use Csp\core\CspException;
-use Csp\ext\xhprof\cspExtXhporf;
+use Csp\CsphpAutoload;
 
 
 //设置当前的运行环境
@@ -160,12 +160,29 @@ class Csphp {
     private static $bankmarkData = array();
 
     private static $isDebug = false;
+    private static $hasWrite = false;
     /**
      * 应用 对象构造函数
      */
     public function __construct(){
     }
 
+    /**
+     * 开启 xhprof
+     */
+    public static function xhporfStart(){
+        Csp\ext\xhprof\CspExtXhprof::enable();
+    }
+    public static function xhporfEnable(){
+        Csp\ext\xhprof\CspExtXhprof::enable();
+    }
+
+    /**
+     * 结束 xhprof
+     */
+    public static function xhprofEnd(){
+        Csp\ext\xhprof\CspExtXhprof::end();
+    }
     /**
      * @param $appConfig array
      */
@@ -178,7 +195,7 @@ class Csphp {
      * start applatection
      */
     public function run(){
-        cspExtXhporf::start();
+
         //初始化核心对象
         self::initCoreObjs();
 
@@ -282,8 +299,11 @@ class Csphp {
         }
 
         self::$coreRootPath = dirname(__FILE__);
-        require_once(self::$coreRootPath.'/CsphpAutoload.php');
 
+        //require_once(self::$coreRootPath.'/CsphpAutoload.php');
+
+        //注册应用的命名空间
+        CsphpAutoload::addNamespace(self::appCfg('app_base_path'), self::appCfg('app_namespace'), '.php');
 
         //load sys config
         self::$sysCfg = include(self::$coreRootPath.'/CspCfg.php');

@@ -27,18 +27,19 @@ class CsphpAutoload{
      * @param $clsName
      */
     public static function load($clsName){
-        //echo '<pre>';print_r(self::$nsArr);var_dump($clsName);
         $basePath = null;
         foreach (self::$nsArr as $nsPrefix=>$nsCfg){
             //echo '<pre>';print_r(array(strpos($clsName, $nsPrefix),$clsName,$nsPrefix));
             if(strpos($clsName, $nsPrefix)===0){
-                $basePath   = rtrim($nsCfg['basePath'],'\\/').'/';
-                $fileSuffix = $nsCfg['fileExt'];
-                $filePath = $basePath.str_replace('\\','/',substr($clsName,strlen($nsPrefix))).$fileSuffix;
+                $basePath      = rtrim($nsCfg['basePath'],'\\/').'/';
+                $fileSuffix    = $nsCfg['fileExt'];
+                $clsNameToPath = str_replace('\\','/',substr($clsName,strlen($nsPrefix)));
+                $clsNameToPath = ltrim($clsNameToPath,'/');
+                $filePath      = $basePath.$clsNameToPath.$fileSuffix;
+                //print_r(['base'=>$basePath,'f'=>$filePath]);
+                //echo "<pre>include class file:\n ".$filePath;//exit;
                 if(file_exists($filePath)){
-                    //echo "<pre>include class file:\n ".$filePath;//exit;
                     require $filePath;
-
                 }else{
                     //echo "Not exists file ".$filePath;
                     return false;
@@ -48,10 +49,6 @@ class CsphpAutoload{
         return false;
     }
 }
-
-//注册应用的命名空间
-CsphpAutoload::addNamespace(\Csphp::appCfg('app_base_path'), \Csphp::appCfg('app_namespace'), '.php');
-
 ///注册 auto loader
 spl_autoload_register(function ($className) { CsphpAutoload::load($className);});
 //加载兼容性文件

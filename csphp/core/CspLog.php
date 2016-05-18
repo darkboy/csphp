@@ -32,6 +32,8 @@ class CspLog {
      * @var int
      */
     public $saveDay = 7;
+
+    public static $hasFlush = false;
     /**
      * @var array 缓存日志信息 在程序结束的时候写入文件
      */
@@ -127,6 +129,10 @@ class CspLog {
         } else {
             self::$logInfoCache[$k]  = self::wrapLogStr($logStrOrArr, $context);
         }
+
+        if(self::$hasFlush){
+            $this->flush();
+        }
     }
 
     /**
@@ -196,6 +202,14 @@ class CspLog {
      * 注册到 shutdown 方法中，在程序结束时写日志信息
      */
     public function writeAllLogAfterShutdown() {
+        //日志写入
+        $this->flush();
+        //日志清理 一个请求只做一次 且在请求完成后写入 不影响用户体验
+        $this->cleanLogFiles();
+    }
+
+
+    private function flush(){
         if (empty(self::$logInfoCache)) {
             return false;
         }
@@ -213,9 +227,10 @@ class CspLog {
                 throw CspException('Can not write log file: ' . $logFile . " log info is " . htmlspecialchars($logInfoText));
             }
         }
-        //日志清理 与日志写入 一个请求只做一次 且在请求完成后写入 不影响用户体验
-        $this->cleanLogFiles();
+        self::$hasFlush = true;
     }
+
+
 
     /**
      * 清理日志 只保留 log_stay_days 天的日志，日志是按天存放
