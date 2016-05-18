@@ -48,7 +48,7 @@ class CspBaseControler {
      * @param bool      $isReturn
      */
     public function render($tplRoute='', $vars=array(), $isReturn=false){
-        return Csphp::tpl()->render($tplRoute, $vars, $isReturn);
+        return Csphp::view()->render($tplRoute, $vars, $isReturn);
     }
 
     /**
@@ -57,11 +57,11 @@ class CspBaseControler {
      * @param null      $v
      */
     public function assign($k, $v=null){
-        Csphp::tpl()->assign($k, $v);
+        Csphp::view()->assign($k, $v);
     }
 
     public function layout($layoutRoute, $tplRoute='', $vars=array(), $isReturn=false){
-        return Csphp::tpl()->layout($layoutRoute, $tplRoute, $vars, $isReturn);
+        return Csphp::view()->layout($layoutRoute, $tplRoute, $vars, $isReturn);
     }
 
     /**

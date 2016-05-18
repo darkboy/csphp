@@ -154,7 +154,7 @@ class CspTemplate{
      *        $tplRoute="pslName"    其它表示在当前模块的view目录中找
      * @param string $tplRoute
      */
-    public function parseTplRoute($tplRoute){
+    private function parseTplRoute($tplRoute){
         if(empty($tplRoute) || $tplRoute==='-'){
             return $this->getCurTplFileForAction();
         }
@@ -190,31 +190,135 @@ class CspTemplate{
 
 
     /**
+     * 在模板中引用js 文件
      *
-     * @param $route
+     * @param       $routeList
+     * @param null  $urlPrefixKey
+     * @param array $tagAttr
      */
-    public function js($routeList, $opt=array()){
-
-    }
-    public function css($routeList, $opt=array()){
-
+    public function js($routeList, $urlPrefixKey=null, $tagAttr=[]){
+        echo join("\r\n", $this->creStaticResHtmlTags('js', $routeList, $urlPrefixKey, $tagAttr))."\r\n";
     }
 
     /**
+     * 在模板中引用js 文件
      *
+     * @param       $routeList
+     * @param null  $urlPrefixKey
+     * @param array $tagAttr
      */
-    public function fn($route){
+    public function css($routeList, $urlPrefixKey=null, $tagAttr=[]){
+        echo join("\r\n", $this->creStaticResHtmlTags('css', $routeList, $urlPrefixKey, $tagAttr))."\r\n";
+    }
+
+
+    /**
+     * 生成静态资源的HTML标签字符串 数组
+     *
+     * @param       $fileType
+     * @param       $routeList
+     * @param null  $urlPrefixKey
+     * @param array $tagAttr
+     *
+     * @return array
+     */
+    private function creStaticResHtmlTags($fileType, $routeList, $urlPrefixKey=null, $tagAttr=[]){
         //扩展名
         //$ext = $opt['ext'].'?V='.Csphp::appCfg('app_version', '0.0.'.date('Hids'));
 
+        if(!is_array($routeList)){
+            $routeList = explode(",", $routeList);
+        }
+
+        $htmlTagAttrStr = "";
+        if(is_string($tagAttr)){
+            $htmlTagAttrStr = $tagAttr;
+        }else{
+            foreach($tagAttr as $attrName=>$attrValue){
+                $htmlTagAttrStr.=" ".$attrName.'="'.addslashes($attrValue).'" ';
+            }
+        }
+
+        $tagFormatCfg = [
+            'css'   =>'<link rel="stylesheet" type="text/css" href="%s" %s />',
+            'js'    =>'<script type="text/javascript" charset="utf-8" src="%s" %s ></script>',
+        ];
+
+        $ret = [];
+        foreach($routeList as $rn){
+            $path = $this->getStaticsResPath($fileType, $rn, $urlPrefixKey);
+            $ret[] = sprintf($tagFormatCfg[$fileType], $path, $htmlTagAttrStr);
+        }
+        return $ret;
     }
 
     /**
-     * 输出运行时的数据给 前端
-     * @param $route
+     * 获取一个静态资源的路径
+     * @param      $fileType
+     * @param      $route
+     * @param null $urlPrefixKey
+     */
+    public function getStaticsResPath($fileType, $route, $urlPrefixKey=null){
+
+        $mName = Csphp::getModuleName();
+        $path = '';
+        switch($route[0]){
+            case '-':
+                $path = '/statics/'.$mName.'/'.substr($route, 1);
+                break;
+            case '/':
+                $path = $route;
+                break;
+            default:
+                $path = '/statics/'.$mName.'/'.$fileType.'/'.$path;
+                break;
+        }
+
+        $path = $this->wrapByStaticsVersion($path.'.'.$fileType);
+        if($urlPrefixKey===null){
+            return $path;
+        }else{
+            $hostPrefix = Csphp::appCfg('urls/'.$urlPrefixKey);
+            return rtrim($hostPrefix, '/').$path;
+        }
+    }
+
+    /**
+     * @param $pathOrUrl
+     *
+     * @return string
+     */
+    public function wrapByStaticsVersion($pathOrUrl){
+        return $pathOrUrl.(strpos($pathOrUrl,'?')===false ? '?' : '&').'_ver_='.$this->getStaticsVersion();
+    }
+    /**
+     * 获取静态资源的版本号
+     *
+     */
+    public function getStaticsVersion(){
+        return Csphp::appCfg('app_version', '0.0.'.date('Hids'));
+    }
+
+    /**
+     * 设置 或者 输出 运行时的配置数据给 前端, 不带参数需为输出，输出变量为 $csphpConfig
+     *
+     * @param string|null $k
+     * @param string|null $v
      */
     public function jsData($k=null, $v=null){
-
+        static $data = [];
+        if(func_num_args()==0){
+            printf('<script type="text/javascript">var $csphpConfig = %s;</script>', json_encode($data));
+        }else{
+            if(is_array($k)){
+                foreach($k as $kk=>$vv){
+                    $data[$kk] = $vv;
+                }
+            }else{
+                $data[$k] = $v;
+            }
+        }
+        return;
     }
 
 

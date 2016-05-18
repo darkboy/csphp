@@ -34,7 +34,7 @@ class index extends CspBaseControler{
     }
 
     public function actionLayout(){
-        Csphp::tpl()->layout('index','.index');
+        Csphp::view()->layout('index','.index');
     }
 
     public function pageletIndex(){

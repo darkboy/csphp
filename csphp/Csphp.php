@@ -801,7 +801,7 @@ class Csphp {
     /**
      * @return CspTemplate
      */
-    public static function tpl(){
+    public static function view(){
         return self::$objContainer['tpl'];
     }
     //------------------------------------------------------------------------------

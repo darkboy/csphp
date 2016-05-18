@@ -9,12 +9,44 @@
         <meta name="keywords"   content="" />
         <meta name="description" content="" />
 
-        <!-- <script type="text/javascript" src="/statics/home/js/demo.js"></script> -->
-        <?php $this->js("demo");?>
-        <!-- <link rel="stylesheet" href="/statics/home/css/demo.css"/> -->
+        <!--
+        静态资源引入相关
+        可以一次性 引入多个资源
+        <?php $this->js("demo,-demo,/demo,-dirname/abc");?>
+        -->
+
+        <!--
+        注：引入一个 当前模块的 的 demo.css
         <?php $this->css("demo");?>
+
+        注：- 号开头 则表示 模块根 为前缀
+        <?php $this->css("-demo");?>
+
+        注：- 号开头 则表示 模块根 为前缀， 第二个参数为 指定 http 前棳，
+        <?php $this->css("-dirname/demo",'home');?>
+
+        注：- 号开头 则表示 模块根 为前缀,第三个参数为 标签添加自定义参数
+        <?php $this->css("-dirname/demo",'api',['charset'=>'utf-8']);?>
+
+        注：/ 号开头 则表示 站点根 为前缀
+        <?php $this->css("/demo");?>
+
+        获取静态资源版本号: <?php echo $this->getStaticsVersion();?>
+
+        给苛个第三方资源加上版本号: <?php echo $this->wrapByStaticsVersion('http://www.a.com/abc.js');?>
+        -->
+
         <!-- some data register by app output json format with js like var=$csphpConfig={}; -->
-        <?php $this->jsData();?>
+        <?php
+        //你可以在模板中为 $csphpConfig 注入数据，
+        $this->jsData('test','test-v1');
+        $this->jsData(['test2'=>'test-v2']);
+        //你也可以在 程序的任意地方调用
+        Csphp::view()->jsData('test3','v3');
+
+        $this->jsData();?>
+
+
 
     </head>
 
