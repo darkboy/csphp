@@ -187,14 +187,11 @@ class Csphp {
         //初始化别名配置
         self::initAliasMap();
 
-        //导入 helpers，自动加载， helpers/*.preload.php 与 helpers/*/*.preload.php
-        self::loadHelperFiles();
-
-        //初始化请求信息
-        //self::request()->init();
-
         //初始化当前模块配置
         self::initModule();
+
+        //导入 helpers，自动加载， helpers/*.preload.php 与 helpers/*/*.preload.php
+        self::loadHelperFiles();
 
         //cli 与 http 请求分别进行路由 和 初始化动作
         if(self::isCli()){
