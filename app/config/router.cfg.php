@@ -20,7 +20,7 @@ return array(
         'filter'=>array(
             //这条规则表示访问 /user/* 时启用这个组件
             //'match'=>"/user/*",
-            //这条规则表示只在 domain.com 下使用
+            //这条规则表示只在 在非 api. 开头的域名 下使用 此规则集，
             '!host'=>'api.*'
         ),
 
