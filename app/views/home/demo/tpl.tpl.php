@@ -67,7 +67,7 @@
 </head>
 
 <body>
-<h1>Hello Csphp, now is <?php echo date("Y-m-d H:i:s");?></h1>
+<h1 style="color: darkblue;">Hello Csphp, now is <?php echo date("Y-m-d H:i:s");?></h1>
 <hr>
 <div>html Ouput : <?php $this->o('<div></div>');?></div><br>
 <div>ifo Output: <?php $this->ifo(true,"yes","no");?></div><br>
