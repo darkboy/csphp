@@ -167,26 +167,7 @@ class Csphp {
     public function __construct(){
     }
 
-    /**
-     * 开启 xhprof
-     */
-    public static function xhporfStart(){
-        Csp\ext\xhprof\CspExtXhprof::enable();
-    }
 
-    /**
-     * 开始 xhprof
-     */
-    public static function xhporfEnable(){
-        Csp\ext\xhprof\CspExtXhprof::enable();
-    }
-
-    /**
-     * 结束 xhprof , 如果需要记录整个请求，xhprofEnd 可以不调用
-     */
-    public static function xhprofEnd(){
-        Csp\ext\xhprof\CspExtXhprof::end();
-    }
     /**
      * @param $appConfig array
      */
@@ -1159,6 +1140,35 @@ class Csphp {
         if ($isExit) exit();
     }
 
+
+    /**
+     * 开启 xhprof
+     */
+    public static function xhprofStart($opts=[]){
+        self::xhprofCheck();
+        Csp\ext\xhprof\CspExtXhprof::enable($opts);
+    }
+
+    /**
+     * 开始 xhprof
+     */
+    public static function xhprofEnable($opts=[]){
+        self::xhprofCheck();
+        Csp\ext\xhprof\CspExtXhprof::enable($opts);
+    }
+
+    /**
+     * 结束 xhprof , 如果需要记录整个请求，xhprofEnd 可以不调用
+     */
+    public static function xhprofEnd($opts=[]){
+        self::xhprofCheck();
+        Csp\ext\xhprof\CspExtXhprof::end($opts);
+    }
+    private static function xhprofCheck(){
+        if(!function_exists('xhprof_enable')){
+            throw new CspException("Pls install xhprof extention : https://pecl.php.net/package/xhprof ");
+        }
+    }
     //-------------------------------------------------------------------------
     /**
      * get system cfg

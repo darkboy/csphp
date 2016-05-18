@@ -18,8 +18,8 @@ $appMainCfg = require(APP_ROOT_PATH.'/app/config/main.cfg.php');
 require(APP_ROOT_PATH.'/csphp/CsphpAutoload.php');
 require(APP_ROOT_PATH.'/csphp/Csphp.php');
 
-//使用 xhporf 进行 性能分析，你也可以显式的调用使用 Csphp::xhporfEnd(); 结束 xhprof
-Csphp::xhporfEnable();
+//可以使用 xhporf 进行 性能分析，你也可以显式的调用使用 Csphp::xhporfEnd(); 结束 xhprof
+//Csphp::xhprofEnable();
 
 //创建并运行一个运用
 Csphp::createApp($appMainCfg)->run();

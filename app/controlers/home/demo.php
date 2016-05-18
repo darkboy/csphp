@@ -16,6 +16,7 @@ class demo extends CspBaseControler{
     //日志使用示例
     public function actionLog(){
         echo 'Hello log '.__FUNCTION__;
+
         /*日志测试，4种常日志 */
         Csphp::logDebug("logDebug...");
         Csphp::logInfo("logInfo {{test}}",['test'=>'demoLogVar']);

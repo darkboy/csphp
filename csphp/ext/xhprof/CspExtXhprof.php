@@ -4,6 +4,14 @@ namespace Csp\ext\xhprof;
 class CspExtXhprof{
 
     public static $runId = null;
+    //一些选项
+    public static $options = [
+        //直接指定 save id, 优先级最高
+        'save_id'       => null,
+        //指定 save_id 的变更名 ，save_id = $_GET[save_id_key]
+        'save_id_key'   => '_xhprof',
+        'save_id_def'   => 'xhprof_tmp'
+    ];
 
     public function __construct() {
     }
@@ -13,7 +21,7 @@ class CspExtXhprof{
      *
      * @param null $id
      */
-    public static function enable(){
+    public static function enable($opts=[]){
         /**
          * cpu: XHPROF_FLAGS_CPU
          * 内存: XHPROF_FLAGS_MEMORY
@@ -22,6 +30,7 @@ class CspExtXhprof{
          * xhprof_enable(XHPROF_FLAGS_CPU + XHPROF_FLAGS_MEMORY);
          */
 
+        self::setOptions($opts);
         self::$runId = rand(10000000,99999999);
         register_shutdown_function(array(new self(),'end'));
         xhprof_enable();
@@ -30,7 +39,7 @@ class CspExtXhprof{
     /**
      * @param null $flag
      */
-    public static function start(){
+    public static function start($opts=[]){
         self::enable();
     }
 
@@ -39,14 +48,15 @@ class CspExtXhprof{
      * 分析代码的结束处调用此方法
      * @return null|string
      */
-    public static function end(){
+    public static function end($opts=[]){
         if(self::$runId){
             self::$runId = null;
         }else{
             return false;
         }
+        self::setOptions($opts);
         // stop profiler
-        $xhprof_data = xhprof_disable();
+        $xhprofData = xhprof_disable();
 
         // display raw xhprof data for the profiler run
 
@@ -56,11 +66,26 @@ class CspExtXhprof{
 
         // save raw data for this profiler run using default
         // implementation of iXHProfRuns.
-        $xhprof_runs = new \XHProfRuns_Default();
-        $save_id = isset($_GET['_xhprof']) ? $_GET['_xhprof'] : 'xhprof_tmp';
+        $xhprofObj = new \XHProfRuns_Default();
+
+        $saveId = self::getSaveId();
         // save the run under a namespace "xhprof_foo"
-        $run_id = $xhprof_runs->save_run($xhprof_data, $save_id);
+        $run_id = $xhprofObj->save_run($xhprofData, $saveId);
         return $run_id;
+    }
+
+    private static function getSaveId(){
+        if(self::$options['save_id']){
+            return self::$options['save_id'];
+        }
+        $k = self::$options['save_id_key'];
+        return isset($_GET[$k]) && $_GET[$k] ? $_GET[$k] :  self::$options['save_id_def'];
+    }
+
+    private static function setOptions($opts){
+        foreach($opts as $k=>$v){
+            self::$options[$k]=$v;
+        }
     }
 }
 
