@@ -173,12 +173,16 @@ class Csphp {
     public static function xhporfStart(){
         Csp\ext\xhprof\CspExtXhprof::enable();
     }
+
+    /**
+     * 开始 xhprof
+     */
     public static function xhporfEnable(){
         Csp\ext\xhprof\CspExtXhprof::enable();
     }
 
     /**
-     * 结束 xhprof
+     * 结束 xhprof , 如果需要记录整个请求，xhprofEnd 可以不调用
      */
     public static function xhprofEnd(){
         Csp\ext\xhprof\CspExtXhprof::end();
