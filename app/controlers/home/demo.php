@@ -10,7 +10,7 @@ class demo extends CspBaseControler{
     }
 
     public function actionIndex(){
-        echo 'Hello '.__FUNCTION__;
+        echo '<h1 style="text-align: center;margin-top: 100px;color: darkblue;">Hello Csphp demo... </h1>';
     }
 
     //日志使用示例

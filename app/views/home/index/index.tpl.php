@@ -10,6 +10,6 @@
     </head>
 
     <body>
-        <h1 style="text-align: center; margin-top: 100px;color: darkslateblue;">Hello Csphp ...</h1>
+        <h1 style="text-align: center; margin-top: 100px;color: darkblue;">Hello Csphp ...</h1>
     </body>
 </html>
