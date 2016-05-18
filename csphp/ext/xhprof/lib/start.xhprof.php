@@ -1,5 +1,10 @@
 <?php
-// cpu:XHPROF_FLAGS_CPU ÄÚ´æ:XHPROF_FLAGS_MEMORY
-// // Èç¹ûÁ½¸öÒ»Æð£ºXHPROF_FLAGS_CPU + XHPROF_FLAGS_MEMORY 
-// xhprof_enable(XHPROF_FLAGS_CPU + XHPROF_FLAGS_MEMORY);
-xhprof_enable();  
+/**
+ * cpu: XHPROF_FLAGS_CPU
+ * å†…å­˜: XHPROF_FLAGS_MEMORY
+ *
+ * ä¸¤ä¸ªä¸€èµ·:
+ * xhprof_enable(XHPROF_FLAGS_CPU + XHPROF_FLAGS_MEMORY);
+ */
+
+xhprof_enable();

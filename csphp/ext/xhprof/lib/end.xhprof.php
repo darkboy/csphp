@@ -5,7 +5,6 @@ $xhprof_data = xhprof_disable();
 // display raw xhprof data for the profiler run
 //print_r($xhprof_data);
 
-
 $XHPROF_ROOT = realpath(dirname(__FILE__));
 include_once $XHPROF_ROOT . "/utils/xhprof_lib.php";
 include_once $XHPROF_ROOT . "/utils/xhprof_runs.php";

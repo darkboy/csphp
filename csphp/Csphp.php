@@ -14,6 +14,8 @@ use Csp\core\CspCliConsole;
 use Csp\core\CspTemplate;
 use Csp\core\CspValidator;
 use Csp\core\CspException;
+use Csp\ext\xhprof\cspExtXhporf;
+
 
 //设置当前的运行环境
 defined('CSPHP_ENV_TYPE') or define('CSPHP_ENV_TYPE', Csphp::ENV_TYPE_PROD);
@@ -176,7 +178,7 @@ class Csphp {
      * start applatection
      */
     public function run(){
-
+        cspExtXhporf::start();
         //初始化核心对象
         self::initCoreObjs();
 
@@ -198,6 +200,7 @@ class Csphp {
         }else{
             self::handlerWebRequest();
         }
+        //self::trace();
         //self::router()->getAction();
         //self::doFilters();
 

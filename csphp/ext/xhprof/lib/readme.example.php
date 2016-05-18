@@ -2,12 +2,12 @@
 //在需要检查的程序中加入
 
 //开头插入如下这行
-require '/srv/nwww/xhprof/ext_inc_lib/start.xhprof.php';
+require 'start.xhprof.php';
 
-//需要检测的代码,写在中间
+//需要检测的代码,写在中间....
 
 //结束处
-require '/srv/nwww/xhprof/ext_inc_lib/start.xhprof.php';
+require 'end.xhprof.php';
 
 /*
 下面是一些参数说明
