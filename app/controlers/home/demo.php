@@ -40,7 +40,7 @@ class demo extends CspBaseControler{
     }
 
     /**
-     * 布局示例
+     * 布局模板使用 示例
      */
     public function actionLayout(){
         $this->assign('c_v1', 'c-v1');
@@ -58,10 +58,16 @@ class demo extends CspBaseControler{
     }
 
 
+    //用户输入 获取 示例
     public function actionInput(){
-        //$a = Csphp::request()->get('a',1,'require,num');
-        $a = Csphp::request()->get('abcd',1,'require');
-        Csphp::dump($a);
+        $input = [
+            'num'   => Csphp::request()->get('num', 1, 'require,num'),
+            'email' => Csphp::request()->get('email', 1, 'require,email'),
+            'ip'    => Csphp::request()->get('ip', 1, 'norequire,ip'),
+            'phone' => Csphp::request()->get('phone', 1, 'norequire,phone'),
+            'pcard' => Csphp::request()->get('pcard', 1, 'norequire,pcard'),
+        ];
+        Csphp::dump($input);
     }
 
 }
