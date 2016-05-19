@@ -70,5 +70,10 @@ class demo extends CspBaseControler{
         Csphp::dump($input);
     }
 
+    public function actionJsonp(){
+        $this->useJsonp();
+        echo $this->jsonpRst(true);
+    }
+
 }
 

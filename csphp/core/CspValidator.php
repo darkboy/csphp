@@ -192,7 +192,7 @@ class CspValidator{
     //参数检查规则
     private static function __chk_require($argValue, $ruleArg=''){
         if ($argValue===null){
-            return self::voidInfo(40001, "参数是一个必选参数，当前值为null");
+            return self::voidInfo(40001, "参数是一个必选参数，当前值为 null");
         }
         return true;
     }
@@ -282,6 +282,9 @@ class CspValidator{
     private static function __chk_phone($argValue, $ruleArg=''){
         return self::__chk_by_regexp($argValue, $ruleArg, 'phone');
     }
+    private static function __chk_callback($argValue, $ruleArg=''){
+        return self::__chk_by_regexp($argValue, $ruleArg, 'callback');
+    }
 
     private final static function __chk_by_regexp($argValue, $ruleArg='', $type){
         $types = array(
@@ -291,12 +294,13 @@ class CspValidator{
             'pcard' => array('#^[\d]{15}$|^[\d]{18}|^[\d]{17}X$#i', "身份证号码", 40008),
             'ip'    => array('#^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$#', "IP地址", 40009),
             'isbn'  => array('#^978[\d]{10}$|^978-[\d]{10}$#', "ISBN号码", 40010),
-            'phone' => array('#^13[\d]{9}$|14^[0-9]\d{8}|^15[0-9]\d{8}$|^18[0-9]\d{8}$|^17[0-9]\d{8}$#', "手机号码", 40011)
+            'phone' => array('#^13[\d]{9}$|14^[0-9]\d{8}|^15[0-9]\d{8}$|^18[0-9]\d{8}$|^17[0-9]\d{8}$#', "手机号码", 40011),
+            'callback' => array('#^[a-z][a-z0-9\._]+$#sim', "Jsonp Callback name", 40012)
         );
 
         $p = $types[$type][0];
         if(!preg_match($p, $argValue)){
-            return self::voidInfo($types[$type][2], "参数必须是一个".$types[$type][1]);
+            return self::voidInfo($types[$type][2], "参数必须是一个 ".$types[$type][1].' 规则为：'.$p);
         }
         return true;
     }

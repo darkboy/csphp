@@ -736,7 +736,7 @@ class Csphp {
         //APP::trace();
         if(self::isDebug() && !self::isCli()){
             $r['status']= array_merge($r['status'], array(
-                'time'  =>sprintf("%.4f Sec",self::getTimeUse()),
+                'time'  =>sprintf("%.4f ms",self::getTimeUse()*1000),
                 'sip'   =>$_SERVER['SERVER_ADDR'],
                 'cip'   =>self::request()->getClientIp()
             ));
