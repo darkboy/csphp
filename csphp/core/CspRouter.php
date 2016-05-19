@@ -242,7 +242,7 @@ class CspRouter{
                 }
 
                 //实际执行action
-                $ctrlObj->$actionName();
+                $ctrlObj->$actionName(Csphp::request());
 
                 $hasDoAction = true;
 

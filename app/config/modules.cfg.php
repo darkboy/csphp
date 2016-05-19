@@ -30,7 +30,7 @@ return array(
         ),
         //'host'          => '*',
         //默认的控制器，即首页
-        'default_route' =>'index/home',
+        'default_route' =>'index',
 
 
     )
