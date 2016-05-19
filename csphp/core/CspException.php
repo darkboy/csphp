@@ -4,22 +4,20 @@ use \Csphp;
 
 
 class CspException extends \Exception{
-    //框架自身相关的异常
-    const CORE_EXCEPTION            = 'CORE_EXCEPTION';
-    //文件无法找到的异常
-    const FILE_NOT_FOUND_EXCEPTION  = 'FILE_NOT_FOUND_EXCEPTION';
-    //路由错误的异常
-    const ROUTE_NOT_FOUND_EXCEPTION = 'ROUTE_NOT_FOUND_EXCEPTION';
-    //数据库查询异常
-    const DB_QUERY_EXCEPTION        = 'DB_QUERY_EXCEPTION';
-    //文件IO异常
-    const FILE_IO_EXCEPTION         = 'FILE_IO_EXCEPTION';
-    //参数异常，不符合标准
+    //路由错误的异常 404
+    const NOT_FOUND_EXCEPTION       = 'NOT_FOUND_EXCEPTION';
+    //参数输入异常，不符合标准
     const PARAM_INPUT_EXCEPTION     = 'PARAM_INPUT_EXCEPTION';
+    //其它运行时相关的异常
+    const RUNTIME_EXCEPTION         = 'RUNTIME_EXCEPTION';
 
-    public $exceptionType           = 'CORE_EXCEPTION';
+    /**
+     * 异常类别
+     * @var string
+     */
+    public $exceptionType           = 'RUNTIME_EXCEPTION';
     private $msgData = null;
-    public function __construct($message, $code = 0,$type='CORE_EXCEPTION'){
+    public function __construct($message, $code = 0,$type='RUNTIME_EXCEPTION'){
         $this->msgData = $message;
 
         if(is_array($message)) {
@@ -54,7 +52,7 @@ class CspException extends \Exception{
     }
     // 自定义字符串输出的样式
     public function __toString() {
-        echo '<pre>'; echo Csphp::trace($this->getTrace()); //print_r(Csphp::router()->routeInfo);
+        echo '<pre style="color: darkblue;">',Csphp::trace($this->getTrace()); //print_r(Csphp::router()->routeInfo);
         return "{$this->exceptionType} Exception; Code is: [{$this->code}]; Msg: {$this->message}";
     }
 
@@ -66,7 +64,24 @@ class CspException extends \Exception{
         return $this->exceptionType;
     }
 
+    /**
+     *
+     */
     public function handler(){
+        switch($this->exceptionType){
+            case self::NOT_FOUND_EXCEPTION :
+                $this->notFound404();
+                break;
+            case self::PARAM_INPUT_EXCEPTION :
+                break;
+            case self::RUNTIME_EXCEPTION :
+
+                break;
+
+        }
+    }
+
+    private function notFound404(){
 
     }
 }

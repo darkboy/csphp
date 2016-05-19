@@ -224,7 +224,7 @@ class CspRouter{
 
                 if(!method_exists($ctrlObj, $actionName)){
                     //404 can not find action in controler class
-                    throw new CspException('404 can not find action '.$actionName.' in class '.$controler.' '.json_encode($routeRst));
+                    throw new CspException('404 can not find action '.$routeRst['action'].' in class '.$controler.' Context:'.json_encode($routeRst));
 
                 }
 

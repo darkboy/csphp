@@ -51,14 +51,14 @@ class demo extends CspBaseControler{
 
     //helpers 中 以 .preload.php 结尾 的文件将会被自动预加载
     public function actionPreload(){
-        echo '<pre>',"\n";
+        echo '<pre>preload_function_demo2 is not defined ',"\n";
         echo "\n",'preload_function_demo1 exists : '.(function_exists('\preload_function_demo1') ? 'true' : 'false');
         echo "\n",'preload_function_demo2 exists : '.(function_exists('\preload_function_demo2') ? 'true' : 'false');
         echo "\n",'preload_function_demo3 exists : '.(function_exists('\preload_function_demo3') ? 'true' : 'false');
     }
 
 
-    //用户输入 获取 示例
+    //用户输入 与 输入验证 示例
     public function actionInput(){
         $input = [
             'num'   => Csphp::request()->get('num', 1, 'require,num'),

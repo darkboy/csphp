@@ -179,6 +179,14 @@ class CspRequest{
     }
 
     /**
+     * 获取长URL
+     * @return string
+     */
+    public function getFullUri(){
+        return $_SERVER['REQUEST_URI'];
+    }
+
+    /**
      * 获取最后一次浏览的URL
      * @return string
      */
