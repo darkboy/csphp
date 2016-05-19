@@ -74,6 +74,7 @@
 <div>ifo Output: <?php $this->ifo(false,"yes","no");?></div><br>
 <div>Assign value1: <?php $this->o($c_v1);?></div><br>
 <div>Assign value2: <?php $this->o($c_v2);?></div><br>
+<div>Router value : <?php echo json_encode(Csphp::router()->getRouteVars());?></div><br>
 <div><?php printf("TimeUse: %.4fms ", Csphp::getTimeUse()*1000);;?></div><br>
 <hr>
 <!-- 加载子模板的几种方式 -->

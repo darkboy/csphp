@@ -294,7 +294,7 @@ class CspRouter{
         $startRouterVar = false;
         foreach($urlPs as $p){
             if($startRouterVar || strpos($p, '-')){
-                $vs = explode('-',$p);
+                $vs = explode('-',$p,2);
                 $this->setRouteVar($vs[0], isset($vs[1]) ? urldecode($vs[1]) : '');
                 $startRouterVar = true;
             }else{
