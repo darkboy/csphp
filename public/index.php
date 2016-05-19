@@ -15,7 +15,7 @@ define('APP_ROOT_PATH', dirname(__DIR__));
 $appMainCfg = require(APP_ROOT_PATH.'/app/config/main.cfg.php');
 
 //加载 框架引导文件
-require(APP_ROOT_PATH.'/csphp/startup.php');
+require(APP_ROOT_PATH.'/csphp/Startup.php');
 
 //可以使用 xhporf 进行 性能分析，你也可以显式的调用使用 Csphp::xhporfEnd(); 结束 xhprof 分析特定区块
 //Csphp::xhprofEnable();
