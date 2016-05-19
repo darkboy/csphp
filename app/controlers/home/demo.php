@@ -10,12 +10,12 @@ class demo extends CspBaseControler{
         parent::__construct();
     }
 
-    public function actionIndex(){
+    public function actionIndex(CspRequest $request){
         echo '<h1 style="text-align: center;margin-top: 100px;color: darkblue;">Hello Csphp demo... </h1>';
     }
 
     //日志使用示例
-    public function actionLog(){
+    public function actionLog(CspRequest $request){
         echo 'Hello log '.__FUNCTION__;
 
         /*日志测试，4种常日志 */
@@ -30,7 +30,7 @@ class demo extends CspBaseControler{
     /**
      * 模板使用示例
      */
-    public function actionTpl(){
+    public function actionTpl(CspRequest $request){
         Csphp::view()->jsData('varKey','value assign in Controler');
         //单个 赋值
         $this->assign('c_v1', 'c-v1');
@@ -43,7 +43,7 @@ class demo extends CspBaseControler{
     /**
      * 布局模板使用 示例
      */
-    public function actionLayout(){
+    public function actionLayout(CspRequest $request){
         $this->assign('c_v1', 'c-v1');
         $this->assign(['c_v2'=>'c-v2<hello>']);
 
@@ -51,7 +51,7 @@ class demo extends CspBaseControler{
     }
 
     //helpers 中 以 .preload.php 结尾 的文件将会被自动预加载
-    public function actionPreload(){
+    public function actionPreload(CspRequest $request){
         echo '<pre>preload_function_demo2 is not defined ',"\n";
         echo "\n",'preload_function_demo1 exists : '.(function_exists('\preload_function_demo1') ? 'true' : 'false');
         echo "\n",'preload_function_demo2 exists : '.(function_exists('\preload_function_demo2') ? 'true' : 'false');
