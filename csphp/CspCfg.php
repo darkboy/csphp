@@ -44,7 +44,15 @@ $systemConfig=array(
         'HTTP_X_REAL_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP',
         'HTTP_X_CLIENT_IP', 'HTTP_X_CLUSTER_CLIENT_IP', 'REMOTE_ADDR'),
 
-    //
+    //系统内置的中间件
+    'sys_middleware'=>array(
+        [
+            /**
+             * @var Csp\core\CspAccessCtrl
+             */
+            'function'=>'Csp\core\CspAccessCtrl::doAclCheck'
+        ],
+    ),
 
 
 );

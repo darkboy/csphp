@@ -9,16 +9,16 @@ class demo extends CspBaseControler{
     public function __construct(){
     }
 
-    public function actionDemo1(){
-        $a = Csphp::request()->get('id',1,'require,num');
+    public function actionDemo1(CspRequest $request){
+        return [1,2,3];
     }
 
     public function actionDemo2(CspRequest $request){
-        $a = $request->get('id',1,'require,num');
+        return $this->apiRst([1,2,3]);
     }
 
-    public function actionDemo3(){
-        $a = $this->get('id',1,'require,num');
+    public function actionDemo3(CspRequest $request){
+        $this->apiRst([1,2,3]);
     }
 
 }

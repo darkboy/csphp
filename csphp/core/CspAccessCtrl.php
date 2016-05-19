@@ -2,7 +2,7 @@
 namespace Csp\core;
 use \Csphp;
 
-class CspAsset{
+class CspAccessCtrl{
 
     public function __construct(){
 
