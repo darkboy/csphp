@@ -343,7 +343,7 @@ class Csphp {
         self::$aliasMap['@comp']    = array($appRoot.'/components', $appNs.'\\components');
         self::$aliasMap['@cfg']     = array($appRoot.'/config', $appNs.'\\config');
         self::$aliasMap['@ctrl']    = array($appRoot.'/controlers', $appNs.'\\controlers');
-        self::$aliasMap['@ext']     = array($appRoot.'/exts', $appNs.'\\exts');
+
         self::$aliasMap['@helper']  = array($appRoot.'/helpers', $appNs.'\\helpers');
         self::$aliasMap['@view']    = array($appRoot.'/views',$appNs.'\\views');
         self::$aliasMap['@tpl']     = array($appRoot.'/views',$appNs.'\\views');
@@ -353,7 +353,6 @@ class Csphp {
         self::$aliasMap['@upload']  = array(dirname($appRoot).'/public/upload', $appNs);
 
         self::$aliasMap['@f-comp']  = array($sysRoot.'/comp','Csp\\comp');
-        self::$aliasMap['@f-ext']   = array($sysRoot.'/ext','Csp\\ext');
 
         //把用户定义的路径别名加载进来, 可以覆盖以上的内容路径
         foreach(self::$appCfg['alias_path_config'] as $aliasName=>$v){
