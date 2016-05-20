@@ -1333,7 +1333,18 @@ class Csphp {
         CspEvent::on($eventName, $eventListener);
     }
     //-------------------------------------------------------------------------
+    /**
+     * 静态方法 的 调用 魔术方法 todo...
+     * @param $name
+     * @param $arguments
+     */
+    public static function __callStatic($name, $arguments) {
 
+        throw new CspException("Unknow static method Csphp::".$name);
+    }
+
+    //-------------------------------------------------------------------------
+    //for debug...
     public static function tmp(){
 
         echo '<pre>';
