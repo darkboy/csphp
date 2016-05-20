@@ -73,6 +73,7 @@ class CspRequest{
     public function isDelete(){
         return $this->getHttpMethod()==='DELETE';
     }
+    //HEAD PATCH OPTIONS TARCE
 
     /**
      * 是否网络爬虫
@@ -231,18 +232,52 @@ class CspRequest{
     }
 
     /**
-     *
-     * @param $dataType
+     * 获取 通过 php://input, 传递的 rest 参数，通常格式是 querystring
+     * @return mixed
+     * @throws \Csp\core\CspException
      */
-    public function data($dataType='row'){
+    public function restParam($format='query'){
+        return $this->getRawData($format);
+    }
+    /**
+     *
+     * 获取 http 请求的 标准输入（php://input） 并进行解码
+     * @param $decodeType
+     * @return mixed
+     */
+    public function getRawData($decodeType='raw'){
+        $rawCtx = $this->getRawInput();
+        switch($decodeType){
+            //传递内容为 json str
+            case 'raw':
+                return $rawCtx;
+            //传递内容为 json str
+            case 'json':
+                return json_decode($rawCtx,1);
+            //传递内容为 json str
+            case 'obj':
+                return json_decode($rawCtx);
+            //传递内容为以下三种字符  , | ; 隔开的内容
+            case 'list':
+                return preg_split('#[,|;]#',$rawCtx);
+            case 'query':
+                if(function_exists('mb_parse_str')){
+                    mb_parse_str($rawCtx, $result);
+                } else{
+                    parse_str($rawCtx, $result);
+                }
+                return $result;
+            default:
+                throw new CspException("Unknow raw data decode type : ".$decodeType);
 
+        }
     }
 
     /**
      * 获取POST原始输入
      * @return string
      */
-    public function getRowInput(){
+    public function getRawInput(){
         return file_get_contents('php://input');
     }
     /**

@@ -159,8 +159,17 @@ class Csphp {
      */
     private static $bankmarkData = array();
 
-    private static $isDebug = false;
-    private static $hasWrite = false;
+    /**
+     * 当前项目是否在debug模式
+     * @var bool
+     */
+    private static $isDebug     = false;
+    /**
+     * 当前的运行环境
+     * @var string
+     */
+    private static $runningEnv  = self::ENV_TYPE_PROD;
+
     /**
      * 应用 对象构造函数
      */
@@ -181,6 +190,7 @@ class Csphp {
      */
     public function run(){
 
+        self::initRunningEvn();
         //初始化核心对象
         self::initCoreObjs();
 
@@ -206,6 +216,7 @@ class Csphp {
         //self::tmp();
         self::exitApp();
     }
+
 
     protected static function handlerCliRequest(){
         //初始化
@@ -269,6 +280,14 @@ class Csphp {
         exit();
     }
 
+    /**
+     * 初始化运行环境,
+     */
+    private static function initRunningEvn(){
+        self::$runningEnv = defined('CSPHP_ENV_TYPE') ? CSPHP_ENV_TYPE : false;
+        $isDebug = defined('CSPHP_IS_DEBUG') ? CSPHP_IS_DEBUG : false;
+        self::setDebug($isDebug);
+    }
     /**
      * 初始化应用 与 系统配置
      * @param $appCfg
@@ -834,7 +853,7 @@ class Csphp {
     public static function V($vr, $def=null, $rule='', $tips='', $errHandle=null){
         //存储已经获取过的值
         static $vCache      = array();
-        static $inputCache  = array();
+        static $inputData  = array();
 
 
         $vr = trim($vr, ' /');
@@ -854,30 +873,30 @@ class Csphp {
         $vPath= substr($vr, 2);
         $vKes = explode('/', $vPath);
         //初始化所有输入
-        if(empty($inputCache)){
-            $inputCache = array(
+        if(empty($inputData)){
+            $inputData = array(
                 'C'=>&$_COOKIE, 'G'=>&$_GET,	'P'=>&$_POST,'R'=>&$_REQUEST,
                 'F'=>&$_FILES,	'S'=>&$_SERVER,	'E'=>&$_ENV,
                 '-'=>&self::$appCfg
             );
         }
 
-        if ($vType==='R' && empty($inputCache['R'])) {
-            $inputCache['R'] = array_merge($_COOKIE, $_GET, $_POST);
+        if ($vType==='R' && empty($inputData['R'])) {
+            $inputData['R'] = array_merge($_COOKIE, $_GET, $_POST);
         }
 
         //还没有取过 头信息， 立即获取
-        if($vType==='H' && !isset($inputCache['H'])){
-            $inputCache['H'] = getallheaders();
+        if($vType==='H' && !isset($inputData['H'])){
+            $inputData['H'] = getallheaders();
         }
 
         //还没有取过 路由变量信息， 立即获取
-        if($vType==='V' && !isset($inputCache['V'])){
-            $inputCache['H'] = self::router()->getRouteVars();
+        if($vType==='V' && !isset($inputData['V'])){
+            $inputData['V'] = self::router()->getRouteVars();
         }
 
         //如果使用的是子配置文件 ，又还没有加载，则尝试加载
-        if($vType==='-' && !isset($inputCache['-'][$vKes[0]])){
+        if($vType==='-' && !isset($inputData['-'][$vKes[0]])){
             $subCfg = self::loadAppConfig($vKes[0]);
         }
 
@@ -885,8 +904,8 @@ class Csphp {
         $noFound = false;
         while ( $fk = array_shift($vKes) ) {
             if($v==null){
-                if( isset($inputCache[$vType][$fk]) ){
-                    $v = $inputCache[$vType][$fk];
+                if( isset($inputData[$vType][$fk]) ){
+                    $v = $inputData[$vType][$fk];
                 }else{
                     $noFound = true;
                     $v = $def;
@@ -1008,6 +1027,14 @@ class Csphp {
     public static function isDevEnv(){
         return CSPHP_ENV_TYPE === self::ENV_TYPE_DEV;
     }
+
+    /**
+     * 设置运行环境
+     * @param $evn
+     */
+    public static function setEnv($evn){
+
+    }
     //----------------------------------------------------------------------------------
 
     /**
@@ -1023,15 +1050,20 @@ class Csphp {
      * @return bool
      */
     public static function isDebug(){
-        return true;
+        return self::$isDebug;
     }
 
     /**
-     * 设置为debug模式
+     * 设置 debug 模式, 开启DEBUG时将记录所有日志，显示所有错误
      * @param bool $debug
      */
     public static function setDebug($debug=true){
         self::$isDebug = $debug;
+        if($debug){
+
+        }else{
+
+        }
     }
     //----------------------------------------------------------------------------------
 
