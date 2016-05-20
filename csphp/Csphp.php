@@ -353,6 +353,7 @@ class Csphp {
         self::$aliasMap['@upload']  = array(dirname($appRoot).'/public/upload', $appNs);
 
         self::$aliasMap['@f-comp']  = array($sysRoot.'/comp','Csp\\comp');
+        self::$aliasMap['@f-res']  = array($sysRoot.'/resources','Csp\\resources');
 
         //把用户定义的路径别名加载进来, 可以覆盖以上的内容路径
         foreach(self::$appCfg['alias_path_config'] as $aliasName=>$v){
