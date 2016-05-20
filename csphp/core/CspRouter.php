@@ -305,7 +305,7 @@ class CspRouter{
     }
 
     /**
-     * 获取与路由相关的pathinfo
+     * 获取与路由相关的 pathinfo
      * @return string route pathinfo
      */
     public function getRoutePathInfo(){
