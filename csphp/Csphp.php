@@ -1111,6 +1111,7 @@ class Csphp {
 
     //-------------------------------------------------------------------------
     /**
+     *
      * 获取程序从启动现当前所用的时间
      *
      * @return mixed
@@ -1120,6 +1121,7 @@ class Csphp {
     }
 
     /**
+     *
      * 用于计算时间的 开始位置
      *
      * @param string $flagKey
@@ -1139,7 +1141,10 @@ class Csphp {
         return sprintf("%.".$dotLen."f",microtime(true) - self::$bankmarkData[$flagKey]);
     }
 
-    //调试方法
+    /**
+     * 调试方法 打印堆栈
+     * @param null $traceInfo
+     */
     public static function trace($traceInfo=null){
         if(self::isProdEnv()){
             //echo "Can not print trace in prodution env!";exit;
