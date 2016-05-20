@@ -199,19 +199,19 @@ class Csphp {
         //初始化核心对象
         self::initCoreObjs();
 
-        //初始化别名配置
+        //初始化路径别名，命名空间别名 配置 @mod @ctrl @view 等
         self::initAliasMap();
 
-        //初始化当前模块配置
+        //初始化当前模块配置，从 modules 配置中 查找符合当前请求的模块
         self::initModule();
 
-        //初始化组件
+        //初始化组件，从 components 配置中 绑定类的生产脚本，以及预初始化相关组件
         self::initComponents();
 
         //导入 helpers，自动加载， helpers/*.preload.php 与 helpers/*/*.preload.php
         self::loadHelperFiles();
 
-        //系统初始化结束
+        //系统初始化结束，触发 EVENT_CORE_AFTER_INIT 事件，在前面预加载的类可以监听这个事件
         self::fireEvent(self::EVENT_CORE_AFTER_INIT);
 
         //访问控制检查
