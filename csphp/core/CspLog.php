@@ -225,7 +225,7 @@ class CspLog {
                 $logInfoText = "\n".$logInfoText;
             }
             if (!$this->logIOWrite($logFile, $logInfoText)) {
-                throw CspException('Can not write log file: ' . $logFile . " log info is " . htmlspecialchars($logInfoText));
+                throw new CspException('Can not write log file: ' . $logFile . " log info is " . htmlspecialchars($logInfoText));
             }
         }
         self::$hasFlush = true;
