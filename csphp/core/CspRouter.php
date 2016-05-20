@@ -57,7 +57,7 @@ class CspRouter{
     }
 
     public function init(){
-        $this->routeInfo['uri']        = Csphp::request()->getReqUri();
+        $this->routeInfo['uri']        = Csphp::request()->getRequestUri();
         $this->routeInfo['setup_path'] = $this->getSetupPath();
         $this->routeInfo['entry_file'] = $this->getEntryFile();
         //初步解释URL上的路由变量，并提取 reqRoute

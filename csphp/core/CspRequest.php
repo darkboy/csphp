@@ -220,7 +220,7 @@ class CspRequest{
     }
 
     public function getBrowser($userAgent = NULL) {
-        return get_browser($userAgent, true);
+        //todo...
     }
 
     public function getAcceptTypes() {
@@ -230,7 +230,8 @@ class CspRequest{
     /**
      *
      * 获取当前请求路径
-     * uri 清除路由变量, querystring,  左 /
+     *
+     * RequestUri 清除路由变量, querystring,  左 /
      * @return mixed
      */
     public function getReqRoute(){
@@ -238,9 +239,10 @@ class CspRequest{
     }
 
     /**
+     * 获取当前访问的URL中的 RequestUri 不包含HOST部分
      * @return string
      */
-    public function getReqUri(){
+    public function getRequestUri(){
         static $requestUri = null;
         if($requestUri) {
             return $requestUri;
@@ -277,11 +279,11 @@ class CspRequest{
     }
 
     /**
-     * 获取长URL
+     * 获取当前访问的 长URL
      * @return string
      */
     public function getFullRequestUri(){
-        return $this->getHostUrl().$this->getReqUri();
+        return $this->getHostUrl().$this->getRequestUri();
     }
 
     /**
@@ -290,7 +292,7 @@ class CspRequest{
      */
     public function getLastViewUrl(){
         if($this->isGet()){
-            return $this->getReqUri();
+            return $this->getRequestUri();
         }else{
             return $this->getReferer();
         }
