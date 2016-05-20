@@ -221,10 +221,11 @@ class Csphp {
         self::exitApp();
     }
 
-
+    /**
+     * 处理 CLI 请求
+     * @return bool
+     */
     protected static function handlerCliRequest(){
-        //初始化
-        self::cliConsole()->init();
         //系统初始化结束
         self::fireEvent(self::EVENT_CORE_AFTER_INIT);
         //初始化组件
@@ -236,10 +237,12 @@ class Csphp {
         self::cliConsole()->doAction();
         return true;
     }
-    ///处理 WEB 请求
+
+    /**
+     * 处理 WEB 请求
+     * @throws \Csp\core\CspException
+     */
     protected static function handlerWebRequest(){
-        //初始化路由信息
-        self::router()->init();
         //系统初始化结束
         self::fireEvent(self::EVENT_CORE_AFTER_INIT);
         //访问控制检查

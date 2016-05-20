@@ -53,7 +53,14 @@ class CspRouter{
     public $cliInfo = array();
 
     public function __construct(){
+        $this->init();
+    }
 
+    /**
+     * @return \Csp\core\CspRequest
+     */
+    public static function request(){
+        return Csphp::request();
     }
 
     public function init(){
@@ -65,12 +72,7 @@ class CspRouter{
         //echo '<pre>';print_r($this->routeInfo);
     }
 
-    /**
-     * @return \Csp\core\CspRequest
-     */
-    public static function request(){
-        return Csphp::request();
-    }
+
 
     /**
      * 用户请求的路由，清除 路由变量,安装目录以及入口文件
@@ -335,12 +337,15 @@ class CspRouter{
             return array(
                 'route_type'    =>'default',
                 'route_var'     =>array(),
+                'hit_rule'      =>'module_default_index',
                 'match_key'     =>'',
                 'target_route'  =>$defaultRoute,
                 'parse_route'   =>$defaultRoute,
                 'parse_rst'     =>$this->isControlerExists($defaultRoute),
             );
         }
+
+        //scan router config and find match rule
         foreach(Csphp::appCfg('router',array()) as $routeName=>$rCfg){
             if( !isset($rCfg['filter']) || $filterRst = Csphp::request()->isMatch($rCfg['filter']) ){
                 //对请求路由进行预处理，如删除 静态化 的后缀 .html 等
@@ -658,7 +663,7 @@ class CspRouter{
     /**
      * 检查是否存在真实的控制器
      *
-     * @param $realRoute
+     * @param $realRoute 目标路由 只能是 数组，字符串  和 闭包对象
      * @return array
      */
     public function isControlerExists($realRoute){
@@ -680,15 +685,16 @@ class CspRouter{
             return array();
         }
 
-        //检查是否饱含  :: 调用符
-        $pi = strpos($realRoute, '::');
 
-        //非绝对路由
-        if($realRoute[0]!=='@' && $pi===false){
+
+        //非绝对路由 刚默认为本模块路由
+        if($realRoute[0]!=='@' && $realRoute[0]!=='\\'){
             $realRoute = '@m-ctrl'.$realRoute;
         }
         $realRoute = rtrim($realRoute, '/');
 
+        //检查是否饱含  :: 调用符
+        $pi = strpos($realRoute, '::');
         //目标路由为 用户自定义的 callable 字符串
         if($pi){
             return array(
