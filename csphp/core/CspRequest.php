@@ -247,7 +247,7 @@ class CspRequest{
      * @return mixed
      */
     public function getReqRoute(){
-        return Csphp::router()->getReqRoute();
+        return Csphp::router()->getRequestRoute();
     }
 
     /**

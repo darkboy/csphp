@@ -76,7 +76,7 @@ class CspRouter{
      * 用户请求的路由，清除 路由变量,安装目录以及入口文件
      *
      */
-    public function getReqRoute(){
+    public function getRequestRoute(){
         return $this->routeInfo['req_route'];
     }
 
@@ -84,7 +84,7 @@ class CspRouter{
      * 获取 request_uri
      * @return string
      */
-    public function getUri(){
+    public function getRequestUri(){
         return $this->routeInfo['uri'];
     }
 
@@ -312,7 +312,7 @@ class CspRouter{
         if(isset($_GET['r'])){
             return $_GET['r'];
         }else{
-            return $this->getUri();
+            return $this->getRequestUri();
         }
     }
 
@@ -327,7 +327,7 @@ class CspRouter{
      * );
      */
     public function findRoute(){
-        $sourceReqRoute = $this->getReqRoute();
+        $sourceReqRoute = $this->getRequestRoute();
         //默认控制器
         if(in_array($sourceReqRoute, array('/', '', '/index.php') ) ){
 
