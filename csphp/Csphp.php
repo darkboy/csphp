@@ -1209,7 +1209,7 @@ class Csphp {
      */
     public static function xhprofStart($opts=[]){
         self::xhprofCheck();
-        Csp\ext\xhprof\CspExtXhprof::enable($opts);
+        Csp\comp\xhprof\CspExtXhprof::enable($opts);
     }
 
     /**
@@ -1217,7 +1217,7 @@ class Csphp {
      */
     public static function xhprofEnable($opts=[]){
         self::xhprofCheck();
-        Csp\ext\xhprof\CspExtXhprof::enable($opts);
+        Csp\comp\xhprof\CspExtXhprof::enable($opts);
     }
 
     /**
@@ -1225,7 +1225,7 @@ class Csphp {
      */
     public static function xhprofEnd($opts=[]){
         self::xhprofCheck();
-        Csp\ext\xhprof\CspExtXhprof::end($opts);
+        Csp\comp\xhprof\CspExtXhprof::end($opts);
     }
     private static function xhprofCheck(){
         if(!function_exists('xhprof_enable')){

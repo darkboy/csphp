@@ -1,5 +1,5 @@
 <?php
-namespace Csp\ext\xhprof;
+namespace Csp\comp\xhprof;
 
 class CspExtXhprof{
 
