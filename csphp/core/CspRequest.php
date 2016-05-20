@@ -187,9 +187,21 @@ class CspRequest{
     public function getQueryString(){
         return $this->isCli() ? 'cli' : $_SERVER['QUERY_STRING'];
     }
-    //alias for  getClientIp
+    //
+    /**
+     * getClientIp 别名
+     * @return string ClientIp
+     */
     public function getRemoteAddr(){
         return $this->getClientIp();
+    }
+
+    /**
+     * 获取服务端IP
+     * @return string ServerIp
+     */
+    public function getServerIp(){
+        return $this->isCli() ? '0.0.0.0' : $_SERVER['SERVER_ADDR'];
     }
     /**
      * 获取客户端IP
