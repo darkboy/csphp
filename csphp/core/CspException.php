@@ -52,7 +52,7 @@ class CspException extends \Exception{
     }
     // 自定义字符串输出的样式
     public function __toString() {
-        echo '<pre style="color: darkblue;">',Csphp::trace($this->getTrace()); //print_r(Csphp::router()->routeInfo);
+        echo '<pre style="color: darkblue;">',Csphp::trace($this->getTrace()); print_r(Csphp::router()->routeInfo);
         return "{$this->exceptionType} Exception; Code is: [{$this->code}]; Msg: {$this->message}";
     }
 

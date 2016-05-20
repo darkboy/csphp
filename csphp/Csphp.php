@@ -123,8 +123,11 @@ class Csphp {
      */
     public static $sysCfg = null;
 
-    //挂载的 核心 对象
-    private static $objContainer = array(
+    /*
+     * 保存 核心 对象 的集合
+     * @var array
+     */
+    private static $coreContainer = array(
         'request'   =>null,
         'router'    =>null,
         'response'  =>null,
@@ -158,6 +161,7 @@ class Csphp {
      * @var array
      */
     private static $bankmarkData = array();
+
 
     /**
      * 当前项目是否在debug模式
@@ -573,7 +577,7 @@ class Csphp {
         $oRoute = trim($oRoute);
         $oRoute = rtrim($oRoute, '/\\');
         $oRoute = str_replace('/', '\\', $oRoute);
-        $firstChar = substr($oRoute,0,1);
+        $firstChar = $oRoute[0];
         if($firstChar==='@'){
             $rs = explode('\\', $oRoute);
             $rs[0] = self::getNamespaceByAlias($rs[0]);
@@ -753,9 +757,10 @@ class Csphp {
             'data'=>$rst
         );
         //APP::trace();
-        if(self::isDebug() && !self::isCli()){
+        if(self::isDebug()){
             $r['status']= array_merge($r['status'], array(
                 'time'  =>sprintf("%.4f ms",self::getTimeUse()*1000),
+                'req'   =>self::request()->getRequestUri(),
                 'sip'   =>self::request()->getServerIp(),
                 'cip'   =>self::request()->getClientIp()
             ));
@@ -767,20 +772,21 @@ class Csphp {
      *init core objs
      */
     private static function initCoreObjs(){
-        self::$objContainer['request']  = new CspRequest();
-        self::$objContainer['router']   = new CspRouter();
-        self::$objContainer['response'] = new CspResponse();
-        self::$objContainer['log']      = new CspLog();
-        self::$objContainer['tpl']      = new CspTemplate();
-        self::$objContainer['validator']= new CspValidator();
+        self::$coreContainer['request']  = new CspRequest();
+        self::$coreContainer['router']   = new CspRouter();
+        self::$coreContainer['response'] = new CspResponse();
+        self::$coreContainer['log']      = new CspLog();
+        self::$coreContainer['tpl']      = new CspTemplate();
+        self::$coreContainer['validator']= new CspValidator();
         if(self::isCli()){
-            self::$objContainer['cliConsole'] = new CspCliConsole();
+            self::$coreContainer['cliConsole'] = new CspCliConsole();
         }
     }
 
 
     //------------------------------------------------------------------------------
     /**
+     *
      * @return Csphp
      */
     public static function app(){
@@ -790,21 +796,24 @@ class Csphp {
      * @return CspRequest
      */
     public static function request(){
-        return self::$objContainer['request'];
+        return self::$coreContainer['request'];
     }
     /**
      * @return CspResponse
      */
     public static function response(){
-        return self::$objContainer['response'];
+        return self::$coreContainer['response'];
     }
     /**
      * @return CspRouter
      */
     public static function router(){
-        return self::$objContainer['router'];
+        return self::$coreContainer['router'];
     }
 
+    /**
+     * @return \Csp\base\CspBaseControler
+     */
     public static function controler(){
         return self::router()->getControler();
     }
@@ -813,21 +822,28 @@ class Csphp {
      * @return CspCliConsole
      */
     public static function cliConsole(){
-        return self::$objContainer['cliConsole'];
+        return self::$coreContainer['cliConsole'];
     }
 
     /**
      * @return CspLog
      */
     public static function log(){
-        return self::$objContainer['log'];
+        return self::$coreContainer['log'];
     }
 
     /**
      * @return CspTemplate
      */
     public static function view(){
-        return self::$objContainer['tpl'];
+        return self::$coreContainer['tpl'];
+    }
+
+    /**
+     * @return CspValidator
+     */
+    public static function validator(){
+        return self::$coreContainer['validator'];
     }
     //------------------------------------------------------------------------------
 
@@ -961,23 +977,26 @@ class Csphp {
      */
     public static function callUserFunction($callable, $args=array()){
         $cb = $callable;
+        if(is_array($cb)){
+            $cb[0] = self::getNamespaceByRoute($cb[0]);
+        }
         //扩展方式 的首字母为 @
-        if(is_string($cb) && substr($cb,0,1)==='@'){
+        if(is_string($cb)){
             $isStatic = explode("::", $callable);
             $isObj = explode("->", $callable);
             if(count($isStatic)==2){
                 //静态方式
-
-            }elseif(count($isStatic)==2){
+                $cb = array(self::getNamespaceByRoute($isStatic[0]), $isStatic[1]);
+            }elseif(count($isObj)==2){
                 //实例方式
-
+                $cb = array(self::comp($isStatic[0]), $isStatic[1]);
             }else{
 
             }
         }
 
         if(!is_callable($cb)){
-            throw new CspException('Param is not callable, cb:'.json_encode($callable), 10000);
+            throw new CspException('Param is not callable, cb: '.json_encode($callable), 10000);
         }
         return call_user_func_array($cb, $args);
     }
@@ -995,14 +1014,12 @@ class Csphp {
         if(is_array($paramArrOrStr)){
             $paramArrOrStr = http_build_query($paramArrOrStr);
         }
+        //fix $anchor
+        if($anchor && $anchor[0]!=='#'){
+            $anchor = '#'.$anchor;
+        }
 
 
-    }
-
-    public static function coreError($msg){
-        self::trace();
-        echo htmlspecialchars($msg);
-        throw new CspException($msg, 10000);
     }
 
     //----------------------------------------------------------------------------------
