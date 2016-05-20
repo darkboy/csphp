@@ -1208,6 +1208,13 @@ class Csphp {
      * 开启 xhprof
      */
     public static function xhprofStart($opts=[]){
+        if(is_bool($opts) && $opts===false){
+            return;
+        }
+        if($opts===true){
+            $opts = [];
+        }
+
         self::xhprofCheck();
         Csp\comp\xhprof\CspExtXhprof::enable($opts);
     }
@@ -1216,6 +1223,12 @@ class Csphp {
      * 开始 xhprof
      */
     public static function xhprofEnable($opts=[]){
+        if(is_bool($opts) && $opts===false){
+            return;
+        }
+        if($opts===true){
+            $opts = [];
+        }
         self::xhprofCheck();
         Csp\comp\xhprof\CspExtXhprof::enable($opts);
     }
