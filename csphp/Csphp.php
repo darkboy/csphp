@@ -193,8 +193,9 @@ class Csphp {
      * start applatection
      */
     public function run(){
-
+        //初始化运行环境，设置调试模式
         self::initRunningEvn();
+
         //初始化核心对象
         self::initCoreObjs();
 
@@ -204,21 +205,26 @@ class Csphp {
         //初始化当前模块配置
         self::initModule();
 
+        //初始化组件
+        self::initComponents();
+
         //导入 helpers，自动加载， helpers/*.preload.php 与 helpers/*/*.preload.php
         self::loadHelperFiles();
 
         //系统初始化结束
         self::fireEvent(self::EVENT_CORE_AFTER_INIT);
+
+        //访问控制检查
+        self::checkAccessControl();
+
+        //---------------------------------------------
         //cli 与 http 请求分别进行路由 和 初始化动作
         if(self::isCli()){
             self::handlerCliRequest();
         }else{
             self::handlerWebRequest();
         }
-        //self::trace();
-        //self::router()->getAction();
-        //self::doFilters();
-
+        //---------------------------------------------
         //self::tmp();
         self::exitApp();
     }
@@ -229,8 +235,6 @@ class Csphp {
      */
     protected static function handlerCliRequest(){
 
-        //初始化组件
-        self::initComponents();
         //解释路由信息
         self::cliConsole()->parseRoute();
         self::fireEvent(self::EVENT_CORE_AFTER_ROUTE);
@@ -245,10 +249,6 @@ class Csphp {
      */
     protected static function handlerWebRequest(){
 
-        //访问控制检查
-        self::checkAccessControl();
-        //初始化组件
-        self::initComponents();
         //解释路由信息
         self::router()->parseRoute();
         self::fireEvent(self::EVENT_CORE_AFTER_ROUTE);
