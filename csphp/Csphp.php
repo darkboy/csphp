@@ -1079,6 +1079,7 @@ class Csphp {
      */
     public static function setDebug($debug=true){
         self::$isDebug = $debug;
+        //todo...
         if($debug){
 
         }else{
@@ -1129,6 +1130,7 @@ class Csphp {
     }
 
     /**
+     * 用于计算时间的结束位置
      * @param string $flagKey
      * @param int    $dotLen
      *
