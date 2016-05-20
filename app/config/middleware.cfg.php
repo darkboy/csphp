@@ -4,9 +4,10 @@ namespace App\config;
  * 中间件的配置说明:
  *
  *  使用 中间件 可以在 请求动作 被执行前 执行后 嵌入自定义逻辑， 常用于，访问控制，登录验证
+ *
  *  中间件 包含 一个 固定方法请求处理方法，默认名为 handler
  *
- *  中间件的方法定义示例如下:
+ *  中间件的 请求处理方法 定义示例如下:
  *
  *  public function handler (CspRequest $request, Closure $next){
  *
