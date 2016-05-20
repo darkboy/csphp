@@ -207,6 +207,8 @@ class Csphp {
         //导入 helpers，自动加载， helpers/*.preload.php 与 helpers/*/*.preload.php
         self::loadHelperFiles();
 
+        //系统初始化结束
+        self::fireEvent(self::EVENT_CORE_AFTER_INIT);
         //cli 与 http 请求分别进行路由 和 初始化动作
         if(self::isCli()){
             self::handlerCliRequest();
@@ -226,8 +228,7 @@ class Csphp {
      * @return bool
      */
     protected static function handlerCliRequest(){
-        //系统初始化结束
-        self::fireEvent(self::EVENT_CORE_AFTER_INIT);
+
         //初始化组件
         self::initComponents();
         //解释路由信息
@@ -243,8 +244,7 @@ class Csphp {
      * @throws \Csp\core\CspException
      */
     protected static function handlerWebRequest(){
-        //系统初始化结束
-        self::fireEvent(self::EVENT_CORE_AFTER_INIT);
+
         //访问控制检查
         self::checkAccessControl();
         //初始化组件
@@ -280,7 +280,7 @@ class Csphp {
         self::fireEvent(self::EVENT_CORE_BEFORE_SEND_RESP);
         self::response()->send();
         self::fireEvent(self::EVENT_CORE_AFTER_SEND_RESP);
-        self::logInfo('exitApp on '.date("Y-m-d H:i:s"));
+        self::logInfo('exitApp on '.date("Y-m-d H:i:s"),$_REQUEST,'access');
         if(function_exists('fastcgi_finish_request')){
             fastcgi_finish_request();
         }
