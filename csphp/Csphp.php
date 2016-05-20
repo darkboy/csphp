@@ -1126,7 +1126,6 @@ class Csphp {
      */
     public static function bmkStart($flagKey){
         self::$bankmarkData[$flagKey] = microtime(true);
-
     }
 
     /**
