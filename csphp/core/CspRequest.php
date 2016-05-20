@@ -49,6 +49,7 @@ class CspRequest{
         return self::$reqType === self::REQ_TYPE_API;
     }
     public function isAjax(){
+        //isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH']==='XMLHttpRequest';
         return self::$reqType === self::REQ_TYPE_AJAX;
     }
     public function isJsonp(){
@@ -73,8 +74,18 @@ class CspRequest{
     public function isDelete(){
         return $this->getHttpMethod()==='DELETE';
     }
-    //HEAD PATCH OPTIONS TARCE
 
+    public function isHttps() {
+        return !empty($_SERVER['HTTPS']) && strcasecmp($_SERVER['HTTPS'],'off');
+    }
+
+    /**
+     * 是否是 Flash 发起的请求
+     * @return bool
+     */
+    public function isFlash(){
+        return isset($_SERVER['HTTP_USER_AGENT']) && (stripos($_SERVER['HTTP_USER_AGENT'],'Shockwave')!==false || stripos($_SERVER['HTTP_USER_AGENT'],'Flash')!==false);
+    }
     /**
      * 是否网络爬虫
      * @return bool
@@ -122,6 +133,9 @@ class CspRequest{
     public function getUserAgent(){
         return $this->isCli() ? 'cli' : $_SERVER['HTTP_USER_AGENT'];
     }
+    public function getReferer(){
+        return isset($_SERVER['HTTP_REFERER'])?$_SERVER['HTTP_REFERER']:null;
+    }
     /**
      * 获取主机名
      * @return string
@@ -130,10 +144,53 @@ class CspRequest{
         return $this->isCli() ? 'cli' : $_SERVER['HTTP_HOST'];
     }
 
+    /**
+     * 获取 http host URL
+     *
+     * @return string
+     */
+    public function getHostUrl() {
+        $hostUrl = NULL;
+        if($hostUrl){
+            return $hostUrl;
+        }
+
+        $isHttps = $this->isHttps();
+        $port = $this->getPort();
+        $http = $isHttps ? 'https' : 'http';
+
+        if (isset($_SERVER['HTTP_HOST'])) {
+            $hostUrl = $http . '://' . $_SERVER['HTTP_HOST'];
+        } else {
+            $hostUrl = $http . '://' . $_SERVER['SERVER_NAME'];
+            if (($port !== 80 && !$isHttps) || ($port !== 443 && $isHttps)) {
+                $hostUrl .= ':' . $port;
+            }
+        }
+
+        return $hostUrl;
+    }
+
+    /**
+     * 获取端口
+     * @return int
+     */
+    public function getPort(){
+        static $port;
+
+        if(!$port){
+            $port = isset($_SERVER['SERVER_PORT']) ? (int)$_SERVER['SERVER_PORT'] : ($this->isHttps() ? 443 : 80);
+        }
+        return $port;
+    }
+
     public function getQueryString(){
         return $this->isCli() ? 'cli' : $_SERVER['QUERY_STRING'];
     }
-
+    //alias for  getClientIp
+    public function getRemoteAddr(){
+        return $this->getClientIp();
+    }
     /**
      * 获取客户端IP
      * @return string
@@ -162,6 +219,14 @@ class CspRequest{
         }
     }
 
+    public function getBrowser($userAgent = NULL) {
+        return get_browser($userAgent, true);
+    }
+
+    public function getAcceptTypes() {
+        return isset($_SERVER['HTTP_ACCEPT']) ? $_SERVER['HTTP_ACCEPT'] : NULL;
+    }
+
     /**
      *
      * 获取当前请求路径
@@ -176,15 +241,47 @@ class CspRequest{
      * @return string
      */
     public function getReqUri(){
-        return $_SERVER['REQUEST_URI'];
+        static $requestUri = null;
+        if($requestUri) {
+            return $requestUri;
+        }
+        //return $_SERVER['REQUEST_URI'];
+
+        // IIS
+        if (isset($_SERVER['HTTP_X_REWRITE_URL'])) {
+            $requestUri = $_SERVER['HTTP_X_REWRITE_URL'];
+        } else {
+            //常规
+            if (isset($_SERVER['REQUEST_URI'])) {
+                $requestUri = $_SERVER['REQUEST_URI'];
+                if (!empty($_SERVER['HTTP_HOST'])) {
+                    if (strpos($requestUri, $_SERVER['HTTP_HOST']) !== false) {
+                        $requestUri = preg_replace('/^\w+:\/\/[^\/]+/', '', $requestUri);
+                    }
+                } else {
+                    $requestUri = preg_replace('/^(http|https):\/\/[^\/]+/i', '', $requestUri);
+                }
+            } else {
+                // IIS 5.0 CGI
+                if (isset($_SERVER['ORIG_PATH_INFO'])) {
+                    $requestUri = $_SERVER['ORIG_PATH_INFO'];
+                    if (!empty($_SERVER['QUERY_STRING'])) {
+                        $requestUri .= '?' . $_SERVER['QUERY_STRING'];
+                    }
+                } else {
+                    throw new CspException('Unable to determine the requestUri.');
+                }
+            }
+        }
+        return $requestUri;
     }
 
     /**
      * 获取长URL
      * @return string
      */
-    public function getFullUri(){
-        return $_SERVER['REQUEST_URI'];
+    public function getFullRequestUri(){
+        return $this->getHostUrl().$this->getReqUri();
     }
 
     /**
@@ -193,10 +290,17 @@ class CspRequest{
      */
     public function getLastViewUrl(){
         if($this->isGet()){
-            return $_SERVER['REQUEST_URI'];
+            return $this->getReqUri();
         }else{
-            return $_SERVER['HTTP_REFERER'];
+            return $this->getReferer();
         }
+    }
+
+    /**
+     * todo...
+     */
+    public function getCsrfToken(){
+
     }
 
 
@@ -325,7 +429,14 @@ class CspRequest{
      * @return string
      */
     public function getHttpMethod(){
-        return strtoupper($_SERVER['REQUEST_METHOD']);
+        if($this->isCli()){
+            return 'cli';
+        }
+        if (isset($_POST['_method'])) {
+            return strtoupper($_POST['_method']);
+        }
+
+        return strtoupper(isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET');
     }
 
     /**
