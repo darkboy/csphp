@@ -15,7 +15,7 @@ class CspLog {
      * @var array
      */
     public $logOptions = array(
-        'log_key_separator' => '#####',
+        'log_key_separator' => ':#####:',
         'log_base_path'     => __DIR__,
         'log_stay_days'     => 7,
         'is_log_info'       => true,
@@ -210,6 +210,7 @@ class CspLog {
 
 
     private function flush(){
+        //no andy log info to write
         if (empty(self::$logInfoCache)) {
             return false;
         }
