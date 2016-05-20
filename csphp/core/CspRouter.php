@@ -57,31 +57,19 @@ class CspRouter{
     }
 
     public function init(){
-        $this->routeInfo['uri']        = Csphp::request()->getRequestUri();
-        $this->routeInfo['setup_path'] = $this->getSetupPath();
-        $this->routeInfo['entry_file'] = $this->getEntryFile();
+        $this->routeInfo['uri']        = self::request()->getRequestUri();
+        $this->routeInfo['setup_path'] = self::request()->getSetupPath();
+        $this->routeInfo['entry_file'] = self::request()->getEntryFile();
         //初步解释URL上的路由变量，并提取 reqRoute
         $this->parseUrl();
+        //echo '<pre>';print_r($this->routeInfo);
     }
 
     /**
-     * 某些场景下，项目会被安装在WEB站点的某个目录
-     * 返回入口文件之前的路路径，不含最后的 / ，含左 /
-     * @return string
+     * @return \Csp\core\CspRequest
      */
-    public function getSetupPath(){
-        if(Csphp::request()->isCli()){
-            return '';
-        }else{
-            return substr(dirname($_SERVER['SCRIPT_FILENAME']), strlen($_SERVER['DOCUMENT_ROOT']));
-        }
-    }
-
-    /**
-     * 获取入口文件 包含 安装目录,左 /
-     */
-    public function getEntryFile(){
-        return substr($_SERVER['SCRIPT_FILENAME'], strlen($_SERVER['DOCUMENT_ROOT']));
+    public static function request(){
+        return Csphp::request();
     }
 
     /**
@@ -283,13 +271,24 @@ class CspRouter{
 
 
     /**
-     * 解释路径,提取路径中的变量，返回 reqRoute
+     * 解释路径
+     *      主要逻辑为 提取路径中的变量，删除路径中的入口文件以及安装目录部分
+     * @return string  requestRoute
      */
     public function parseUrl(){
-        $urlPs      = explode('?', $this->getUri(), 2);
-        $urlPath    = trim($urlPs[0], '/\\');
+
+        $urlPs      = explode('?', $this->getRoutePathInfo(), 2);
+        $urlPath    = $urlPs[0];
+        $urlPath    = trim($urlPath, '/\\');
         $urlPs      = explode('/', $urlPath);
 
+        //ignore entryname
+        $firstPart  = substr($urlPs[0],-4);
+        if(strtolower($firstPart)==='.php'){
+            array_shift($urlPs);
+        }
+
+        //echo '<pre>',$enterPrefix;print_r($urlPs);exit;
         $reqRoute   = '';
         $startRouterVar = false;
         foreach($urlPs as $p){
@@ -302,7 +301,19 @@ class CspRouter{
             }
         }
         $this->routeInfo['req_route'] = $reqRoute;
+        return $reqRoute;
+    }
 
+    /**
+     * 获取与路由相关的pathinfo
+     * @return string route pathinfo
+     */
+    public function getRoutePathInfo(){
+        if(isset($_GET['r'])){
+            return $_GET['r'];
+        }else{
+            return $this->getUri();
+        }
     }
 
 

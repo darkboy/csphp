@@ -251,6 +251,25 @@ class CspRequest{
     }
 
     /**
+     * 某些场景下，项目会被安装在WEB站点的某个目录
+     * 返回入口文件之前的路路径，不含最后的 / ，含左 /
+     * @return string
+     */
+    public function getSetupPath(){
+        if($this->isCli()){
+            return '';
+        }else{
+            return substr(dirname($_SERVER['SCRIPT_FILENAME']), strlen($_SERVER['DOCUMENT_ROOT']));
+        }
+    }
+
+    /**
+     * 获取入口文件 包含 安装目录,左 /
+     */
+    public function getEntryFile(){
+        return substr($_SERVER['SCRIPT_FILENAME'], strlen($_SERVER['DOCUMENT_ROOT']));
+    }
+    /**
      * 获取当前访问的URL中的 RequestUri 不包含HOST部分
      * @return string
      */
