@@ -119,6 +119,7 @@ class CspTemplate{
 
         if($___isReturn){
             ob_start();
+            ob_implicit_flush(false);
             include $this->parseTplRoute($___tplRoute);
             return ob_get_clean();
         }else{
