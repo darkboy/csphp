@@ -1,12 +1,11 @@
 <?php
 //系统配置文件
 $systemConfig=array(
+    //Csphp 框架版本
+    'csphp_version'     =>'1.0.0.20160520_alpha',
     'csphp_start_time'  =>microtime(true),
     //框架所在目录
     'system_base_path'  =>__DIR__,
-    //是否开启调试
-    'is_debug'          =>false,
-
 
     //请求类型的判断条件 配置项 是一个 $requestFilter 过滤器条件
     'is_jsonp_req' =>array(

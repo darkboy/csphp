@@ -5,7 +5,7 @@ $appConfig = array(
     //应用名称
     'app_name'      =>'demoApp',
 
-    //应用的版本号 规则为 Ymd.no.svnno
+    //应用的版本号 规则为 Ymd.no.svnno 主要用于静态文件
     'app_version'   =>'20160301.01.xxxx',
 
     //应用的根目录
