@@ -356,7 +356,7 @@ class CspRouter{
                 if(empty($findRst)){continue;}
 
                 //匹配成功
-                if(!empty($findRst) ){
+                if(!empty($findRst) && $findRst['route_type']!='real' ){
                     $findRst['hit_rule'] = $routeName."::".$findRst['match_key'];
                 }
                 //echo "<pre>Route find: \n";print_r($findRst);//exit;
@@ -373,7 +373,7 @@ class CspRouter{
      * @param array     $rCfg
      * @return string   $reqRoute
      */
-    public function doRouteBeforeAction($reqRoute,$rCfg){
+    private function doRouteBeforeAction($reqRoute,$rCfg){
         if(!isset($rCfg['before_action']) || empty($rCfg['before_action'])){
             return $reqRoute;
         }
@@ -386,7 +386,7 @@ class CspRouter{
      * @param array     $rCfg
      * @return string   $reqRoute
      */
-    public function doRouteAfterAction($reqRoute,$rCfg){
+    private function doRouteAfterAction($reqRoute,$rCfg){
         if(!isset($rCfg['after_action']) || empty($rCfg['after_action'])){
             return $reqRoute;
         }
@@ -401,7 +401,7 @@ class CspRouter{
      * @return stirng
      * @throws \Csp\core\CspException
      */
-    public function doActionForReqRoute($reqRoute, $actionCfg){
+    private function doActionForReqRoute($reqRoute, $actionCfg){
         if(!is_array($actionCfg)){
             $actionCfg = explode("::", $actionCfg, 2);
         }
@@ -580,7 +580,7 @@ class CspRouter{
      * @param $matchKey
      * @return array
      */
-    public function checkReqRouteByRegexpRule($ruleRegexp, $reqRoute, $targetSourceRoute, $matchKey){
+    private function checkReqRouteByRegexpRule($ruleRegexp, $reqRoute, $targetSourceRoute, $matchKey){
         //匹配不成功，进行下一条规则匹配
         if(!preg_match($ruleRegexp, $reqRoute, $m)){
             return false;
@@ -612,7 +612,7 @@ class CspRouter{
      * 将路由规则配置，编译成 正则表达式，进行匹配
      * @param $ruleStr
      */
-    public static function compileRouteRuleToRegexp($ruleStr){
+    private static function compileRouteRuleToRegexp($ruleStr){
         //配置规则为 {vname-type-len} 每一项的
         $defOpts = array(
             0=>'id',
@@ -684,8 +684,6 @@ class CspRouter{
         if(!is_string($realRoute)){
             return array();
         }
-
-
 
         //非绝对路由 刚默认为本模块路由
         if($realRoute[0]!=='@' && $realRoute[0]!=='\\'){
