@@ -35,15 +35,13 @@ return array(
             //别名
             '/user/alias'           => '/index',
 
-            //闭包
-            '/user/func'            => function(){echo 'hello world';},
-
-            //用户定义的 callable 结构，
-            '/user/instance'        => array('Csphp', 'obj'),
+            //闭包路由
+            '/user/func'            => function($request){echo 'hello world';},
 
             //callable 绝对路由
-            '/user/abs'             => '@ext/account/info::action',
-            '/user/abs2'            => '\account\info::action',
+            '/user/abs'             => '@m-ctrl/demo::actionForAbsRouteDemo',
+            '/user/abs2'            => '\App\comtrolers\home\demo::actionForAbsRouteDemo',
+            '/user/abs3'            => 'demo::actionForAbsRouteDemo',
 
             //变量与变量引用,如下规则将可实现迁移目的
             '/user/{arg1}/{arg2}'   => '/account/{arg2}/{arg1}',

@@ -68,7 +68,7 @@ class CspRouter{
         $this->routeInfo['setup_path'] = self::request()->getSetupPath();
         $this->routeInfo['entry_file'] = self::request()->getEntryFile();
         //初步解释URL上的路由变量，并提取 reqRoute
-        $this->parseUrl();
+        $this->parseRequestUri();
         //echo '<pre>';print_r($this->routeInfo);
     }
 
@@ -183,7 +183,7 @@ class CspRouter{
             //闭包路由
             if(is_object($routeRst) && ($routeRst instanceof \Closure)){
                 $this->routeInfo['controler'] = $routeRst;
-                $routeRst();
+                $routeRst($this->request());
                 $hasDoAction = true;
                 break;
             }
@@ -232,7 +232,7 @@ class CspRouter{
                 }
 
                 //实际执行action
-                $ctrlObj->$actionName(Csphp::request());
+                $ctrlObj->$actionName($this->request());
 
                 $hasDoAction = true;
 
@@ -279,7 +279,7 @@ class CspRouter{
      *      主要逻辑为 提取路径中的变量，删除路径中的入口文件以及安装目录部分
      * @return string  requestRoute
      */
-    public function parseUrl(){
+    public function parseRequestUri(){
 
         $urlPs      = explode('?', $this->getRoutePathInfo(), 2);
         $urlPath    = $urlPs[0];
@@ -350,6 +350,7 @@ class CspRouter{
         //检查是否真实路由
         $isRealRoute = $this->checkIsRealRoute($sourceReqRoute);
         if(!empty($isRealRoute) && isset($isRealRoute['parse_rst']['controler'])){
+            //echo '<pre>';print_r($isRealRoute);exit;
             return $isRealRoute;
         }
 
@@ -358,6 +359,7 @@ class CspRouter{
             if( !isset($rCfg['filter']) || $filterRst = Csphp::request()->isMatch($rCfg['filter']) ){
                 //对请求路由进行预处理，如删除 静态化 的后缀 .html 等
                 $reqRoute = $this->doRouteBeforeAction($sourceReqRoute, $rCfg);
+
                 $findRst  = $this->findMatchRuleByRouteCfg($reqRoute, $rCfg);
 
                 //echo '<pre>';print_r($findRst);//exit;
@@ -519,7 +521,6 @@ class CspRouter{
         if(!empty($isRealRoute) && isset($isRealRoute['parse_rst']['controler'])){
             return $isRealRoute;
         }
-
 
         //echo '<pre>';
         //扫苗规则列表
@@ -686,11 +687,13 @@ class CspRouter{
      * @return array
      */
     public function isControlerExists($realRoute){
+        //---------------------------------------------------------------
         //目标路由是一个闭包
-        if(is_object($realRoute)){
+        if($realRoute instanceof \Closure){
             return $realRoute;
         }
 
+        //---------------------------------------------------------------
         //目标路由是 用户自定义的 callable 数组
         if(is_array($realRoute)){
             return array(
@@ -699,11 +702,14 @@ class CspRouter{
             );
         }
 
+        //---------------------------------------------------------------
         //目标路由 只能是 数组，字符串  和 闭包对象
         if(!is_string($realRoute)){
+            //needto throw exception?
             return array();
         }
 
+        //---------------------------------------------------------------
         //非绝对路由 刚默认为本模块路由
         if($realRoute[0]!=='@' && $realRoute[0]!=='\\'){
             $realRoute = '@m-ctrl'.$realRoute;
@@ -719,6 +725,7 @@ class CspRouter{
                 'action'    =>substr($realRoute, $pi+2)
             );
         }
+        //---------------------------------------------------------------
 
 
         $paths = explode('/',$realRoute);
