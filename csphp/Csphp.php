@@ -91,15 +91,17 @@ class Csphp {
      */
     const EVENT_CORE_EXIT               = 'envent.core.app.exit';
 
+
+    /**
+     * @var Csphp
+     */
+    public static $app = null;
+
     /**
      * 应用开始时间
      * @var int
      */
     public static $appStartTime = 0;
-    /**
-     * @var Csphp
-     */
-    public static $app = null;
 
     /**
      * @var string, core root path
@@ -223,7 +225,7 @@ class Csphp {
 
 
     /**
-     * 应用初始化
+     * 应用初始化,
      */
     public static function init(){
 
