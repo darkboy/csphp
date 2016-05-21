@@ -48,8 +48,10 @@ return array(
             '/route_demo/abs/2'                      => '\App\comtrolers\home\demo::actionForRouteDemo',
             '/route_demo/abs/3'                      => 'demo::actionForRouteDemo',
 
-            //变量与变量引用,如下规则将可实现迁移目的
+            //变量
             '/route_demo/var/{arg1}/{arg2}'          => '/demo/forRouteDemo',
+            //变量引用,如下规则将可实现迁移目的
+            '/route_demo/demo/{action}'            => '/demo/{action}',
             //变量类型 和 长度 的限制
             '/route_demo/id/{uid-d-2,5}'             => '/demo/forRouteDemo',
 
