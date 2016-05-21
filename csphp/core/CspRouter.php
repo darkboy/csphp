@@ -140,13 +140,23 @@ class CspRouter{
     public function getActionName(){
 
         $parseRst = $this->getParseRst();
-        if(is_object($parseRst)){
+        if(is_object($parseRst['closure'])){
             return '-';
         }
         if( is_array($parseRst) && isset($parseRst['action']) ){
             return $parseRst['action'];
         }
         return '';
+    }
+
+    /**
+     * 返回当前 action 的类型 class uri closure
+     * @return mixed
+     */
+    public function getActionType(){
+
+        $parseRst = $this->getParseRst();
+        return $parseRst['type'];
     }
 
     /**
@@ -225,7 +235,11 @@ class CspRouter{
             }
 
             //Csphp::dump($routeRst);
-            $actionName = $this->wrapActionName($routeRst['action']);
+            if($routeRst['type']=='class'){
+                $actionName = $routeRst['action'];
+            }else{
+                $actionName = $this->wrapActionName($routeRst['action']);
+            }
             $ctrlObj = $routeRst['context']['ctrl_obj'];
             $this->routeInfo['controler'] = $ctrlObj;
 
@@ -518,7 +532,7 @@ class CspRouter{
      *  'real_route'    =>array('controler'=>'','action'=>'')
      * )
      */
-    public function findMatchRuleByRouteCfg($reqRoute, $rCfg){
+    private function findMatchRuleByRouteCfg($reqRoute, $rCfg){
 
         //匹配到的路由变量
         $matchVars  = array();
@@ -718,44 +732,69 @@ class CspRouter{
         }
         $targetRoute = rtrim($targetRoute, '/');
 
-        //action 的类型 可能有三种： 闭包 类名::运作名 目标路径
+        //action 的类型 可能有三种： 闭包 类名::动作名 目标路径
         $actionType  = 'uri';
-        if(strpos($targetRoute, '::')){
-            $actionType = 'class';
-            $targetRoute = str_replace('::', '/', $targetRoute);
-        }
-        $cacheKey = $targetRoute;
         //------------------
+        $cacheKey = $targetRoute;
         //在扫苗路由时 大多数情况下 都不是真实路由，所以缓存 失败结果
         if(isset($checkCache[$cacheKey])){
             return $checkCache[$cacheKey];
         }
         //------------------
 
-        $paths = explode('/', $targetRoute);
-        if(count($paths)<2){
-            throw new CspException("Error target route {$targetRoute}", 404, CspException::NOT_FOUND_EXCEPTION);
-        }
-        //print_r($paths);
-        $noAction = false;
-        $isHitRealControler = true;
 
-        $action     = array_pop($paths);
-        $classRoute = join('/', $paths);
-        $ctrlFile   = Csphp::getPathByRoute($classRoute, '.php');
+
         //echo $ctrlFile;
 
         //控制器检测结果 上下文信息
         $context = [
             'is_hit'        => false,
-            'ctrl_file'     => $ctrlFile,
-            'file_exists'   => file_exists($ctrlFile),
+            'ctrl_file'     => null,
+            'file_exists'   => false,
             'class_exists'  => false,
             'action_exists' => false,
             'ctrl_obj'      => null
         ];
         $scoreCnt = 0;
         do{
+            if(strpos($targetRoute, '::')){
+                $actionType     = 'class';
+                list($controlerClass, $action) = explode("::", $targetRoute,2);
+                $controlerClass = Csphp::getNamespaceByRoute($controlerClass);
+                if(class_exists($controlerClass)){
+                    $context['ctrl_file']    = 'AutoLoadByClass:'.$controlerClass;
+                    $context['file_exists']  = true;
+                    $context['class_exists'] = true;
+                    $scoreCnt+=2;
+                }else{
+                    break;
+                }
+
+                $ctrlObj = new $controlerClass;
+                $context['action_exists'] = method_exists($ctrlObj, $action);
+                if (!$context['action_exists']) {
+                    break;
+                }
+                $scoreCnt++;
+
+                $context['is_hit']  = true;
+                $context['ctrl_obj']= $ctrlObj;
+
+                break;
+            }
+
+
+            $paths = explode('/', $targetRoute);
+            if(count($paths)<2){
+                throw new CspException("Error target route {$targetRoute}", 404, CspException::NOT_FOUND_EXCEPTION);
+            }
+
+            $action     = array_pop($paths);
+            $classRoute = join('/', $paths);
+            $ctrlFile   = Csphp::getPathByRoute($classRoute, '.php');
+            $context['ctrl_file']   = $ctrlFile;
+            $context['file_exists'] = file_exists($ctrlFile);
+
             if(!$context['file_exists']){
                 break;
             }
@@ -839,7 +878,7 @@ class CspRouter{
      * @return string
      */
     public function wrapActionName($name){
-        return strpos($name, $this->actionNamePrefix)===0 ? $name : $this->actionNamePrefix.ucfirst($name);
+        return $this->actionNamePrefix.ucfirst($name);
     }
 
     /**
