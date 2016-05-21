@@ -87,7 +87,7 @@ class demo extends CspBaseControler{
 
     }
 
-    public function forRouteDemo(){
+    public function noActionPrefix(){
         echo '<pre>路由解释示例,forRouteDemo 当前命中的路由信息如下:',"\n";print_r(Csphp::router()->getRouteInfo());
     }
 

@@ -55,7 +55,7 @@ return array(
 
             //对象路由, 指定路由控制器类 与 action
             '/route_demo/abs/1'                      => '@m-ctrl/demo::actionForRouteDemo',
-            '/route_demo/abs/2'                      => 'demo::forRouteDemo',
+            '/route_demo/abs/2'                      => 'demo::noActionPrefix',
             '/route_demo/abs/3'                      => '\App\controlers\home\demo::actionForRouteDemo',
 
             //变量
