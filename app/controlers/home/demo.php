@@ -76,5 +76,9 @@ class demo extends CspBaseControler{
         echo $this->jsonpRst(true);
     }
 
+    public function actionForRouteDemo(CspRequest $request){
+        echo '<pre>路由解释示例,当前命中的路由信息如下:',"\n";print_r(Csphp::router()->getRouteInfo());
+    }
+
 }
 
