@@ -51,7 +51,8 @@ class CspRouter{
         'parse_rst'     =>array(
             'controler' =>null,
             'action'    =>null,
-            'closure'   =>null
+            'closure'   =>null,
+            'context'   =>null
         ),
 
         //从路由规则中解释出来的 变量字典，可能是来自URL中的 /v1-v1/v2-v2 或者是 路由配置中的 "user/{actionVar}"
@@ -220,7 +221,7 @@ class CspRouter{
             //print_r($routeRst);
             //查找控制器失败,未分析到目标控制器
             if(!isset($routeRst['controler']) || !isset($routeRst['context']) || !$routeRst['context']['is_hit'] ){
-                throw new CspException('404 Error route rst: '.json_encode($routeRst), 404, CspException::NOT_FOUND_EXCEPTION);
+                throw new CspException('Route error  rst: '.json_encode($routeRst), 404, CspException::NOT_FOUND_EXCEPTION);
             }
 
             //Csphp::dump($routeRst);
@@ -254,7 +255,7 @@ class CspRouter{
         }while(false);
 
         if($hasDoAction == false){
-            throw new CspException('404 Error route , cant not find action to do route rst: '.json_encode($routeRst), 404, CspException::NOT_FOUND_EXCEPTION);
+            throw new CspException('Route error , cant not find action to do,  route rst: '.json_encode($routeRst), 404, CspException::NOT_FOUND_EXCEPTION);
         }
         //执行 action 完成
         Csphp::fireEvent(Csphp::EVENT_CORE_AFTER_ACTION);
