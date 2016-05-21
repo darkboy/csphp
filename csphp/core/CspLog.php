@@ -209,11 +209,6 @@ class CspLog {
         $this->cleanLogFiles();
     }
 
-    public function noCache(){
-        $this->flush();
-        return $this;
-    }
-
     //日志缓存 flush
     public function flush(){
 

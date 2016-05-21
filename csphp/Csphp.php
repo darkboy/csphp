@@ -87,15 +87,9 @@ class Csphp {
     const EVENT_CORE_AFTER_SEND_RESP    = 'event.core.after.send.resp';
 
     /**
-     * 应用退出
+     * 应用退出，即将结束PHP 进程
      */
     const EVENT_CORE_EXIT               = 'envent.core.app.exit';
-
-    /**
-     * PHP进程退出
-     */
-    const EVENT_CORE_PHP_SHUTDOWN       = 'event.php.shutdown';
-
 
     /**
      * 应用开始时间
@@ -188,11 +182,54 @@ class Csphp {
         self::$app = new self();
         return self::$app->initConfig($appConfig);
     }
+    /**
+     * start applatection
+     */
+    public function run(){
+
+        //初始化
+        self::init();
+
+        //访问控制检查
+        self::checkAccessControl();
+
+        //处理请求
+        self::handlerRequest();
+
+        //self::tmp();
+        //退出程序
+        self::exitApp();
+    }
+
+    /**
+     * 应用退出，如果应用没有显式的调用 也会在 shutdown 时自动触发
+     */
+    public static function exitApp(){
+        static $isExit = false;
+        if($isExit){return true;}
+
+        self::fireEvent(self::EVENT_CORE_BEFORE_SEND_RESP);
+        self::response()->send();
+        self::fireEvent(self::EVENT_CORE_AFTER_SEND_RESP);
+        //提前断开 客户端连接
+        if(function_exists('fastcgi_finish_request')){
+            fastcgi_finish_request();//echo 'fastcgi_finish_request';
+        }
+        self::log()->logInfo('exitCsphp on '.date("Y-m-d H:i:s"), $_REQUEST, 'access')->flush();
+        $isExit=true;
+        self::fireEvent(self::EVENT_CORE_EXIT);
+        exit();
+    }
+
 
     /**
      * 应用初始化
      */
     public static function init(){
+
+        //当应用没有显式的调用 exitApp 方法时，在 shutdown 时自动触发
+        register_shutdown_function(array(__CLASS__,'exitApp'));
+
         //初始化运行环境，设置调试模式
         self::initRunningEvn();
 
@@ -214,26 +251,6 @@ class Csphp {
         //系统初始化结束，触发 EVENT_CORE_AFTER_INIT 事件，在前面预加载的类可以监听这个事件
         self::fireEvent(self::EVENT_CORE_AFTER_INIT);
         return true;
-    }
-    /**
-     * start applatection
-     */
-    public function run(){
-
-        register_shutdown_function(array($this,'exitApp'));
-        //初始化
-        self::init();
-        exit;
-
-        //访问控制检查
-        self::checkAccessControl();
-
-        //处理请求
-        self::handlerRequest();
-
-        //self::tmp();
-        //退出程序
-        self::exitApp();
     }
 
     /**
@@ -277,7 +294,13 @@ class Csphp {
         return true;
     }
 
-    //系统的访问控制检查
+    /**
+     * 系统的访问控制检查
+     *
+     * @param null $aclCfg
+     *
+     * @return bool
+     */
     public static function checkAccessControl($aclCfg=null){
         if($aclCfg===null){
             $aclCfg = self::appCfg('acl', array());
@@ -290,26 +313,10 @@ class Csphp {
             //todo..
 
         }
+        return true;
     }
 
-    /**
-     * 应用退出
-     */
-    public static function exitApp(){
-        static $isExit = false;
-        if($isExit){return true;}
 
-        self::fireEvent(self::EVENT_CORE_BEFORE_SEND_RESP);
-        self::response()->send();
-        self::fireEvent(self::EVENT_CORE_AFTER_SEND_RESP);
-
-        if(function_exists('fastcgi_finish_request')){
-            //fastcgi_finish_request();
-        }
-        self::log()->logInfo('exitCsphp on '.date("Y-m-d H:i:s"), $_REQUEST, 'access')->flush();
-        $isExit=true;
-        exit();
-    }
 
     /**
      * 初始化运行环境,
