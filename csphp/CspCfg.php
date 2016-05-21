@@ -3,6 +3,7 @@
 $systemConfig=array(
     //Csphp 框架版本
     'csphp_version'     =>'1.0.0.20160520_alpha',
+    //系统加载开始时间
     'csphp_start_time'  =>microtime(true),
     //框架所在目录
     'system_base_path'  =>__DIR__,

@@ -4,7 +4,7 @@ use \Csphp;
 
 class CspBaseControler {
 
-    private $jsonpCallbackName = 'callback';
+    private $jsonpCallbackName  = 'cspCallback';
 
     public function __construct(){
 
@@ -94,12 +94,23 @@ class CspBaseControler {
      * 如果当前 action 是 jsonp 请求
      * @param string $cbVarRoute
      */
-    public function useJsonp($cbVarRoute='callback'){
+    public function useJsonp($cbVarRoute='cspCallback'){
         if($cbVarRoute[1]!==':'){
             $cbVarRoute = 'G:'.$cbVarRoute;
         }
         $this->jsonpCallbackName = Csphp::request()->param($cbVarRoute,null,'require,slen:2-50,callback');
+        return $this;
     }
+
+    /**
+     * jsonp 结果包装
+     * @param        $rst
+     * @param int    $code
+     * @param string $msg
+     * @param string $tips
+     *
+     * @return string
+     */
     public function jsonpRst($rst, $code=0, $msg='OK', $tips=''){
         return $this->jsonpCallbackName.'('.Csphp::wrapJsonApiData($rst, $code, $msg, $tips).');';
     }

@@ -66,7 +66,7 @@ class CspLog {
         if (!$this->option('is_log_debug')) {
             return false;
         }
-        $this->log(self::LOG_TYPE_DEBUG, $category, $logStrOrArr, $context);
+        return $this->log(self::LOG_TYPE_DEBUG, $category, $logStrOrArr, $context);
     }
 
     /**
@@ -80,7 +80,7 @@ class CspLog {
         if (!$this->option('is_log_info')) {
             return false;
         }
-        $this->log(self::LOG_TYPE_INFO, $category, $logStrOrArr, $context);
+        return $this->log(self::LOG_TYPE_INFO, $category, $logStrOrArr, $context);
     }
 
     /**
@@ -94,7 +94,7 @@ class CspLog {
         if (!$this->option('is_log_warning')) {
             return false;
         }
-        $this->log(self::LOG_TYPE_WARINING, $category, $logStrOrArr, $context);
+        return $this->log(self::LOG_TYPE_WARINING, $category, $logStrOrArr, $context);
     }
 
     /**
@@ -108,7 +108,7 @@ class CspLog {
         if (!$this->option('is_log_error')) {
             return false;
         }
-        $this->log(self::LOG_TYPE_ERROR, $category, $logStrOrArr, $context);
+        return $this->log(self::LOG_TYPE_ERROR, $category, $logStrOrArr, $context);
     }
 
     /**
@@ -133,6 +133,7 @@ class CspLog {
         if(self::$hasFlush){
             $this->flush();
         }
+        return $this;
     }
 
     /**
@@ -208,12 +209,19 @@ class CspLog {
         $this->cleanLogFiles();
     }
 
+    public function noCache(){
+        $this->flush();
+        return $this;
+    }
 
-    private function flush(){
+    //日志缓存 flush
+    public function flush(){
+
         //no andy log info to write
         if (empty(self::$logInfoCache)) {
             return false;
         }
+
         $logPaths = $this->createLogPaths();
         foreach (self::$logInfoCache as $k => $logInfoText) {
             list($type, $category) = array_pad(explode($this->logOptions['log_key_separator'], $k, 2),2,'');
@@ -229,6 +237,7 @@ class CspLog {
             }
         }
         self::$hasFlush = true;
+        return $this;
     }
 
 
@@ -254,6 +263,7 @@ class CspLog {
             }
         }
         //echo "<pre>\n",date("Y-m-d", $expireTime); print_r(glob($path."/*"));
+        return $this;
     }
 
     /**

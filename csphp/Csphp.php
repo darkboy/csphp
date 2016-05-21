@@ -190,9 +190,9 @@ class Csphp {
     }
 
     /**
-     * start applatection
+     * 应用初始化
      */
-    public function run(){
+    public static function init(){
         //初始化运行环境，设置调试模式
         self::initRunningEvn();
 
@@ -213,20 +213,39 @@ class Csphp {
 
         //系统初始化结束，触发 EVENT_CORE_AFTER_INIT 事件，在前面预加载的类可以监听这个事件
         self::fireEvent(self::EVENT_CORE_AFTER_INIT);
+        return true;
+    }
+    /**
+     * start applatection
+     */
+    public function run(){
+
+        register_shutdown_function(array($this,'exitApp'));
+        //初始化
+        self::init();
+        exit;
 
         //访问控制检查
         self::checkAccessControl();
 
-        //---------------------------------------------
+        //处理请求
+        self::handlerRequest();
+
+        //self::tmp();
+        //退出程序
+        self::exitApp();
+    }
+
+    /**
+     * 处理请求
+     */
+    public static function handlerRequest(){
         //cli 与 http 请求分别进行路由 和 初始化动作
         if(self::isCli()){
             self::handlerCliRequest();
         }else{
             self::handlerWebRequest();
         }
-        //---------------------------------------------
-        //self::tmp();
-        self::exitApp();
     }
 
     /**
@@ -237,9 +256,9 @@ class Csphp {
 
         //解释路由信息
         self::cliConsole()->parseRoute();
-        self::fireEvent(self::EVENT_CORE_AFTER_ROUTE);
         //执行命令行动作
         self::cliConsole()->doAction();
+
         return true;
     }
 
@@ -251,11 +270,11 @@ class Csphp {
 
         //解释路由信息
         self::router()->parseRoute();
-        self::fireEvent(self::EVENT_CORE_AFTER_ROUTE);
-
         //self::router()->dump();
         //执行控制器动作
         self::router()->doAction();
+
+        return true;
     }
 
     //系统的访问控制检查
@@ -277,13 +296,18 @@ class Csphp {
      * 应用退出
      */
     public static function exitApp(){
+        static $isExit = false;
+        if($isExit){return true;}
+
         self::fireEvent(self::EVENT_CORE_BEFORE_SEND_RESP);
         self::response()->send();
         self::fireEvent(self::EVENT_CORE_AFTER_SEND_RESP);
-        self::logInfo('exitCsphp on '.date("Y-m-d H:i:s"), $_REQUEST, 'access');
+
         if(function_exists('fastcgi_finish_request')){
-            fastcgi_finish_request();
+            //fastcgi_finish_request();
         }
+        self::log()->logInfo('exitCsphp on '.date("Y-m-d H:i:s"), $_REQUEST, 'access')->flush();
+        $isExit=true;
         exit();
     }
 

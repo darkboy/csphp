@@ -122,6 +122,7 @@ class CspCliConsole{
      */
     public static function parseRoute(){
 
+        Csphp::fireEvent(self::EVENT_CORE_AFTER_ROUTE);
     }
     public static function doAction(){
 

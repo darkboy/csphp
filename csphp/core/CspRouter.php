@@ -268,6 +268,8 @@ class CspRouter{
                 $this->routeInfo[$k] = $v;
             }
         }
+        //路由解释完成事件
+        Csphp::fireEvent(self::EVENT_CORE_AFTER_ROUTE);
         return true;
     }
 
