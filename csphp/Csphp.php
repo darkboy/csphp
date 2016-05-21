@@ -44,10 +44,12 @@ class Csphp {
      * 核心架构 准备完毕事件，已完成 配置，初始化
      */
     const EVENT_CORE_AFTER_INIT         = 'event.core.init';
+
     /**
      * 路由解释 结束
      */
     const EVENT_CORE_AFTER_ROUTE        = 'event.core.route.alfter';
+
     /**
      * 用户以 及 系统配置的 组件初始化完成，即：已调用完他们的 start 方法
      */
@@ -176,6 +178,7 @@ class Csphp {
     public function __construct(){
     }
 
+    //------------------------------------------------------------------------------
 
     /**
      * @param $appConfig array
@@ -184,6 +187,34 @@ class Csphp {
         self::$app = new self();
         return self::$app->initConfig($appConfig);
     }
+
+    /**
+     * 初始化应用 与 系统配置
+     * @param $appCfg
+     */
+    private function initConfig($appCfg){
+        self::$appStartTime = microtime(true);
+
+        if($appCfg!=null && is_array($appCfg)){
+            self::$appCfg = $appCfg;
+        }
+
+        self::$coreRootPath = dirname(__FILE__);
+
+        //注册应用的命名空间
+        CsphpAutoload::addNamespace(self::appCfg('app_base_path'), self::appCfg('app_namespace'), '.php');
+
+        //load sys config
+        self::$sysCfg = include(self::$coreRootPath.'/CspCfg.php');
+        //ower write system config
+        if(isset(self::$appCfg['system_config_over_write']) && is_array(self::$appCfg['system_config_over_write'])){
+            foreach(self::$appCfg['system_config_over_write'] as $k=>$v){
+                self::$sysCfg[$k] = $v;
+            }
+        }
+        return $this;
+    }
+
     /**
      * start applatection
      */
@@ -222,7 +253,7 @@ class Csphp {
         self::fireEvent(self::EVENT_CORE_EXIT);
         exit();
     }
-
+    //------------------------------------------------------------------------------
 
     /**
      * 应用初始化,
@@ -253,6 +284,28 @@ class Csphp {
         //系统初始化结束，触发 EVENT_CORE_AFTER_INIT 事件，在前面预加载的类可以监听这个事件
         self::fireEvent(self::EVENT_CORE_AFTER_INIT);
 
+        return true;
+    }
+
+    /**
+     * 系统的访问控制检查
+     *
+     * @param null $aclCfg
+     *
+     * @return bool
+     */
+    public static function checkAccessControl($aclCfg=null){
+        if($aclCfg===null){
+            $aclCfg = self::appCfg('acl', array());
+        }
+        if(empty($aclCfg)){
+            return true;
+        }
+        foreach($aclCfg as $acl){
+            if(empty($acl)){continue;}
+            //todo..
+
+        }
         return true;
     }
 
@@ -299,29 +352,7 @@ class Csphp {
         return true;
     }
 
-    /**
-     * 系统的访问控制检查
-     *
-     * @param null $aclCfg
-     *
-     * @return bool
-     */
-    public static function checkAccessControl($aclCfg=null){
-        if($aclCfg===null){
-            $aclCfg = self::appCfg('acl', array());
-        }
-        if(empty($aclCfg)){
-            return true;
-        }
-        foreach($aclCfg as $acl){
-            if(empty($acl)){continue;}
-            //todo..
-
-        }
-        return true;
-    }
-
-
+    //------------------------------------------------------------------------------
 
     /**
      * 初始化运行环境,
@@ -330,32 +361,6 @@ class Csphp {
         self::$runningEnv = defined('CSPHP_ENV_TYPE') ? CSPHP_ENV_TYPE : false;
         $isDebug = defined('CSPHP_IS_DEBUG') ? CSPHP_IS_DEBUG : false;
         self::setDebug($isDebug);
-    }
-    /**
-     * 初始化应用 与 系统配置
-     * @param $appCfg
-     */
-    private function initConfig($appCfg){
-        self::$appStartTime = microtime(true);
-
-        if($appCfg!=null && is_array($appCfg)){
-            self::$appCfg = $appCfg;
-        }
-
-        self::$coreRootPath = dirname(__FILE__);
-
-        //注册应用的命名空间
-        CsphpAutoload::addNamespace(self::appCfg('app_base_path'), self::appCfg('app_namespace'), '.php');
-
-        //load sys config
-        self::$sysCfg = include(self::$coreRootPath.'/CspCfg.php');
-        //ower write system config
-        if(isset(self::$appCfg['system_config_over_write']) && is_array(self::$appCfg['system_config_over_write'])){
-            foreach(self::$appCfg['system_config_over_write'] as $k=>$v){
-                self::$sysCfg[$k] = $v;
-            }
-        }
-        return $this;
     }
 
 
@@ -397,7 +402,6 @@ class Csphp {
         }
     }
 
-    //------------------------------------------------------------------------------
     /**
      * 模块初始化，检查 当前运行的是什么模块，并将模块信息提取
      */
@@ -467,6 +471,27 @@ class Csphp {
      */
     public  static function getModuleDefaultRoute(){
         return '/'.trim(self::$curModule['default_route'],'/');
+    }
+
+    /**
+     * 自动加载 helpers 中的 *.preload.php 文件 ，扫苗2层目录
+     * @throws \Csp\core\CspException
+     */
+    private static function loadHelperFiles(){
+        $helperBasePath = self::appCfg('app_base_path').'/helpers';
+        $preloadExt = '*.preload.php';
+        $level1Files = glob($helperBasePath.'/'.$preloadExt);
+        if(is_array($level1Files) && !empty($level1Files)){
+            foreach($level1Files as $f){
+                require $f;
+            }
+        }
+        $level2Files = glob($helperBasePath.'/*/'.$preloadExt);
+        if(is_array($level2Files) && !empty($level2Files)){
+            foreach($level2Files as $f){
+                require $f;
+            }
+        }
     }
     //------------------------------------------------------------------------------
 
@@ -578,27 +603,6 @@ class Csphp {
             throw new CspException('Param is not callable, cb: '.json_encode($callable), 10000);
         }
         return call_user_func_array($cb, $args);
-    }
-
-    /**
-     * 自动加载 helpers 中的 *.preload.php 文件 ，扫苗2层目录
-     * @throws \Csp\core\CspException
-     */
-    private static function loadHelperFiles(){
-        $helperBasePath = self::appCfg('app_base_path').'/helpers';
-        $preloadExt = '*.preload.php';
-        $level1Files = glob($helperBasePath.'/'.$preloadExt);
-        if(is_array($level1Files) && !empty($level1Files)){
-            foreach($level1Files as $f){
-                require $f;
-            }
-        }
-        $level2Files = glob($helperBasePath.'/*/'.$preloadExt);
-        if(is_array($level2Files) && !empty($level2Files)){
-            foreach($level2Files as $f){
-                require $f;
-            }
-        }
     }
 
 
