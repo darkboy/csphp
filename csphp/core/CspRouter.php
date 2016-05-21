@@ -1,7 +1,8 @@
 <?php
 namespace Csp\core;
 use Csp\base\CspBaseControler;
-use \Csphp;
+use Csphp;
+use Closure;
 /*
  * Csphp 中关于url 的概念约定
  *
@@ -25,32 +26,55 @@ class CspRouter{
     public $routeInfo = array(
         //原始的完整 uri 信息
         'uri'           =>'',
+
         //项目的安装目录，入口文件之前的部分
         'setup_path'    =>null,
+        //入口文件
         'entry_file'    =>null,
         //URI 中 清除 变量路由 和 安装目录 后的路由
         'req_route'     =>null,
+
         //当前路由类型
         'route_type'    =>null,
         //匹配到的目标路由，可能是 闭包 数组 或者 包含变量的路由模板
         'target_route'  =>"",
         //解释 target_route 变量后的路由
         'parse_route'   =>"",
+
         //命中中的 路由规则名
         'hit_rule'      =>'',
         //匹配到的路由模板
         'match_key'     =>'',
+
         //解释结果，最终要执行的 路由信息
         'parse_rst'     =>array(
             'controler' =>null,
-            'action'    =>null
+            'action'    =>null,
+            'closure'   =>null
         ),
+
         //从路由规则中解释出来的 变量字典，可能是来自URL中的 /v1-v1/v2-v2 或者是 路由配置中的 "user/{actionVar}"
         'route_var'     => array(),
+        //最后成功解释的控制器对象
         'controler'     => null
     );
 
+    /*
+     * Cli
+     */
     public $cliInfo = array();
+
+
+    /**
+     * 控制器动作方法的 默认前缀
+     * @var string
+     */
+    public $actionNamePrefix = 'action';
+    /**
+     * 控制器的 默认的 action 名称
+     * @var string
+     */
+    public $actionNameIndex  = 'index';
 
     public function __construct(){
         $this->init();
@@ -63,6 +87,7 @@ class CspRouter{
         return Csphp::request();
     }
 
+    //初始化 路由
     public function init(){
         $this->routeInfo['uri']        = self::request()->getRequestUri();
         $this->routeInfo['setup_path'] = self::request()->getSetupPath();
@@ -73,7 +98,7 @@ class CspRouter{
     }
 
 
-
+    //-------------------------------------------------------------------------------------
     /**
      * 用户请求的路由，清除 路由变量,安装目录以及入口文件
      *
@@ -83,7 +108,7 @@ class CspRouter{
     }
 
     /**
-     * 获取 request_uri
+     * 获取 request_uri 用户请求的 原始URI，可能包含路由变量，querystring
      * @return string
      */
     public function getRequestUri(){
@@ -91,7 +116,7 @@ class CspRouter{
     }
 
     /**
-     * 获取匹配的规则
+     * 获取匹配的规则, {route_name}::{route_tpl}
      * @return string
      */
     public function getHitRule(){
@@ -107,21 +132,20 @@ class CspRouter{
     }
 
     /**
-     * 当前的 action 名称
+     * 当前的 action 名称, 闭包 路由返回 -
      * @return string
      */
     public function getActionName(){
 
         $parseRst = $this->getParseRst();
         if(is_object($parseRst)){
-            return 'anonymous';
+            return '-';
         }
-        if(is_array($parseRst) && isset($parseRst['action'])){
+        if( is_array($parseRst) && isset($parseRst['action']) ){
             return $parseRst['action'];
         }
         return '';
     }
-
 
     /**
      * 获取路由解释结果 rst['controler'] rst['action']
@@ -132,9 +156,10 @@ class CspRouter{
     }
 
     /**
+     * 获取当前控制器
      * @return \Csp\base\CspBaseControler
      */
-    public  function  getControler(){
+    public function getControler(){
         return $this->routeInfo['controler'];
     }
 
@@ -144,7 +169,7 @@ class CspRouter{
      * @return array
      */
     public function getRouteInfo($k=null){
-        return $k===null ? $this->routeInfo : $this->routeInfo[$k];
+        return $k===null ? $this->routeInfo : (isset($this->routeInfo[$k]) ? $this->routeInfo[$k] : null);
     }
 
     /**
@@ -171,112 +196,73 @@ class CspRouter{
         }
     }
 
+    //-------------------------------------------------------------------------------------
     /**
      * 执行动作,产生相应的事件
      */
     public function doAction(){
         $routeRst = $this->getParseRst();
+        //Csphp::dump($routeRst);exit;
         //准备执行 action
         Csphp::fireEvent(Csphp::EVENT_CORE_BEFORE_ACTION);
         $hasDoAction = false;
         do{
             //闭包路由
-            if(is_object($routeRst) && ($routeRst instanceof \Closure)){
+            $actionClosure = $routeRst['closure'];
+            if($actionClosure instanceof Closure){
                 $this->routeInfo['controler'] = $routeRst;
-                $routeRst($this->request());
+                $actionClosure($this->request());
                 $hasDoAction = true;
                 break;
             }
 
             //print_r($routeRst);
-            //查找控制器失败
-            if(is_array($routeRst) && (!isset($routeRst['controler'])) || empty($routeRst['controler']) ){
-                //404 error route rst...
-                throw new CspException('404 Error route rst: '.json_encode($routeRst));
+            //查找控制器失败,未分析到目标控制器
+            if(!isset($routeRst['controler']) || !isset($routeRst['context']) || !$routeRst['context']['is_hit'] ){
+                throw new CspException('404 Error route rst: '.json_encode($routeRst), 404, CspException::NOT_FOUND_EXCEPTION);
             }
 
-            //callable array
-            if(is_array($routeRst) && isset($routeRst['controler'])){
+            //Csphp::dump($routeRst);
+            $actionName = $this->wrapActionName($routeRst['action']);
+            $ctrlObj = $routeRst['context']['ctrl_obj'];
+            $this->routeInfo['controler'] = $ctrlObj;
 
-                $actionName = 'action'.ucfirst($routeRst['action']);
-                $controler  = $routeRst['controler'];
-                if($controler[0]==='@'){
-                    $controler = Csphp::getNamespaceByRoute($controler);
+            //执行 filter , 是一个控制器预载逻辑，通常返回 acls 访问控制配置
+            if(method_exists($ctrlObj, 'filter')){
+                $acls = $ctrlObj->filter();
+                if(!empty($acls)){
+                    Csphp::checkAccessControl($acls);
                 }
-                //echo $controler;
-                if(!class_exists($controler)){
-                    //404 can not find class
-                    throw new CspException('404 can not find class '.$controler.' '.json_encode($routeRst));
-                }
-
-                $ctrlObj = new $controler();
-                $this->routeInfo['controler'] = $ctrlObj;
-
-                if(!method_exists($ctrlObj, $actionName)){
-                    //404 can not find action in controler class
-                    throw new CspException('404 can not find action '.$routeRst['action'].' in class '.$controler.' Context:'.json_encode($routeRst));
-
-                }
-
-                //执行 filter , 是一个控制器预载逻辑，通常返回 acls 访问控制配置
-                if(method_exists($ctrlObj, 'filter')){
-                    $acls = $ctrlObj->filter();
-                    if(!empty($acls)){
-                        Csphp::checkAccessControl($acls);
-                    }
-                }
-
-                //执行 beforeAction
-                if(method_exists($ctrlObj, 'beforeAction')){
-                    $ctrlObj->beforeAction();
-                }
-
-                //实际执行action
-                $ctrlObj->$actionName($this->request());
-
-                $hasDoAction = true;
-
-                //执行 afterAction
-                if(method_exists($ctrlObj, 'afterAction')){
-                    $ctrlObj->afterAction();
-                }
-
-                //call_user_func($routeRst);
-            }else{
-                //print_r($routeRst);
-                throw new CspException('404 can not find route '.json_encode($routeRst));
             }
+
+            //执行 beforeAction
+            if(method_exists($ctrlObj, 'beforeAction')){
+                $ctrlObj->beforeAction();
+            }
+
+            //实际执行action
+            $ctrlObj->$actionName($this->request());
+            $hasDoAction = true;
+
+            //执行 afterAction
+            if(method_exists($ctrlObj, 'afterAction')){
+                $ctrlObj->afterAction();
+            }
+
             //error route rst
         }while(false);
 
         if($hasDoAction == false){
-            //any thing to do...
+            throw new CspException('404 Error route , cant not find action to do route rst: '.json_encode($routeRst), 404, CspException::NOT_FOUND_EXCEPTION);
         }
         //执行 action 完成
         Csphp::fireEvent(Csphp::EVENT_CORE_AFTER_ACTION);
     }
 
     /**
-     * 解释当前请求 路由
-     */
-    public function parseRoute(){
-        $findRst = $this->findRoute();
-        foreach($findRst as $k=>$v){
-            if($k==='route_var'){
-                $this->setRouteVar($v);
-            }else{
-                $this->routeInfo[$k] = $v;
-            }
-        }
-        //路由解释完成事件
-        Csphp::fireEvent(Csphp::EVENT_CORE_AFTER_ROUTE);
-        return true;
-    }
-
-
-    /**
-     * 解释路径
-     *      主要逻辑为 提取路径中的变量，删除路径中的入口文件以及安装目录部分
+     * 解释用户访问的原始路径
+     *      提取路径中的路由变量
+     *      删除路径中的入口文件、安装目录、querystring
      * @return string  requestRoute
      */
     public function parseRequestUri(){
@@ -309,7 +295,9 @@ class CspRouter{
     }
 
     /**
-     * 获取与路由相关的 pathinfo
+     *
+     * 获取与路由相关的 pathinfo ，默认为 uri ，也可以通过$_GET[r] 传递
+     *
      * @return string route pathinfo
      */
     public function getRoutePathInfo(){
@@ -322,6 +310,23 @@ class CspRouter{
 
 
     /**
+     * 解释当前请求 路由
+     */
+    public function parseRoute(){
+        $findRst = $this->findRoute();
+        foreach($findRst as $k=>$v){
+            if($k==='route_var'){
+                $this->setRouteVar($v);
+            }else{
+                $this->routeInfo[$k] = $v;
+            }
+        }
+        //路由解释完成事件
+        Csphp::fireEvent(Csphp::EVENT_CORE_AFTER_ROUTE);
+        return true;
+    }
+
+    /**
      * 从 路由配置 中查找 条件匹配的 规则
      * array(
      * 'route_var'=>$matchVars,
@@ -331,32 +336,36 @@ class CspRouter{
      * );
      */
     public function findRoute(){
+        //当前请求路由
         $sourceReqRoute = $this->getRequestRoute();
-        //默认控制器
-        if(in_array($sourceReqRoute, array('/', '', '/index.php') ) ){
 
+        //----------------------------------------------------------------
+        //访问首页，默认控制器,直接取当前模块的配置首页配置
+        if(in_array($sourceReqRoute, array('/', '', '/index.php') ) ){
             $defaultRoute = Csphp::getModuleDefaultRoute();
             return array(
-                'route_type'    =>'default',
-                'route_var'     =>array(),
-                'hit_rule'      =>'module_default_index',
-                'match_key'     =>'',
-                'target_route'  =>$defaultRoute,
-                'parse_route'   =>$defaultRoute,
-                'parse_rst'     =>$this->isControlerExists($defaultRoute),
+                'route_type'    => 'default',
+                'route_var'     => [],
+                'hit_rule'      => 'module_default_index',
+                'match_key'     => '',
+                'target_route'  => $defaultRoute,
+                'parse_route'   => $defaultRoute,
+                'parse_rst'     => $this->parseTargetRoute($defaultRoute),
             );
         }
 
+        //----------------------------------------------------------------
         //检查是否真实路由
         $isRealRoute = $this->checkIsRealRoute($sourceReqRoute);
-        if(!empty($isRealRoute) && isset($isRealRoute['parse_rst']['controler'])){
-            //echo '<pre>';print_r($isRealRoute);exit;
+        //echo $sourceReqRoute;Csphp::dump($isRealRoute);exit;
+        if($isRealRoute && is_array($isRealRoute)){
             return $isRealRoute;
         }
 
         //scan router config and find match rule
         foreach(Csphp::appCfg('router',array()) as $routeName=>$rCfg){
             if( !isset($rCfg['filter']) || $filterRst = Csphp::request()->isMatch($rCfg['filter']) ){
+
                 //对请求路由进行预处理，如删除 静态化 的后缀 .html 等
                 $reqRoute = $this->doRouteBeforeAction($sourceReqRoute, $rCfg);
 
@@ -370,6 +379,10 @@ class CspRouter{
                     $findRst['hit_rule'] = $routeName."::".$findRst['match_key'];
                 }
                 //echo "<pre>Route find: \n";print_r($findRst);//exit;
+
+                //有需求对目标路由进行后处理么 todo...
+                //$realRoute = $this->doRouteAfterAction($reqRoute, $rCfg);
+
                 return $findRst;
             }
             //echo "Filter rst: ".var_dump($filterRst);
@@ -505,20 +518,18 @@ class CspRouter{
         //检查是否存在别名
         if(isset($rCfg['rule_list'][$reqRoute])){
             return array(
-                'route_type'    =>'alias',
-                'route_var'     =>array(),
-                'match_key'     =>$reqRoute,
-                'target_route'  =>$rCfg['rule_list'][$reqRoute],
-                'parse_route'   =>$rCfg['rule_list'][$reqRoute],
-                'parse_rst'     =>$this->isControlerExists($rCfg['rule_list'][$reqRoute])
+                'route_type'    => 'alias',
+                'route_var'     => array(),
+                'match_key'     => $reqRoute,
+                'target_route'  => $rCfg['rule_list'][$reqRoute],
+                'parse_route'   => $rCfg['rule_list'][$reqRoute],
+                'parse_rst'     => $this->parseTargetRoute($rCfg['rule_list'][$reqRoute])
             );
         }
 
-        //$realRoute = $this->doRouteAfterAction($reqRoute, $rCfg); //todo after action ...
-
         //检查是否存在 非规则的控制器, 存在 则直接返回
         $isRealRoute = $this->checkIsRealRoute($reqRoute);
-        if(!empty($isRealRoute) && isset($isRealRoute['parse_rst']['controler'])){
+        if(!$isRealRoute && is_array($isRealRoute)){
             return $isRealRoute;
         }
 
@@ -562,7 +573,7 @@ class CspRouter{
                         'match_key'     =>$rTpl,
                         'target_route'  =>$targetSourceRoute,
                         'parse_route'   =>$targetSourceRoute,
-                        'parse_rst'     =>$this->isControlerExists($targetSourceRoute)
+                        'parse_rst'     =>$this->parseTargetRoute($targetSourceRoute)
                     );
                 }else{
                     continue;
@@ -575,30 +586,13 @@ class CspRouter{
     }
 
     /**
-     * 检查是否常规路由
-     */
-    private function checkIsRealRoute($reqRoute){
-        $isControlerExists = $this->isControlerExists($reqRoute);
-        if(!empty($isControlerExists) && isset($isControlerExists['controler'])){
-            //print_r($isControlerExists);
-            return array(
-                'route_type'    =>'real',
-                'route_var'     =>array(),
-                'match_key'     =>'',
-                'target_route'  =>'',
-                'parse_route'   =>'',
-                'parse_rst'     =>$isControlerExists
-            );
-        }
-        return false;
-    }
-    /**
+     * 检查当前路由是否匹配规则模板，如果是，刚解释目标模板 如果有引用变量
      *
-     * @param $ruleRegexp
-     * @param $reqRoute
-     * @param $targetSourceRoute
-     * @param $matchKey
-     * @return array
+     * @param string $ruleRegexp        通过规则模板编译的正则表达式
+     * @param string $reqRoute          当前请求路由
+     * @param string $targetSourceRoute 目标路由模板，可能包括变量引用
+     * @param string $matchKey          当前规则KEY
+     * @return array                    返回匹配结果
      */
     private function checkReqRouteByRegexpRule($ruleRegexp, $reqRoute, $targetSourceRoute, $matchKey){
         //匹配不成功，进行下一条规则匹配
@@ -623,7 +617,7 @@ class CspRouter{
             'match_key'     =>$matchKey,
             'target_route'  =>$targetSourceRoute,
             'parse_route'   =>$parseRoute,
-            'parse_rst'     =>$this->isControlerExists($parseRoute)
+            'parse_rst'     =>$this->parseTargetRoute($parseRoute)
         );
     }
 
@@ -681,84 +675,137 @@ class CspRouter{
     }
 
     /**
-     * 检查是否存在真实的控制器
+     * 解释目标路由 返回 标准结构
      *
-     * @param $realRoute 目标路由 只能是 数组，字符串  和 闭包对象
-     * @return array
+     * @param string $targetRoute 目标路由 只能是 数组，字符串  和 闭包对象
+     *
+     * @return array 返回一个标准的路由结果结构 ['type']
      */
-    public function isControlerExists($realRoute){
+    private function parseTargetRoute($targetRoute) {
         //---------------------------------------------------------------
         //目标路由是一个闭包
-        if($realRoute instanceof \Closure){
-            return $realRoute;
-        }
-
-        //---------------------------------------------------------------
-        //目标路由是 用户自定义的 callable 数组
-        if(is_array($realRoute)){
+        if ($targetRoute instanceof Closure){
             return array(
-                'controler' =>$realRoute[0],
-                'action'    =>$realRoute[1]
-            );
-        }
-
-        //---------------------------------------------------------------
-        //目标路由 只能是 数组，字符串  和 闭包对象
-        if(!is_string($realRoute)){
-            //needto throw exception?
-            return array();
-        }
-
-        //---------------------------------------------------------------
-        //非绝对路由 刚默认为本模块路由
-        if($realRoute[0]!=='@' && $realRoute[0]!=='\\'){
-            $realRoute = '@m-ctrl'.$realRoute;
-        }
-        $realRoute = rtrim($realRoute, '/');
-
-        //检查是否饱含  :: 调用符
-        $pi = strpos($realRoute, '::');
-        //目标路由为 用户自定义的 callable 字符串
-        if($pi){
-            return array(
-                'controler' =>substr($realRoute, 0, $pi),
-                'action'    =>substr($realRoute, $pi+2)
+                'type'      => 'closure',
+                'controler' => null,
+                'action'    => null,
+                'closure'   => $targetRoute,
+                'context'   => null
             );
         }
         //---------------------------------------------------------------
+        //检查字符串目标路由
+        return $this->checkIsControlerExists($targetRoute);
+    }
 
+    /**
+     * 检查是否存在路由对应的控制器类 与 action
+     */
+    private function checkIsControlerExists($targetRoute){
+        static $checkCache = [];
 
-        $paths = explode('/',$realRoute);
+        //修正目标路径，非绝对路由 刚默认为本模块路由
+        if ($targetRoute[0]!=='@' && $targetRoute[0]!=='\\'){
+            $targetRoute = '@m-ctrl/' . ltrim($targetRoute,'/\\');
+        }
+        $targetRoute = rtrim($targetRoute, '/');
+
+        //action 的类型 可能有三种： 闭包 类名::运作名 目标路径
+        $actionType  = 'uri';
+        if(strpos($targetRoute, '::')){
+            $actionType = 'class';
+            $targetRoute = str_replace('::', '/', $targetRoute);
+        }
+
+        //------------------
+        //在扫苗路由时 大多数情况下 都不是真实路由，所以缓存 失败结果
+        if(isset($checkCache[$targetRoute])){
+            return $checkCache[$targetRoute];
+        }
+        //------------------
+
+        $paths = explode('/', $targetRoute);
+        if(count($paths)<2){
+            throw new CspException("Error target route {$targetRoute}", 404, CspException::NOT_FOUND_EXCEPTION);
+        }
         //print_r($paths);
-        $ctrlFile1 = '';
-        if(count($paths)>2){
-            $actoin = array_pop($paths);
-            $realRouteShort = join('/', $paths);
-            $ctrlFile1 = Csphp::getPathByRoute($realRouteShort, '.php');
-            //echo $ctrlFile;
-            if(file_exists($ctrlFile1)){
-                return array(
-                    'route'         =>$realRouteShort,
-                    'ctrl_file'     =>$ctrlFile1,
-                    'action'        =>$actoin,
-                    'controler'    =>$realRouteShort
-                );
+        $noAction = false;
+        $isHitRealControler = true;
+
+        $action     = array_pop($paths);
+        $classRoute = join('/', $paths);
+        $ctrlFile   = Csphp::getPathByRoute($classRoute, '.php');
+        //echo $ctrlFile;
+
+        //控制器检测结果 上下文信息
+        $context = [
+            'is_hit'        => false,
+            'ctrl_file'     => $ctrlFile,
+            'file_exists'   => file_exists($ctrlFile),
+            'class_exists'  => false,
+            'action_exists' => false,
+            'ctrl_obj'      => null
+        ];
+        do{
+            if(!$context['file_exists']){
+                break;
             }
-        }
-        $ctrlFile2 =  Csphp::getPathByRoute($realRoute, '.php');
-        if(file_exists($ctrlFile2)){
+
+            $controlerClass = Csphp::getNamespaceByRoute($classRoute);
+            //var_dump($controlerClass,$classRoute);exit;
+            $context['class_exists'] = class_exists($controlerClass);
+            if(!$context['class_exists']){
+                break;
+            }
+
+            $ctrlObj = new $controlerClass;
+            $context['action_exists'] = method_exists($ctrlObj, $this->wrapActionName($action));
+            if (!$context['action_exists']) {
+                break;
+            }
+
+            $context['is_hit']  = true;
+            $context['ctrl_obj']= $ctrlObj;
+        }while(false);
+
+
+        $checkCache[$targetRoute] = array(
+            'type'      => $actionType,
+            'controler' => $targetRoute,
+            'action'    => $action,
+            'closure'   => null,
+            'context'   => $context
+        );
+        return $checkCache[$targetRoute];
+    }
+
+    /**
+     * 检查是否常规路由
+     */
+    private function checkIsRealRoute($targetRoute){
+        $isRealRoute = $this->checkIsControlerExists($targetRoute);
+        if(!empty($isRealRoute) && $isRealRoute['context']['is_hit']){
             return array(
-                'route'         =>$realRoute,
-                'ctrl_file'     =>$ctrlFile2,
-                'action'        =>'index',
-                'controler'    =>$realRoute
+                'route_type'    => 'real',
+                'route_var'     => array(),
+                'match_key'     => '',
+                'target_route'  => $targetRoute,
+                'parse_route'   => $targetRoute,
+                'parse_rst'     => $isRealRoute
             );
         }
+        return false;
+    }
 
-        return array(
-            'not_ctrl_1'=>$ctrlFile1,
-            'not_ctrl_2'=>$ctrlFile2,
-        );
+
+    /**
+     *
+     * @param $name
+     *
+     * @return string
+     */
+    public function wrapActionName($name){
+        return strpos($name, $this->actionNamePrefix)===0 ? $name : $this->actionNamePrefix.ucfirst($name);
     }
 
     /**
@@ -778,5 +825,9 @@ class CspRouter{
                 $matchRule => $callback
             )
         ));
+    }
+
+    public function dump(){
+        echo "<pre>\n";print_r($this->routeInfo);
     }
 }
