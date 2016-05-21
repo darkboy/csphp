@@ -96,6 +96,7 @@ class CspRouter{
         $this->routeInfo['entry_file'] = self::request()->getEntryFile();
         //初步解释URL上的路由变量，并提取 reqRoute
         $this->parseRequestUri();
+        Csphp::loadAppConfig('router');
         //echo '<pre>';print_r($this->routeInfo);
     }
 
