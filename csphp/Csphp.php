@@ -252,6 +252,7 @@ class Csphp {
 
         //系统初始化结束，触发 EVENT_CORE_AFTER_INIT 事件，在前面预加载的类可以监听这个事件
         self::fireEvent(self::EVENT_CORE_AFTER_INIT);
+
         return true;
     }
 
@@ -265,6 +266,8 @@ class Csphp {
         }else{
             self::handlerWebRequest();
         }
+
+        return true;
     }
 
     /**
@@ -340,8 +343,6 @@ class Csphp {
         }
 
         self::$coreRootPath = dirname(__FILE__);
-
-        //require_once(self::$coreRootPath.'/CsphpAutoload.php');
 
         //注册应用的命名空间
         CsphpAutoload::addNamespace(self::appCfg('app_base_path'), self::appCfg('app_namespace'), '.php');
@@ -545,6 +546,41 @@ class Csphp {
     }
 
     /**
+     * 扩展的 call_user_func_array 方法，在 $callable 中可用如下规则
+     *
+     * @aliasname/classname::staticMethod       调用静态方法
+     * @aliasname/classname->commonMethod       初始化一个实例运行
+     *
+     * @param $callable
+     * @param $args
+     */
+    public static function callUserFunction($callable, $args=array()){
+        $cb = $callable;
+        if(is_array($cb)){
+            $cb[0] = self::getNamespaceByRoute($cb[0]);
+        }
+        //扩展方式 的首字母为 @
+        if(is_string($cb)){
+            $isStatic = explode("::", $callable);
+            $isObj = explode("->", $callable);
+            if(count($isStatic)==2){
+                //静态方式
+                $cb = array(self::getNamespaceByRoute($isStatic[0]), $isStatic[1]);
+            }elseif(count($isObj)==2){
+                //实例方式
+                $cb = array(self::comp($isStatic[0]), $isStatic[1]);
+            }else{
+
+            }
+        }
+
+        if(!is_callable($cb)){
+            throw new CspException('Param is not callable, cb: '.json_encode($callable), 10000);
+        }
+        return call_user_func_array($cb, $args);
+    }
+
+    /**
      * 自动加载 helpers 中的 *.preload.php 文件 ，扫苗2层目录
      * @throws \Csp\core\CspException
      */
@@ -565,13 +601,7 @@ class Csphp {
         }
     }
 
-    /**
-     * 获取当前的运行环境
-     * @return string
-     */
-    public static function getEnv(){
-        return CSPHP_ENV_TYPE;
-    }
+
     /**
      * 通过对象路由表达式，获取路径
      * @param $oRoute
@@ -699,6 +729,7 @@ class Csphp {
 
     }
 
+    //-------------------------------------------------------------------
     /**
      * @param $obj
      * @param null $options
@@ -755,21 +786,7 @@ class Csphp {
             }
         }
     }
-
-    public static function ctrl($route, $cfg=null, $isSingleton=true){
-        $route = ltrim($route, ' /');
-        return self::newClass('@ctrl/'.$route, $cfg, $isSingleton);
-    }
-
-    public static function mod($route, $cfg=null, $isSingleton=true){
-        $route = ltrim($route, ' /');
-        return self::newClass('@mod/'.$route, $cfg, $isSingleton);
-    }
-
-    public static function ext($route, $cfg=null, $isSingleton=true){
-        $route = ltrim($route, ' /');
-        return self::newClass('@ext/'.$route, $cfg, $isSingleton);
-    }
+    //-------------------------------------------------------------------
 
 
     /**
@@ -1003,41 +1020,6 @@ class Csphp {
     }
 
     /**
-     * 扩展的 call_user_func_array 方法，在 $callable 中可用如下规则
-     *
-     * @aliasname/classname::staticMethod       调用静态方法
-     * @aliasname/classname->commonMethod       初始化一个实例运行
-     *
-     * @param $callable
-     * @param $args
-     */
-    public static function callUserFunction($callable, $args=array()){
-        $cb = $callable;
-        if(is_array($cb)){
-            $cb[0] = self::getNamespaceByRoute($cb[0]);
-        }
-        //扩展方式 的首字母为 @
-        if(is_string($cb)){
-            $isStatic = explode("::", $callable);
-            $isObj = explode("->", $callable);
-            if(count($isStatic)==2){
-                //静态方式
-                $cb = array(self::getNamespaceByRoute($isStatic[0]), $isStatic[1]);
-            }elseif(count($isObj)==2){
-                //实例方式
-                $cb = array(self::comp($isStatic[0]), $isStatic[1]);
-            }else{
-
-            }
-        }
-
-        if(!is_callable($cb)){
-            throw new CspException('Param is not callable, cb: '.json_encode($callable), 10000);
-        }
-        return call_user_func_array($cb, $args);
-    }
-
-    /**
      * todo ...
      * URL 构造器
      * @param string        $r
@@ -1064,29 +1046,36 @@ class Csphp {
      * @return bool
      */
     public static function isProdEnv(){
-        return CSPHP_ENV_TYPE === self::ENV_TYPE_PROD;
+        return self::getEnv() === self::ENV_TYPE_PROD;
     }
     /**
      * 判断当前是否运行在测试环境
      * @return bool
      */
     public static function isTestEnv(){
-        return CSPHP_ENV_TYPE === self::ENV_TYPE_TEST;
+        return self::getEnv() === self::ENV_TYPE_TEST;
     }
     /**
      * 判断当前是否运行在开发环境
      * @return bool
      */
     public static function isDevEnv(){
-        return CSPHP_ENV_TYPE === self::ENV_TYPE_DEV;
+        return self::getEnv() === self::ENV_TYPE_DEV;
     }
 
     /**
      * 设置运行环境
      * @param $evn
      */
-    public static function setEnv($evn){
-
+    public static function setEnv($envStr=self::ENV_TYPE_PROD){
+        self::$runningEnv = $envStr;
+    }
+    /**
+     * 获取当前的运行环境
+     * @return string
+     */
+    public static function getEnv(){
+        return self::$runningEnv;
     }
     //----------------------------------------------------------------------------------
 
