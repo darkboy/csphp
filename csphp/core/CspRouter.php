@@ -46,6 +46,7 @@ class CspRouter{
         //匹配到的路由模板
         'match_key'     =>'',
 
+        'best_score'    =>0,
         //解释结果，最终要执行的 路由信息
         'parse_rst'     =>array(
             'controler' =>null,
@@ -387,6 +388,12 @@ class CspRouter{
             }
             //echo "Filter rst: ".var_dump($filterRst);
         }
+
+        //检查是否访问的缺省的控制器Action
+        $isRealRoute = $this->checkIsIgnoreActionName($sourceReqRoute);
+        if($isRealRoute && is_array($isRealRoute)){
+            return $isRealRoute;
+        }
         return array();
     }
 
@@ -716,11 +723,11 @@ class CspRouter{
             $actionType = 'class';
             $targetRoute = str_replace('::', '/', $targetRoute);
         }
-
+        $cacheKey = $targetRoute;
         //------------------
         //在扫苗路由时 大多数情况下 都不是真实路由，所以缓存 失败结果
-        if(isset($checkCache[$targetRoute])){
-            return $checkCache[$targetRoute];
+        if(isset($checkCache[$cacheKey])){
+            return $checkCache[$cacheKey];
         }
         //------------------
 
@@ -746,46 +753,58 @@ class CspRouter{
             'action_exists' => false,
             'ctrl_obj'      => null
         ];
+        $scoreCnt = 0;
         do{
             if(!$context['file_exists']){
                 break;
             }
+            $scoreCnt++;
 
             $controlerClass = Csphp::getNamespaceByRoute($classRoute);
-            //var_dump($controlerClass,$classRoute);exit;
             $context['class_exists'] = class_exists($controlerClass);
             if(!$context['class_exists']){
                 break;
             }
+            $scoreCnt++;
 
             $ctrlObj = new $controlerClass;
             $context['action_exists'] = method_exists($ctrlObj, $this->wrapActionName($action));
             if (!$context['action_exists']) {
                 break;
             }
+            $scoreCnt++;
 
             $context['is_hit']  = true;
             $context['ctrl_obj']= $ctrlObj;
         }while(false);
 
 
-        $checkCache[$targetRoute] = array(
+        $checkCache[$cacheKey] = array(
             'type'      => $actionType,
             'controler' => $targetRoute,
             'action'    => $action,
             'closure'   => null,
             'context'   => $context
         );
-        return $checkCache[$targetRoute];
+        if($scoreCnt > $this->routeInfo['best_score']){
+            $this->routeInfo['best_score'] = $scoreCnt;
+            $this->routeInfo['parse_rst']  = $checkCache[$cacheKey];
+        }
+        return $checkCache[$cacheKey];
     }
 
     /**
      * 检查是否常规路由
      */
     private function checkIsRealRoute($targetRoute){
+        static $checkCache = [];
+        if(isset($checkCache[$targetRoute])){
+            return $checkCache[$targetRoute];
+        }
         $isRealRoute = $this->checkIsControlerExists($targetRoute);
+        //Csphp::dump($isRealRoute,true,false);//exit;
         if(!empty($isRealRoute) && $isRealRoute['context']['is_hit']){
-            return array(
+            $checkCache[$targetRoute] =  array(
                 'route_type'    => 'real',
                 'route_var'     => array(),
                 'match_key'     => '',
@@ -793,8 +812,22 @@ class CspRouter{
                 'parse_route'   => $targetRoute,
                 'parse_rst'     => $isRealRoute
             );
+        }else{
+            $checkCache[$targetRoute] = false;
         }
-        return false;
+
+        return $checkCache[$targetRoute];
+    }
+
+    /**
+     * 检查一下 是否忽略了action名称，如果是，则默认访问 index Action
+     *
+     * @param $targetRoute
+     *
+     * @return array|bool
+     */
+    private function checkIsIgnoreActionName($targetRoute){
+        return $this->checkIsRealRoute($targetRoute.'/'.$this->actionNameIndex);
     }
 
 
