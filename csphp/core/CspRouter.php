@@ -347,6 +347,12 @@ class CspRouter{
             );
         }
 
+        //检查是否真实路由
+        $isRealRoute = $this->checkIsRealRoute($sourceReqRoute);
+        if(!empty($isRealRoute) && isset($isRealRoute['parse_rst']['controler'])){
+            return $isRealRoute;
+        }
+
         //scan router config and find match rule
         foreach(Csphp::appCfg('router',array()) as $routeName=>$rCfg){
             if( !isset($rCfg['filter']) || $filterRst = Csphp::request()->isMatch($rCfg['filter']) ){
@@ -506,19 +512,12 @@ class CspRouter{
             );
         }
 
+        //$realRoute = $this->doRouteAfterAction($reqRoute, $rCfg); //todo after action ...
+
         //检查是否存在 非规则的控制器, 存在 则直接返回
-        $realRoute = $this->doRouteAfterAction($reqRoute, $rCfg);
-        $isControlerExists = $this->isControlerExists($realRoute);
-        if(!empty($isControlerExists) && isset($isControlerExists['controler'])){
-            //print_r($isControlerExists);
-            return array(
-                'route_type'    =>'real',
-                'route_var'     =>array(),
-                'match_key'     =>'',
-                'target_route'  =>'',
-                'parse_route'   =>'',
-                'parse_rst'     =>$isControlerExists
-            );
+        $isRealRoute = $this->checkIsRealRoute($reqRoute);
+        if(!empty($isRealRoute) && isset($isRealRoute['parse_rst']['controler'])){
+            return $isRealRoute;
         }
 
 
@@ -574,6 +573,24 @@ class CspRouter{
         return array();
     }
 
+    /**
+     * 检查是否常规路由
+     */
+    private function checkIsRealRoute($reqRoute){
+        $isControlerExists = $this->isControlerExists($reqRoute);
+        if(!empty($isControlerExists) && isset($isControlerExists['controler'])){
+            //print_r($isControlerExists);
+            return array(
+                'route_type'    =>'real',
+                'route_var'     =>array(),
+                'match_key'     =>'',
+                'target_route'  =>'',
+                'parse_route'   =>'',
+                'parse_rst'     =>$isControlerExists
+            );
+        }
+        return false;
+    }
     /**
      *
      * @param $ruleRegexp
