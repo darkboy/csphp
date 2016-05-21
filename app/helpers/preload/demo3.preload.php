@@ -11,6 +11,7 @@ function preload_function_demo3(){
 
 class preloadDemoClass {
     function __construct() {
+
         //注册事件
         Csphp::on(Csphp::EVENT_CORE_EXIT, array($this,'onExitApp'));
 
@@ -18,6 +19,7 @@ class preloadDemoClass {
         CspRouter::onRequest('/route_demo/byhelper/*',function(){
             echo "Hit in static register...";
         });
+
     }
 
     //事件监听 示例，在程序结束时 输出一行日志
