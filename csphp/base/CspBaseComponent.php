@@ -1,6 +1,7 @@
 <?php
 namespace Csp\base;
-use \Csphp;
+use Csp\core\CspException;
+use Csphp;
 
 class CspBaseComponent {
 
@@ -9,5 +10,7 @@ class CspBaseComponent {
     }
 
 
-    public function setInitOtions($optArr){}
+    public function setInitOptions($optArr){
+        throw new CspException("Comp must implements setInitOtions  method");
+    }
 }

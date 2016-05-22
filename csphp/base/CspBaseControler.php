@@ -1,6 +1,7 @@
 <?php
 namespace Csp\base;
-use \Csphp;
+use Csp\core\CspException;
+use Csphp;
 
 class CspBaseControler {
 

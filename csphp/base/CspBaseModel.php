@@ -1,9 +1,9 @@
 <?php
 namespace Csp\base;
-
-use \Csphp;
-use \Csp\comp\CspCompDBMysqli;
-use \ArrayAccess;
+use Csp\core\CspException;
+use Csphp;
+//use Csp\comp\db\;
+use ArrayAccess;
 
 class CspBaseModel implements ArrayAccess {
 
@@ -45,13 +45,14 @@ class CspBaseModel implements ArrayAccess {
      * @param string    $tbName
      * @param string    $pkName
      * @param bool      $useCache
-     * @param string    $dbCfgName
+     * @param string    $dsnName
+     *
      * @throws \Csp\core\CspException
      */
-    public function initModel($tbName, $pkName='id', $useCache=false, $dbCfgName = null ) {
+    public function initModel($tbName, $pkName='id', $useCache=false, $dsnName = null ) {
         $this->setOption('pk', $pkName);
         $this->setOption('tb', $tbName);
-        $this->setOption('db', CspCompDBMysqli::getInstance($dbCfgName));
+        $this->setOption('db', CspCompDBMysqli::getInstance($dsnName));
         $this->setOption('use_cache', $useCache);
 
         return $this;
@@ -87,6 +88,7 @@ class CspBaseModel implements ArrayAccess {
     final public function getOption($k){
         return isset($this->___modBaseAttr[$k]) ? $this->___modBaseAttr[$k] : null;
     }
+    //-------------------------------------------------------------------------------
 
     /**
      * 获取一个DB实例

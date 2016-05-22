@@ -6,6 +6,7 @@ use Csp\core\CspException;
 class libDemo {
 
     public $opts = 'init';
+
     public function __construct() {
         //echo __CLASS__.' init';
     }
