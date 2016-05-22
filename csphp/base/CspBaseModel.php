@@ -167,8 +167,6 @@ class CspBaseModel implements ArrayAccess {
 
 
 
-
-
     public function toJson($data=null){}
 
     public function save($data=null){}
@@ -237,6 +235,7 @@ class CspBaseModel implements ArrayAccess {
     final protected function __udt__secret_encode($str){}
     final protected function __udt__secret_decode($str){}
 
+    //-------------------------------------------------------------------------------
     /**
      * ArrayAccess 接口相关
      * @param mixed $offset
@@ -251,7 +250,11 @@ class CspBaseModel implements ArrayAccess {
     public function offsetSet($offset, $value){
         $this->___modBaseAttr['attr_data'][$offset]=$value;
     }
-    public function offsetUnset($offset){}
+    public function offsetUnset($offset){
+        unset($this->___modBaseAttr['attr_data'][$offset]);
+    }
+    //-------------------------------------------------------------------------------
+
 
 
 
