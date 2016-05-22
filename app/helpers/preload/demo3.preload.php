@@ -14,7 +14,6 @@ class preloadDemoClass {
 
         //注册事件
         Csphp::on(Csphp::EVENT_CORE_EXIT, array($this,'onExitApp'));
-
         //动态注册 路由
         CspRouter::onRequest('/route_demo/byhelper/*',function(){
             echo "Hit in static register...";

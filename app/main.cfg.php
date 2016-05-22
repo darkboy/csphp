@@ -1,5 +1,5 @@
 <?php
-namespace App\config;
+namespace App;
 //配置示例
 $appConfig = array(
     //应用名称
@@ -9,9 +9,9 @@ $appConfig = array(
     'app_version'   =>'20160301.01.xxxx',
 
     //应用的根目录
-    'app_base_path' =>dirname(__DIR__),
+    'app_base_path' =>__DIR__,
     //应用配置目录
-    'app_cfg_path'  =>__DIR__,
+    'app_cfg_path'  =>__DIR__.'/config',
     //应用命名空间
     'app_namespace' =>'App',
 
@@ -80,7 +80,7 @@ $systemCfg = array(
     //-------------------------------------------------------------------------
     //日志相关的配置
     'log_key_separator'=>'#####',
-    'log_base_path'    =>dirname(__DIR__).'/var/log',
+    'log_base_path'    =>__DIR__.'/var/log',
     'log_stay_days'    =>7,
     'is_log_info'      =>true,
     'is_log_debug'     =>true,

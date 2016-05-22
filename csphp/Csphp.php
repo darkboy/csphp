@@ -384,7 +384,8 @@ class Csphp {
         self::$aliasMap['@app'] = array($appRoot,$appNs);
         self::$aliasMap['@sys'] = array($sysRoot,'\\Csp');
 
-        self::$aliasMap['@comp']    = array($appRoot.'/components', $appNs.'\\components');
+        self::$aliasMap['@lib']    = array($appRoot.'/libs', $appNs.'\\libs');
+        self::$aliasMap['@middleware']    = array($appRoot.'/libs/middlewares', $appNs.'\\libs\\middlewares');
         self::$aliasMap['@cfg']     = array($appRoot.'/config', $appNs.'\\config');
         self::$aliasMap['@ctrl']    = array($appRoot.'/controlers', $appNs.'\\controlers');
 
@@ -588,7 +589,7 @@ class Csphp {
         }
 
         if(is_string($compClassName) && !class_exists($compClassName)){
-            throw new CspException("Error config, can not find component config  or component class: [$accessKey] ");
+            throw new CspException("Error config, can not find component config  or component class: [$accessKey] => {$compClassName}");
         }
         if($compClassName instanceof Closure && !is_string($compClassName)){
             throw new CspException("Error config, can not find component config  or component class: [$accessKey] ");

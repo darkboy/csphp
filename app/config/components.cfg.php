@@ -20,10 +20,10 @@ return [
 
     //示例配置------
     //这个 key 供后续在应用中可以通过 Csphp::comp($access_key) 引用组件
-    'access_key' => [
+    'comp_demo' => [
         //目标类，可以是类别名路由 类名 闭包
-        'class'         => '@comp/demoComp',
-        'pre_init'      => false,
+        'class'         => '@middleware/middlewareDemo',
+        'pre_init'      => true,
         //是否预初始化，默认为 false,如果设置为 true 则提前生成实例，否则 在 调用 时再生成
         'is_singleton'  => true,
         // 用于初始化选项的成员方法，默认为  setInitOptions

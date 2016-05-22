@@ -14,7 +14,7 @@ defined('CSPHP_IS_DEBUG')   or define('CSPHP_IS_DEBUG', false);
 define('CSPHP_PROJECT_ROOT', dirname(__DIR__));
 
 //加载 应用主配置文件
-$appMainCfg = require(CSPHP_PROJECT_ROOT.'/app/config/main.cfg.php');
+$appMainCfg = require(CSPHP_PROJECT_ROOT.'/app/main.cfg.php');
 
 //加载 框架引导文件
 require(CSPHP_PROJECT_ROOT.'/csphp/Startup.php');
