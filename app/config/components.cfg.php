@@ -23,6 +23,8 @@ return [
     'access_key' => [
         //目标类，可以是类别名路由 类名 闭包
         'class'         => '@comp/demoComp',
+        'pre_init'      => false,
+        //是否预初始化，默认为 false,如果设置为 true 则提前生成实例，否则 在 调用 时再生成
         'is_singleton'  => true,
         // 用于初始化选项的成员方法，默认为  setInitOptions
         'option_method' => 'setInitOptions',

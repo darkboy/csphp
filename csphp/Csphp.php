@@ -148,10 +148,15 @@ class Csphp {
 
 
     /**
-     * 组件对象池，所有实例化后的组件存储在这里，access_key=>compObj
+     * 组件单例对象池，所有实例化后的组件存储在这里，access_key=>compObj
      * @var array
      */
-    private static $componentsPool = array();
+    private static $compSingletonObjPool = array();
+    /**
+     * 组件工厂，所有组件的自定义实例化方法存储在这里 {access_key|class_name}=>{Closure|class_name}
+     * @var array
+     */
+    private static $compFactory = array();
 
 
     /**
@@ -497,7 +502,7 @@ class Csphp {
 
 
     /**
-     * 初始化所有的 组件, 检查过滤器，初始化 组件配置选项，执行 start
+     * 初始化所有的 组件,
      */
     private static function initComponents(){
         self::initComponentsByCfg( self::appCfg('components', array()) );
@@ -516,38 +521,52 @@ class Csphp {
     private static function initComponentsByCfg($compCfgArr){
         //检查应用中的
         foreach($compCfgArr as $accessKey=>$comp){
-            if( isset($comp['start']) && $comp['start'] ) {
-                $needStart = true;
-                if(isset($comp['filter']) && !empty($comp['filter'])){
-                    $needStart = self::request()->isMatch($comp['filter']);
-                }
-                if($needStart){
-                    self::createComponent($accessKey, $comp);
-                }
+            if( isset($comp['pre_init']) && $comp['pre_init'] ) {
+                self::createComponent($accessKey, $comp);
             }
         }
         return true;
     }
 
 
-        /**
+    /**
+     * 生产 或者 获取一个 组件对象，组件的初始化配置 在 components 配置中
      * @param string $accessKey
      * @return  object
      */
     public static function comp($accessKey){
         //已经初始化过的 组件 直接返回
-        if(isset(self::$componentsPool[$accessKey])){
-            return self::$componentsPool[$accessKey];
+        if(isset(self::$compSingletonObjPool[$accessKey])){
+            return self::$compSingletonObjPool[$accessKey];
         }
 
-        //未初始化的组件，尝试查找配置
-        $k = 'components/'.$accessKey;
-        $compCfg = self::sysCfg($k,  self::appCfg($k, null) );
-        if(!is_array($compCfg)){
-            throw new CspException("Error config, can not find component config by access_key : [$accessKey] ");
+        $compCfg = null;
+        //别名路径
+        if($accessKey[0]=='@' || $accessKey[0]==='\\'){
+            $accessKey = self::getNamespaceByRoute($accessKey);
+
+        }else{
+            //未初始化的组件，尝试查找配置
+            $k = 'components/'.$accessKey;
+            $compCfg = self::sysCfg($k,  null);
+            if(!$compCfg){
+                $compCfg = self::appCfg($k, null);
+            }
         }
+
         return self::createComponent($accessKey, $compCfg);
 
+    }
+
+    /**
+     *
+     * alias for self::comp
+     * @param $accessKeyOrClassName
+     *
+     * @return object
+     */
+    public static function make($accessKeyOrClassName){
+        return self::comp($accessKeyOrClassName);
     }
 
     /**
@@ -559,15 +578,39 @@ class Csphp {
      * @param array $filter
      */
     public static function createComponent($accessKey, $compCfg){
-        if(!is_array($compCfg)){
-            throw new CspException("Error config, can not find component config by access_key : [$accessKey] ");
+
+        $compClassName = $accessKey;
+        if(is_array($compCfg)){
+            $compClassName = $compCfg['class'];
+            if(is_string($compClassName)){
+                $compClassName = self::getNamespaceByRoute($compClassName);
+            }
         }
-        self::$componentsPool[$accessKey] = self::newClass($compCfg['class'], $compCfg['options'], false);
-        //如果配置为自动启动的组件 则执行 start 方法
-        if(isset($compCfg['start']) && $compCfg['start']){
-            self::$componentsPool[$accessKey]->start();
+
+        if(is_string($compClassName) && !class_exists($compClassName)){
+            throw new CspException("Error config, can not find component config  or component class: [$accessKey] ");
         }
-        return self::$componentsPool[$accessKey];
+        if($compClassName instanceof Closure && !is_string($compClassName)){
+            throw new CspException("Error config, can not find component config  or component class: [$accessKey] ");
+        }
+
+        $compObj = is_string($compClassName) ? new $compClassName : $compClassName();
+
+        //检查并初始化选项
+        if(isset($compCfg['options']) && !empty($compCfg['options'])){
+            $optionMethod = isset($compCfg['option_method']) ? $compCfg['option_method'] : 'setInitOptions';
+            if(!function_exists($compObj, $optionMethod)){
+                throw CspException("Cant find comp[".get_class($compObj)."] options method {$optionMethod}");
+            }
+            $compObj->$optionMethod($compCfg['options']);
+        }
+
+        //如果是单例则保存在对象池
+        if(isset($compCfg['is_singleton']) && $compCfg['is_singleton']){
+            self::$compSingletonObjPool[$accessKey] = $compObj;
+        }
+
+        return self::$compSingletonObjPool[$accessKey];
     }
 
     /**
