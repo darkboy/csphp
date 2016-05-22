@@ -600,7 +600,7 @@ class Csphp {
         //检查并初始化选项
         if(isset($compCfg['options']) && !empty($compCfg['options'])){
             $optionMethod = isset($compCfg['option_method']) ? $compCfg['option_method'] : 'setInitOptions';
-            if(!function_exists($compObj, $optionMethod)){
+            if(!method_exists($compObj, $optionMethod)){
                 throw CspException("Cant find comp[".get_class($compObj)."] options method {$optionMethod}");
             }
             $compObj->$optionMethod($compCfg['options']);
