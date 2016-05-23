@@ -20,9 +20,8 @@ $appConfig = array(
     //用于加解密的KEY
     'app_secret_key'=>'Kals266kAd;@s2E30#Sdlk9,a.Ke',
 
-    //路径别名 自定义配置
+    //自定义别名配置: @aliasname=>array(path-实际路径,nsPrefix-命名空间不需要时置空)
     'alias_path_config'=>array(
-        //@aliasname=>array(path-实际路径,nsPrefix-命名空间不需要时置空)
         '@demo'=>array('@cfg/demo','')
     ),
 
@@ -36,8 +35,6 @@ $appConfig = array(
 
     ),
 
-    //主页
-    'home_url'      =>'/',
 
 
 );
