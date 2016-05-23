@@ -19,6 +19,7 @@ class preloadDemoClass {
             echo "Hit in static register...";
         });
 
+
     }
 
     //事件监听 示例，在程序结束时 输出一行日志

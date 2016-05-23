@@ -1,5 +1,6 @@
 <?php
 namespace Csp\core;
+use Closure;
 use Csphp;
 use Csp\core\CspException;
 
@@ -97,7 +98,6 @@ class CspPipeline{
 
 
     /**
-     * //todo fix for csphp
      * Get a Closure that represents a slice of the application onion.
      *
      * @return \Closure
@@ -111,9 +111,12 @@ class CspPipeline{
                 if ($pipe instanceof Closure) {
                     return call_user_func($pipe, $passable, $stack);
                 } else {
+                    /*
                     list($name, $parameters) = $this->parsePipeString($pipe);
                     return call_user_func_array([$this->container->make($name), $this->method],
                         array_merge([$passable, $stack], $parameters));
+                    */
+
                 }
             };
         };

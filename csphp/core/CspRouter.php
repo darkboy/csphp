@@ -219,7 +219,7 @@ class CspRouter{
     /**
      * 执行动作,产生相应的事件
      */
-    public function doAction(){
+    public function doAction(CspRequest $request){
         $routeRst = $this->getParseRst();
         //Csphp::dump($routeRst);exit;
         //准备执行 action
@@ -230,7 +230,7 @@ class CspRouter{
             $actionClosure = $routeRst['closure'];
             if($actionClosure instanceof Closure){
                 $this->routeInfo['controler'] = $routeRst;
-                $actionClosure($this->request());
+                $actionClosure($request);
                 $hasDoAction = true;
                 break;
             }
@@ -264,7 +264,7 @@ class CspRouter{
             }
 
             //实际执行action
-            $ctrlObj->$actionName($this->request());
+            $ctrlObj->$actionName($request);
             $hasDoAction = true;
 
             //执行 afterAction

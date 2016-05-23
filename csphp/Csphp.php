@@ -17,7 +17,6 @@ use Csp\core\CspException;
 use Csp\core\CspPipeline;
 use Csp\CsphpAutoload;
 
-
 //设置当前的运行环境
 defined('CSPHP_ENV_TYPE') or define('CSPHP_ENV_TYPE', Csphp::ENV_TYPE_PROD);
 
@@ -178,6 +177,8 @@ class Csphp {
      */
     private static $runningEnv  = self::ENV_TYPE_PROD;
 
+    //运行时使用 useMiddleware 注册的中间件 信息保存在这里
+    private static $runtimeMiddleware = [];
     /**
      * 应用 对象构造函数
      */
@@ -353,38 +354,154 @@ class Csphp {
         self::router()->parseRoute();
         //self::router()->dump();
         //执行控制器动作
-        self::router()->doAction();
+        //self::router()->doAction();
+        self::doActionByPipeline();
 
         return true;
     }
 
     /**
-     * 获取当前请求需要执行的所有 pipe
-     * pipes[] = function ($request,$next){}
+     * 执行所有中间件 和 Action
      *
      */
-    protected static function getRequestPipes(){
-        $pipes = [];
-        foreach(self::appCfg('middleware',[]) as $v){
+    private static function doActionByPipeline(){
+        //使用 pipeline 执行所有的 中间件
+        self::pipeline()
+            ->send(self::request())
+            ->through(self::getAllMiddlewarePipes())
+            ->then(function(CspRequest $request){
+                Csphp::router()->doAction($request);
+            });
+    }
+    /**
+     * 获取当前请求需要执行的所有 中间件 并标准化为如下闭包形式:
+     *
+     *      middlerPipes[] = function ($request,$next){}
+     *
+     * 中间件的可能定义地方:
+     * 1. 常规配置 middlewares 配置文件中定义的
+     * 2. 模块配置中指定的 中间件
+     * 3. 运行时注册的中间件
+     *      控制器-construct helper-preload comp-pre-init 等服务
+     *      使用 useMiddleware 动态添加的动态中间件配置
+     *
+     *
+     */
+    protected static function getAllMiddlewarePipes(){
+        $allMiddlewarePipes = [];
 
-            if(is_string($v)){
+        $middlewareCfgs= self::$runtimeMiddleware;
 
-                continue;
-            }
+        //components 配置
+        $middlewareCfgs = array_merge($middlewareCfgs, self::appCfg('middlewares',[]));
 
-            if($v instanceof Closure){
-
-                continue;
-            }
-
-            if(is_array($v)){
-
-                continue;
-            }
-
-
+        //模块中配置的 中间件
+        if( isset(self::$curModule['middlewares']) && is_array(self::$curModule['middlewares']) ){
+            $middlewareCfgs = array_merge($middlewareCfgs, self::$curModule['middlewares']);
         }
 
+        //标准化中间件配置
+        foreach($middlewareCfgs as $v){
+
+            if($v instanceof Closure){
+                $allMiddlewarePipes[] = $v;
+                continue;
+            }else{
+                //配置项 $v 可能是 string 或者 数组配置
+                $allMiddlewarePipes[] = function(CspRequest $request, Closure $next) use ($v){
+                    //将字符串 式的 中间件配置 转成标准的数组 配置
+                    if(is_string($v)){
+                        $v = [ 'target'=>$v ];
+                    }
+
+                    //['filter'=>,'target'=>,'options'=>,]
+
+                    //过滤器 检查不通过 则 直接忽略 执行下一个中间件
+                    if(isset($v['filter']) && !empty($v['filter']) && !$request->isMatch($v['filter'])){
+                        return $next($request);
+                    }
+
+                    if(!isset($v['target'])){
+                        throw new CspException("Error middleware config ".json_encode($v));
+                    }
+
+                    if($v['target'] instanceof Closure){
+                        return $v['target']($request, $next);
+                    }
+
+                    if(!is_string($v['target'])){
+                        throw new CspException("Error middleware config ".json_encode($v));
+                    }
+
+                    $classRoute = '';
+                    $methodName = 'handler';
+                    $args = [$request,$next];
+
+                    $targetStrCfg = $v['target'];
+                    if(strpos($targetStrCfg, '::')){
+                        list($classRoute, $methodNameAdnArgs) = explode('::', $targetStrCfg);
+                        list($methodName,$argStr) = array_pad(explode(':',$methodNameAdnArgs,2),2,'');
+
+                    }else{
+                        list($classRoute,$argStr) = array_pad(explode(':',$targetStrCfg,2),2,'');
+                    }
+
+                    //fix classroute
+                    if($classRoute[0]!='@' && $classRoute[0]!='\\'){
+                        $classRoute = '@lib/middlewares/'.ltrim($classRoute,'\\/');
+                    }
+
+                    if(!empty($argStr)){
+                        $args = array_merge($args, explode(',', $argStr));
+                    }
+
+                    $middlewareClass = Csphp::getNamespaceByRoute($classRoute);
+                    if(!class_exists($middlewareClass)){
+                        throw new CspException("Error middlerware config , can not find class {$middlewareClass} ctx: ".json_encode($v));
+                    }
+
+                    $middlewareObj = new $middlewareClass;
+                    //如果有配置初始化选项 则执行初始化方法
+                    if(isset($v['options']) &&  !empty($v['options']['args'])){
+                        $optionMethod = isset($v['options']['method']) ? $v['options']['method'] : 'setInitOptions';
+
+                        $middlewareObj->$optionMethod($v['options']['args']);
+                    }
+                    return call_user_func_array([$middlewareObj, $methodName], $args);
+
+                    //return $next($request);
+
+                };
+
+            }
+        }
+
+        //echo '<pre>';print_r($allMiddlewarePipes);exit;
+        return $allMiddlewarePipes;
+    }
+
+    /**
+     * 注册一个或者多个中间件
+     *
+     * @param mixed $middleware 中间件
+     * @param null  $filters    使用中间件的条件
+     */
+    public static function useMiddleware($middleware, $filters=null){
+
+        if(is_string($middleware) || $middleware instanceof Closure){
+            self::$runtimeMiddleware[] = $middleware;
+            return true;
+        }
+
+        //可能是单个或者批量
+        if(is_array($middleware)){
+            if(isset($middleware['target'])){
+                self::$runtimeMiddleware[] = $middleware;
+            }else{
+                self::$runtimeMiddleware = array_merge(self::$runtimeMiddleware, $middleware);
+            }
+        }
+        return true;
     }
     //------------------------------------------------------------------------------
 

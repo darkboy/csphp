@@ -8,6 +8,23 @@ class demo extends CspBaseControler{
 
     public function __construct(){
         parent::__construct();
+
+        //中间件示例
+        $runtimeMiddleware = [
+            function(CspRequest $request, $next){
+                echo '<pre>middleware runtime 1-start',"\n";
+                $r = $next($request);
+                echo 'middleware runtime 1-end',"\n";
+                return $r;
+            },
+            function(CspRequest $request, $next){
+                echo 'middleware runtime 2-start',"\n";
+                $r = $next($request);
+                echo 'middleware runtime 2-end',"\n";
+                return $r;
+            }
+        ];
+        $this->useMiddleware($runtimeMiddleware);
     }
 
     public function actionIndex(CspRequest $request){
@@ -96,6 +113,12 @@ class demo extends CspBaseControler{
     public function actionComp(){
         Csphp::comp('comp_demo')->hello();
     }
+
+    //中间件测试
+    public function actionMiddleware(CspRequest $request){
+        echo "\n",'------- run action -------- ',"\n\n";
+    }
+
 
 }
 

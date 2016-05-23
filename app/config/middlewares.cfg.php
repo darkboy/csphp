@@ -29,7 +29,14 @@ use Csp\core\CspRequest;
  *  配置说明: 配置提供的信息主要用于类的实例化, 有两种配置方式，
  *
  *  如果不需要自定义初始化选择 与 过滤器，可以直接配置为 类名字符串 或者 闭包如:
+ *      使用默认处理方法 handler ,如下两种定义是一样的
  *      @libs/middleware/middlewareDemo:1,2
+ *      @libs/middleware/middlewareDemo::handler:1,2
+ *
+ *      //使用自定义的处理方法 @libs/middleware/ 可以省略不写,如下两种定义是一样的
+ *      @libs/middleware/middlewareDemo::customHandler:1,2
+ *      middlewareDemo::customHandler:1,2
+ *
  *      function (CspRequest $request, Closure $next){}
  *  如果需要自定义过滤器 或者初始化选项，则配置为数组
  *      [
@@ -43,14 +50,16 @@ use Csp\core\CspRequest;
  *
  */
 return [
-    //配置示例1: 全局的类别中间件
-    '@libs/middleware/middlewareDemo:1,2',
+    //配置示例1: 全局的类中间件
+    '@lib/middlewares/middlewareDemo:1,1',
+    '\App\libs\middlewares\middlewareDemo::customHandler',
+    'middlewareDemo::customHandler:short1,short2',
 
     //配置示例2: 全局的 闭包中间件
     function(CspRequest $request, $next){
-        echo "BeforeAction in closure middleware";
-        $response = $next();
-        echo "AfterAction2 in closure middleware";
+        echo "BeforeAction in closure middleware config\n";
+        $response = $next($request);
+        echo "AfterAction  in closure middleware config\n";
         return $response;
     },
 
@@ -58,12 +67,12 @@ return [
     [
         //中间件的执行条件，
         'filter'    =>[],
-        'target'    =>'@lib/middlerware/middlewareDemo',
+        'target'    =>'middlewareDemo',
         //中间件的初始化选项，是可选的
         //如果配置了选项，刚会在实例化中间件时先执行: middlerWareObj->{$options[method]}($args);
         'options'   =>[
             'method'=>'setInitOptions',
-            'args'  =>[]
+            'args'  =>['v1'=>'v1-in-arr-cfg', 'v2'=>'v2-in-arr-cfg']
         ]
     ],
 

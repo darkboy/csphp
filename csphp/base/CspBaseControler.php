@@ -7,11 +7,6 @@ class CspBaseControler {
 
     //使用JSONP时的 JS调用方法名
     private $jsonpCallbackName  = 'cspCallback';
-    /**
-     *
-     * @var array
-     */
-    private $ctrlMiddlewares=[];
 
     public function __construct(){
 
@@ -47,20 +42,10 @@ class CspBaseControler {
      * @param string|closure|array  $middleware  在控制器 特定的中间间
      */
     public function useMiddleware($middleware, $filters=[]){
-        if(is_string($middleware) || $middleware instanceof \Closure){
-            $this->ctrlMiddlewares[] = $middleware;
-            return;
-        }
-
-        //可能是单个或者批量
-        if(is_array($middleware)){
-            if(isset($middleware['target'])){
-                $this->ctrlMiddlewares[] = $middleware;
-            }else{
-                $this->ctrlMiddlewares = array_merge($this->ctrlMiddlewares, $middleware);
-            }
-
-        }
+        return Csphp::useMiddleware($middleware, $filters);
+    }
+    public function getCtrlMiddleware(){
+        return $this->ctrlMiddlewares;
     }
 
     /**
