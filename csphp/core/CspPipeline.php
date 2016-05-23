@@ -1,9 +1,6 @@
 <?php
 namespace Csp\core;
 use Closure;
-use Csphp;
-use Csp\core\CspException;
-
 
 class CspPipeline{
 
