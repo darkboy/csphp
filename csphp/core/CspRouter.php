@@ -139,9 +139,10 @@ class CspRouter{
 
     /**
      * 当前的 action 名称, 闭包 路由返回 -
+     * @param  string $noPrefix 是否 不需要 前缀
      * @return string
      */
-    public function getActionName($noPrefix=false){
+    public function getActionName($noPrefix = false) {
 
         $parseRst = $this->getParseRst();
         switch($this->getActionType()){

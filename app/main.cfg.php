@@ -12,6 +12,8 @@ $appConfig = array(
     'app_base_path' =>__DIR__,
     //应用配置目录
     'app_cfg_path'  =>__DIR__.'/config',
+    //应用的可写数据目录，主要用于保存日志，运行时编译文件，缓存
+    'app_var_path'  =>__DIR__.'/var',
     //应用命名空间
     'app_namespace' =>'App',
 
@@ -36,17 +38,6 @@ $appConfig = array(
 
     //主页
     'home_url'      =>'/',
-
-
-    //配置中引用配置
-    'demo_for_file'=>array(
-        '@myext'=>'-:mysql'
-    ),
-
-
-
-
-
 
 
 );
