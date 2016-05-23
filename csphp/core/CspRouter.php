@@ -346,6 +346,12 @@ class CspRouter{
             }
         }
         $this->routeInfo['time_use'] = sprintf("%.3fms",1000*(microtime(true) - $st));
+
+        $parseRst = $this->getParseRst();
+        if(!$parseRst['context']['is_hit']){
+            throw new CspException('Route error  rst: '.json_encode($parseRst), 404, CspException::NOT_FOUND_EXCEPTION);
+        }
+
         //路由解释完成事件
         Csphp::fireEvent(Csphp::EVENT_CORE_AFTER_ROUTE);
         return true;
@@ -722,7 +728,7 @@ class CspRouter{
                 'controler' => null,
                 'action'    => null,
                 'closure'   => $targetRoute,
-                'context'   => null
+                'context'   => ['is_hit'=>true]
             );
         }
         //---------------------------------------------------------------
