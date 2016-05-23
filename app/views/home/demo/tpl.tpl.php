@@ -93,7 +93,7 @@
 <?php $this->xpipe('');?>
 <?php $this->ajax('');?>
 
-<pre><?php print_r(Csphp::router()->routeInfo);?></pre>
+<pre><?php //print_r(Csphp::router()->routeInfo);?></pre>
 
 
 </body>
