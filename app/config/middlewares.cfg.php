@@ -1,11 +1,15 @@
 <?php
 namespace App\config;
+use Csphp;
+use Csp\core\CspRequest;
 /**
- * 中间件的配置说明:
+ * 中间件说明:
  *
- *  使用 中间件 可以在 请求动作 被执行前 执行后 嵌入自定义逻辑， 常用于，访问控制，登录验证
+ *  使用 中间件 可以在 请求动作 被执行前 执行后 嵌入自定义逻辑，
+ *  常用于，访问控制，登录验证,等全局性的请求干预逻辑，$request 对象将被传递给每一个中间件进行处理，
  *
- *  中间件 包含 一个 固定方法请求处理方法，默认名为 handler
+ *
+ *  中间件类 包含 一个 固定方法请求处理方法，默认名为 handler
  *
  *  中间件的 请求处理方法 定义示例如下:
  *
@@ -22,14 +26,15 @@ namespace App\config;
  *  }
  *
  *
- *  配置提供的信息主要用于类的实例化, 有两种配置方式，
+ *  配置说明: 配置提供的信息主要用于类的实例化, 有两种配置方式，
  *
- *  如果不需要自定义初始化选择 与 过滤器，可以直接配置为 类名字符串如:
+ *  如果不需要自定义初始化选择 与 过滤器，可以直接配置为 类名字符串 或者 闭包如:
  *      @libs/middleware/middlewareDemo:1,2
+ *      function (CspRequest $request, Closure $next){}
  *  如果需要自定义过滤器 或者初始化选项，则配置为数组
  *      [
  *          filter  =>   过滤器，在什么条件执行这个中间件
- *          function=>   中间件需要执行的目标逻辑 ,也可以直接写一个闭包,可能的形式如下:
+ *          target  =>   中间件需要执行的目标逻辑 ,也可以直接写一个闭包,可能的形式如下:
  *                          @libs/middleware/demo
  *                          @libs/middleware/demo:1,2
  *                          function (CspRequest $request, Closure $next){}
@@ -38,15 +43,24 @@ namespace App\config;
  *
  */
 return [
-    //不需要自定义初始化选择 与 过滤器，可以直接配置为 类名字符串
+    //配置示例1: 全局的类别中间件
     '@libs/middleware/middlewareDemo:1,2',
-    //需要定自义 过滤器 或者 初始化选择，则配置为数组
+
+    //配置示例2: 全局的 闭包中间件
+    function(CspRequest $request, $next){
+        echo "BeforeAction2";
+        $response = $next();
+        echo "AfterAction2";
+        return $response;
+    },
+
+    //配置示例3: 需要定自义 过滤器 或者 初始化选项，则配置为数组
     [
         //中间件的执行条件，
         'filter'    =>[],
-        'function'  =>'@lib/middlerware/middlewareDemo',
+        'target'    =>'@lib/middlerware/middlewareDemo',
         //中间件的初始化选项，是可选的
-        //如果配置了，刚会在实例化中间件时先执行: middlerWareObj->{$options[method]}($args);
+        //如果配置了选项，刚会在实例化中间件时先执行: middlerWareObj->{$options[method]}($args);
         'options'   =>[
             'method'=>'setInitOptions',
             'args'  =>[]
