@@ -354,8 +354,8 @@ class Csphp {
         self::router()->parseRoute();
         //self::router()->dump();
         //执行控制器动作
-        //self::router()->doAction();
-        self::doActionByPipeline();
+        //self::router()->doAction(self::request());
+        self::doActionUsePipeline();
 
         return true;
     }
@@ -364,7 +364,7 @@ class Csphp {
      * 执行所有中间件 和 Action
      *
      */
-    private static function doActionByPipeline(){
+    private static function doActionUsePipeline(){
         //使用 pipeline 执行所有的 中间件
         self::pipeline()
             ->send(self::request())
@@ -389,7 +389,7 @@ class Csphp {
      */
     protected static function getAllMiddlewarePipes(){
         $allMiddlewarePipes = [];
-
+        //应用 运行时注册的中间件
         $middlewareCfgs= self::$runtimeMiddleware;
 
         //components 配置
