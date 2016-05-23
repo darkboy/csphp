@@ -71,7 +71,7 @@ class CspBaseModel implements ArrayAccess {
      * @return \Csp\base\CspBaseModel
      */
     public static function getModel($tbName, $pkName, $useCache=false, $dbCfgName = 'default'){
-        $mObj = new self();
+        $mObj = new static();
         return $mObj->initModel($tbName, $pkName, $useCache, $dbCfgName);
     }
 

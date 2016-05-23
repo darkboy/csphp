@@ -1,13 +1,12 @@
 <?php
 namespace Csp\comp\db;
 
-use \Csp\base\CspBaseControler;
-use \Csp\base\CspBaseComponent;
-use \Csphp;
-use \mysqli_stmt;
-use \mysqli;
-use \stdClass;
-use \Exception;
+use Csp\base\CspBaseComponent;
+use Csphp;
+use mysqli_stmt;
+use mysqli;
+use stdClass;
+use Exception;
 
 
 /**
@@ -189,6 +188,7 @@ class CspCompDBMysqli extends CspBaseComponent {
     public $totalPages = 0;
 
 
+    //---------------------------------------------------------------------------------
     /**
      * mysqli 链接池
      *          [dbName][r]=>mysqliObj
@@ -221,8 +221,8 @@ class CspCompDBMysqli extends CspBaseComponent {
      * );
      * @param $dbCfg
      */
-    public function initByConfig($dbCfg){
-
+    public function setInitOptions($dbCfg){
+        self::$mysqlCfg = $dbCfg;
     }
 
     //连接类型
@@ -241,20 +241,28 @@ class CspCompDBMysqli extends CspBaseComponent {
         $this->cnnTypeSelect = self::CONNECT_TYPE_AUTO;
     }
 
-
     /**
      * 根据SQL判断 是使用主库还是从库
      * @param string    $sql
      * @return string   返回类型 w r
      */
     public function getConnectTypeBySql($sql){
+        if($this->cnnTypeSelect!==self::CONNECT_TYPE_AUTO){
+            return $this->cnnTypeSelect;
+        }
         $wCmds = array('insert', 'update', 'delete', 'replace', 'alter', 'create', 'drop', 'rename', 'truncate');
         if ($sql !== '') {
-            $sql = explode(' ', substr((string)$sql, 0, 10));
+            $sql = trim($sql);
+            $sql = explode(' ', substr($sql, 0, 10));
         }
 
         return ($sql === '' || !in_array(strtolower($sql[0]), $wCmds)) ? self::CONNECT_TYPE_READ : self::CONNECT_TYPE_WRITE;
     }
+
+    public function getConnect(){
+
+    }
+    //---------------------------------------------------------------------------------
 
     /**
      * @param string $host
@@ -1770,6 +1778,7 @@ class CspCompDBMysqli extends CspBaseComponent {
         return $res;
     }
 
+    //---------------------------------------------------------------------------------------
     /**
      * todo....
      * @param string        $table
@@ -1800,4 +1809,5 @@ class CspCompDBMysqli extends CspBaseComponent {
         $offset = $this->pageLimit * (max($page, 1) - 1);
         $res = $this->withTotalCount()->get($table, Array($offset, $this->pageLimit), $fields);
     }
+    //---------------------------------------------------------------------------------------
 }
