@@ -97,6 +97,7 @@ class CspPipeline{
 
 
     /**
+     * //todo fix for csphp
      * Get a Closure that represents a slice of the application onion.
      *
      * @return \Closure
@@ -111,7 +112,6 @@ class CspPipeline{
                     return call_user_func($pipe, $passable, $stack);
                 } else {
                     list($name, $parameters) = $this->parsePipeString($pipe);
-                    //todo fix for csphp
                     return call_user_func_array([$this->container->make($name), $this->method],
                         array_merge([$passable, $stack], $parameters));
                 }

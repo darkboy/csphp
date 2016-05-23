@@ -7,6 +7,11 @@ class CspBaseControler {
 
     //使用JSONP时的 JS调用方法名
     private $jsonpCallbackName  = 'cspCallback';
+    /**
+     *
+     * @var array
+     */
+    private $ctrlMiddlewares=[];
 
     public function __construct(){
 
@@ -38,6 +43,25 @@ class CspBaseControler {
         */
     }
 
+    /**
+     * @param string|closure|array  $middleware  在控制器 特定的中间间
+     */
+    public function useMiddleware($middleware, $filters=[]){
+        if(is_string($middleware) || $middleware instanceof \Closure){
+            $this->ctrlMiddlewares[] = $middleware;
+            return;
+        }
+
+        //可能是单个或者批量
+        if(is_array($middleware)){
+            if(isset($middleware['target'])){
+                $this->ctrlMiddlewares[] = $middleware;
+            }else{
+                $this->ctrlMiddlewares = array_merge($this->ctrlMiddlewares, $middleware);
+            }
+
+        }
+    }
 
     /**
      * 控制器前置HOOK，action 动作执行前 执行
@@ -101,6 +125,7 @@ class CspBaseControler {
 
     /**
      * 如果当前 action 是 jsonp 请求
+     * 则在action中调用此方法，以确定使用 jsonp
      * @param string $cbVarRoute
      */
     public function useJsonp($cbVarRoute='cspCallback'){
@@ -108,6 +133,17 @@ class CspBaseControler {
             $cbVarRoute = 'G:'.$cbVarRoute;
         }
         $this->jsonpCallbackName = Csphp::request()->param($cbVarRoute,null,'require,slen:2-50,callback');
+        return $this;
+    }
+
+    /**
+     * 显示地设置 jsonp 的JS回调方法名称
+     * @param $n
+     *
+     * @return $this
+     */
+    public function setJsonpCallbackName($n){
+        $this->jsonpCallbackName = $n;
         return $this;
     }
 

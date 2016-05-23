@@ -358,6 +358,34 @@ class Csphp {
         return true;
     }
 
+    /**
+     * 获取当前请求需要执行的所有 pipe
+     * pipes[] = function ($request,$next){}
+     *
+     */
+    protected static function getRequestPipes(){
+        $pipes = [];
+        foreach(self::appCfg('middleware',[]) as $v){
+
+            if(is_string($v)){
+
+                continue;
+            }
+
+            if($v instanceof Closure){
+
+                continue;
+            }
+
+            if(is_array($v)){
+
+                continue;
+            }
+
+
+        }
+
+    }
     //------------------------------------------------------------------------------
 
     /**
@@ -880,6 +908,7 @@ class Csphp {
         self::$coreContainer['log']      = new CspLog();
         self::$coreContainer['tpl']      = new CspTemplate();
         self::$coreContainer['validator']= new CspValidator();
+        self::$coreContainer['pipeline'] = new CspPipeline();
         if(self::isCli()){
             self::$coreContainer['cliConsole'] = new CspCliConsole();
         }
@@ -946,6 +975,13 @@ class Csphp {
      */
     public static function validator(){
         return self::$coreContainer['validator'];
+    }
+
+    /**
+     * @return CspPipeline
+     */
+    public static function pipeline(){
+        return self::$coreContainer['pipeline'];
     }
     //------------------------------------------------------------------------------
 
