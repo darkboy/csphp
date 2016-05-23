@@ -1,7 +1,7 @@
 <?php
 namespace Csp\core;
-use \Csphp;
-use \Csp\core\CspException;
+use Csphp;
+use Csp\core\CspException;
 
 
 class CspPipeline{
