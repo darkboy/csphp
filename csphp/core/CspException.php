@@ -8,6 +8,8 @@ class CspException extends \Exception{
     const NOT_FOUND_EXCEPTION       = 'NOT_FOUND_EXCEPTION';
     //参数输入异常，不符合标准
     const PARAM_INPUT_EXCEPTION     = 'PARAM_INPUT_EXCEPTION';
+    //访问控制权限异常
+    const ACL_DENY_EXCEPTION        = 'ACL_DENY_EXCEPTION';
     //其它运行时相关的异常
     const RUNTIME_EXCEPTION         = 'RUNTIME_EXCEPTION';
 

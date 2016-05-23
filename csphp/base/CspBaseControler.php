@@ -21,23 +21,39 @@ class CspBaseControler {
     //--------------------------------------------------------------------------------
     /**
      * 控制器实例化的时候 被执行 主要用于 访问控制
+     *
      * 返回一个ACL 配置
+     *
      * @return array
      */
-    public function filter(){
-        return array();
-        /*
-        return array(
-            'acl'=>array(
-                'filter'=>array(),
-                'order' =>'deny,allow',
-                'deny'  =>array(),
-                'allow' =>array(),
-            )
-        );
-        */
+    public function useAccessControl($acl, $k=null){
+        static $i=0;
+        if(!$k){
+            $k = get_called_class().'_'.($i++);
+        }
+        Csphp::useAccessControl($acl, $k);
     }
 
+    /**
+     *
+     * @param $filter
+     *
+     * @throws \Csp\core\CspException
+     */
+    public function deny($filter){
+        return Csphp::deny($filter);
+    }
+
+    /**
+     * @param $filter
+     *
+     * @throws \Csp\core\CspException
+     */
+    public function allow($filter){
+        return Csphp::allow($filter);
+    }
+
+    //--------------------------------------------------------------------------------
     /**
      * @param string|closure|array  $middleware  在控制器 特定的中间间
      */
@@ -53,9 +69,6 @@ class CspBaseControler {
 
         return Csphp::useMiddleware($middleware, $filters);
 
-    }
-    public function getCtrlMiddleware(){
-        return $this->ctrlMiddlewares;
     }
 
     /**

@@ -250,14 +250,6 @@ class CspRouter{
             $ctrlObj = $routeRst['context']['ctrl_obj'];
             $this->routeInfo['controler'] = $ctrlObj;
 
-            //执行 filter , 是一个控制器预载逻辑，通常返回 acls 访问控制配置
-            if(method_exists($ctrlObj, 'filter')){
-                $acls = $ctrlObj->filter();
-                if(!empty($acls)){
-                    Csphp::checkAccessControl($acls);
-                }
-            }
-
             //执行 beforeAction
             if(method_exists($ctrlObj, 'beforeAction')){
                 $ctrlObj->beforeAction();

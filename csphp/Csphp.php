@@ -179,6 +179,9 @@ class Csphp {
 
     //运行时使用 useMiddleware 注册的中间件 信息保存在这里
     private static $runtimeMiddleware = [];
+
+    //运行时使用 useAccessControl 注册的中间件 信息保存在这里
+    private static $runtimeAccessCtrl = [];
     /**
      * 应用 对象构造函数
      */
@@ -301,19 +304,73 @@ class Csphp {
      *
      * @return bool
      */
-    public static function checkAccessControl($aclCfg=null){
-        if($aclCfg===null){
-            $aclCfg = self::appCfg('acl', array());
-        }
-        if(empty($aclCfg)){
-            return true;
-        }
-        foreach($aclCfg as $acl){
-            if(empty($acl)){continue;}
-            //todo..
+    public static function checkAccessControl(){
+        $aclCfg = array_merge(self::$runtimeAccessCtrl, self::appCfg('acl', []) );
+        foreach($aclCfg as $aclName=>$acl){
+            $isTarget = true;
+            if(isset($acl['target'])){
+                $isTarget = self::request()->isMatch($acl['target']);
+                unset($acl['target']);
+            }
+            //目标检查不对，跳过，进行下一个ACL的检查
+            if($isTarget===false){
+                continue;
+            }
+            foreach($acl as $aclType=>$aclFilter){
+                if(strtolower($aclType)==='allow'){
+                    if(!self::request()->isMatch($aclFilter)){
+                        throw new CspException("Access deny by acl conifg {$aclName}::{$aclType}  filter:".json_encode($aclFilter), 401, CspException::ACL_DENY_EXCEPTION);
+                    }
+                }
+                if(strtolower($aclType)==='deny'){
+                    if(self::request()->isMatch($aclFilter)){
+                        throw new CspException("Access deny by acl conifg {$aclName}::{$aclType}  filter:".json_encode($aclFilter), 401, CspException::ACL_DENY_EXCEPTION);
+                    }
+                }
+            }
 
         }
         return true;
+    }
+
+    /**
+     * @param $filter
+     *
+     * @return bool
+     * @throws \Csp\core\CspException
+     */
+    public static function deny($filter){
+        if(self::request()->isMatch($filter)){
+            throw new CspException("Access deny by deny filter:".json_encode($filter), 401, CspException::ACL_DENY_EXCEPTION);
+        }
+        return true;
+    }
+
+    /**
+     * @param $filter
+     *
+     * @return bool
+     * @throws \Csp\core\CspException
+     */
+    public static function allow($filter){
+        if(!self::request()->isMatch($filter)){
+            throw new CspException("Access deny by allow filter:".json_encode($filter), 401, CspException::ACL_DENY_EXCEPTION);
+        }
+        return true;
+    }
+
+    /**
+     * 注册 一个运行时 访问控制规则
+     *
+     * @param array     $acl      规则内容
+     * @param string    $k        规则名称
+     */
+    public static function useAccessControl($acl, $k=''){
+        static $i=0;
+        if(!$k){
+            $k = 'unknow_ack_key_'.($i++);
+        }
+        self::$runtimeAccessCtrl[$k] = $acl;
     }
 
     /**
@@ -387,7 +444,7 @@ class Csphp {
      *
      *
      */
-    protected static function getAllMiddlewarePipes(){
+    private static function getAllMiddlewarePipes(){
         $allMiddlewarePipes = [];
         //应用 运行时注册的中间件
         $middlewareCfgs= self::$runtimeMiddleware;
@@ -510,6 +567,8 @@ class Csphp {
         //echo '<pre>';print_r(self::$runtimeMiddleware);
         return true;
     }
+
+
     //------------------------------------------------------------------------------
 
     /**

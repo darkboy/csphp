@@ -11,10 +11,9 @@ namespace App;
 return [
     'acl_name' => [
         'target' => [
-            'match'=>'/demo/acl'
+            'match'=>'/demo/aclDeny3'
         ],
 
-        'deny'   => [],
-        'allow'  => 'all'
+        'deny'   => '*'
     ]
 ];

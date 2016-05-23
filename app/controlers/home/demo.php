@@ -122,6 +122,36 @@ class demo extends CspBaseControler{
         echo "\n",'------- run action -------- ',"\n\n";
     }
 
+    //----------------------------------------------------------
+    public function actionAclDeny1(){
+        $this->deny([
+            'ip'=>'127.*.*.*'
+        ]);
+
+        echo 'hello ...';
+    }
+    public function actionAclDeny2(){
+        $this->allow([
+            '!ip'=>'127.*.*.*'
+        ]);
+
+        echo 'hello ...';
+    }
+    //全局ACL
+    public function actionAclDeny3(){
+        echo 'hello ...';
+    }
+    public function actionAclAllow(){
+        $this->allow([
+            'ip'=>'127.*.*.*'
+        ]);
+
+        echo 'hello ...';
+    }
+
+    //----------------------------------------------------------
+
+
 
 }
 

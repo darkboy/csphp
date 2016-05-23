@@ -550,10 +550,29 @@ class CspRequest{
             }
 
             if( ($isNot===false && !$filterChk) || ($isNot===true  && $filterChk) ){
+                $this->getLastFailFilter($filterName, $filterArg);
                 return false;
             }
         }
         return true;
+    }
+
+    /**
+     * 获取 或者 保存最后检查失败的 过滤器规则
+     *
+     * @param null $filterName
+     * @param null $filterArg
+     *
+     * @return null|array ['name'=>,'args'=>]
+     */
+    public function getLastFailFilter($filterName=null, $filterArg=null){
+        static $last=null;
+        if(func_num_args()==2){
+            $last=['name'=>$filterName, 'args'=>$filterArg];
+        }
+
+        return $last;
+
     }
 
     /**
