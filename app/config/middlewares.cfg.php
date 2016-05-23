@@ -71,6 +71,7 @@ return [
     [
         //中间件的执行条件，
         'filter'    =>['match'=>'/demo/middleware*'],
+        //目标，可以省略前缀
         'target'    =>'middlewareDemo',
         //中间件的初始化选项，是可选的
         //如果配置了选项，刚会在实例化中间件时先执行: middlerWareObj->{$options[method]}($args);
