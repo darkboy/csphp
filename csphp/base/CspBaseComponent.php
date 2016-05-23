@@ -10,12 +10,12 @@ class CspBaseComponent {
 
     }
 
-
+    /**
+     * @param $optArr
+     *
+     * @throws \Csp\core\CspException
+     */
     public function setInitOptions($optArr){
         throw new CspException("Comp must implements setInitOtions  method to use options init ");
-    }
-
-    public function handler(){
-        throw new CspException("Comp must implements handler method to use middleware.");
     }
 }
