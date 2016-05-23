@@ -20,17 +20,17 @@ class middlewareDemo{
      */
     public function handler(CspRequest $request, $next, $v1='default1', $v2='default2'){
 
-        echo "In middlerware demo handler start v1 $v1 : {$this->v1} v2 $v2 :{$this->v2} \n";
+        echo "middleware demo handler start with opt v1 $v1 : {$this->v1} v2 $v2 :{$this->v2} \n";
         $r = $next($request);
-        echo "In middlerware demo handler end\n";
+        echo "In middleware demo handler end\n";
         return $r;
     }
 
     public function customHandler(CspRequest $request, $next, $v1='default1', $v2='default2'){
 
-        echo "In middlerware demo customHandler start v1 $v1 : {$this->v1} v2 $v2 :{$this->v2}  \n";
+        echo "middleware demo customHandler start with opt v1 $v1 : {$this->v1} v2 $v2 :{$this->v2}  \n";
         $r = $next($request);
-        echo "In middlerware demo customHandler end\n";
+        echo "middleware demo customHandler end\n";
         return $r;
 
     }

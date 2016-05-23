@@ -15,11 +15,11 @@ use Csp\core\CspRequest;
  *
  *  public function handler (CspRequest $request, Closure $next){
  *
- *      //与在这里的代码 将会在 请求动作 被执行前执行
+ *      //写在这里的代码 将在 请求动作 被执行前 执行
  *
  *      $response = $next($request);
  *
- *      //写在这里的代码将在 请求动作 被执行完后执行
+ *      //写在这里的代码 将在 请求动作 被执行后 执行
  *
  *      return $response;
  *
