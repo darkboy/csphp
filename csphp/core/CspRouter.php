@@ -141,7 +141,7 @@ class CspRouter{
      * 当前的 action 名称, 闭包 路由返回 -
      * @return string
      */
-    public function getActionName(){
+    public function getActionName($noPrefix=false){
 
         $parseRst = $this->getParseRst();
         switch($this->getActionType()){
@@ -150,7 +150,7 @@ class CspRouter{
             case 'class':
                 return $parseRst['action'];
             case 'uri':
-                return $this->wrapActionName($parseRst['action']);
+                return $noPrefix ? $parseRst['action'] : $this->wrapActionName($parseRst['action']);
         }
         return '?';
     }
@@ -735,9 +735,20 @@ class CspRouter{
     private function checkIsControlerExists($targetRoute){
         static $checkCache = [];
 
+        //------------------
+        //fix route
+        if(empty($targetRoute)){
+            $targetRoute = 'index/index';
+        }
         //修正目标路径，非绝对路由 刚默认为本模块路由
         if ($targetRoute[0]!=='@' && $targetRoute[0]!=='\\'){
-            $targetRoute = '@m-ctrl/' . ltrim($targetRoute,'/\\');
+
+            $targetRoute = ltrim($targetRoute,'/\\');
+            if(!strpos($targetRoute, '::') && !strpos($targetRoute, '/')){
+                $targetRoute.= '/index';
+            }
+            $targetRoute = '@m-ctrl/' . $targetRoute;
+
         }
         $targetRoute = rtrim($targetRoute, '/');
 
@@ -766,6 +777,7 @@ class CspRouter{
         ];
         $scoreCnt = 0;
         do{
+            //处理 直接定义 类名::动作名 形式的路由
             if(strpos($targetRoute, '::')){
                 $actionType     = 'class';
                 list($controlerClass, $action) = explode("::", $targetRoute,2);
@@ -794,10 +806,10 @@ class CspRouter{
 
 
             $paths = explode('/', $targetRoute);
-            if(count($paths)<2){
+            if(count($paths)<3){
                 throw new CspException("Error target route {$targetRoute}", 404, CspException::NOT_FOUND_EXCEPTION);
             }
-
+            //Csphp::dump($paths);exit;
             $action     = array_pop($paths);
             $classRoute = join('/', $paths);
             $ctrlFile   = Csphp::getPathByRoute($classRoute, '.php');

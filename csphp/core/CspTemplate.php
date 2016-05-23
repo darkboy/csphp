@@ -53,7 +53,7 @@ class CspTemplate{
             return $this->curViewFileForAction;
         }
         $path = $this->getCurTplPathForControler();
-        $this->curViewFileForAction = $path.'/'.Csphp::router()->getActionName().$this->tplFileExt;
+        $this->curViewFileForAction = $path.'/'.Csphp::router()->getActionName($noPrefix=true).$this->tplFileExt;
         return $this->curViewFileForAction;
     }
 
