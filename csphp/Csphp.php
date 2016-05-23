@@ -305,7 +305,11 @@ class Csphp {
      * @return bool
      */
     public static function checkAccessControl(){
-        $aclCfg = array_merge(self::$runtimeAccessCtrl, self::appCfg('acl', []) );
+        $moduleAcl = [];
+        if(isset(self::$curModule['acl']) && is_array(self::$curModule['acl'])){
+            $moduleAcl = self::$curModule['acl'];
+        }
+        $aclCfg = array_merge(self::appCfg('acl', []), $moduleAcl, self::$runtimeAccessCtrl);
         foreach($aclCfg as $aclName=>$acl){
             $isTarget = true;
             if(isset($acl['target'])){
