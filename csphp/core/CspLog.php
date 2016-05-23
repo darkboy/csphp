@@ -179,7 +179,8 @@ class CspLog {
     private function wrapLogStr($logStrOrArr, $context = NULL) {
         $ip = Csphp::request()->getClientIp();
         $uri = Csphp::request()->getReqRoute();
-        $prefix = "[" . date('H:i:s') . "] " . $ip . "\t" . $uri . "\t";
+        $timeUse = Csphp::getTimeUse(4);
+        $prefix = "" . date('H:i:s') . " {$timeUse} " . $ip . "\t" . $uri . "\t";
         if (is_array($logStrOrArr)) {
             $logStr = "LogData:".json_encode($logStrOrArr);
             if (is_array($context)) {
