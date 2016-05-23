@@ -42,7 +42,17 @@ class CspBaseControler {
      * @param string|closure|array  $middleware  在控制器 特定的中间间
      */
     public function useMiddleware($middleware, $filters=[]){
+
+        if(empty($filters)){
+            $filters = [];
+        }
+
+        if(is_string($filters)){
+            $filters = $filters[0]=='!' ? ['!action'=>substr($filters,1)] : ['action'=>$filters];
+        }
+
         return Csphp::useMiddleware($middleware, $filters);
+
     }
     public function getCtrlMiddleware(){
         return $this->ctrlMiddlewares;

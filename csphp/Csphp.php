@@ -489,18 +489,25 @@ class Csphp {
     public static function useMiddleware($middleware, $filters=null){
 
         if(is_string($middleware) || $middleware instanceof Closure){
-            self::$runtimeMiddleware[] = $middleware;
+            self::$runtimeMiddleware[] = (empty($filters) ? $middleware : ['filter'=>$filters,'target'=>$middleware]);
             return true;
         }
 
         //可能是单个或者批量
         if(is_array($middleware)){
             if(isset($middleware['target'])){
-                self::$runtimeMiddleware[] = $middleware;
+                self::$runtimeMiddleware[] = (empty($filters) ? $middleware : ['filter'=>$filters,'target'=>$middleware]);
             }else{
-                self::$runtimeMiddleware = array_merge(self::$runtimeMiddleware, $middleware);
+                if(empty($filters)){
+                    self::$runtimeMiddleware = array_merge(self::$runtimeMiddleware, $middleware);
+                }else{
+                    foreach($middleware as $m){
+                        self::useMiddleware($m, $filters) ;
+                    }
+                }
             }
         }
+        //echo '<pre>';print_r(self::$runtimeMiddleware);
         return true;
     }
     //------------------------------------------------------------------------------

@@ -50,6 +50,8 @@ use Csp\core\CspRequest;
  *
  */
 return [
+    /*
+
     //配置示例1: 全局的类中间件
     '@lib/middlewares/middlewareDemo:1,1',
     '\App\libs\middlewares\middlewareDemo::customHandler',
@@ -63,10 +65,12 @@ return [
         return $response;
     },
 
+    */
+
     //配置示例3: 需要定自义 过滤器 或者 初始化选项，则配置为数组
     [
         //中间件的执行条件，
-        'filter'    =>[],
+        'filter'    =>['match'=>'/demo/middleware'],
         'target'    =>'middlewareDemo',
         //中间件的初始化选项，是可选的
         //如果配置了选项，刚会在实例化中间件时先执行: middlerWareObj->{$options[method]}($args);

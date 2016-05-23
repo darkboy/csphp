@@ -557,6 +557,23 @@ class CspRequest{
     }
 
     /**
+     * action name 验证过滤器，需要所有输入都符合要求 可以使用通配符
+     * @param $filterArg array 配置规则见 self::__rcf_chkValue
+     */
+    private function __rcf__action($filterArg){
+        $actionName = $this->router()->getActionName(true);
+        if(!is_array($filterArg)){
+            $filterArg = explode(',', $filterArg);
+        }
+        foreach($filterArg as $pr){
+            if(fnmatch($pr, $actionName)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * 检查当前的请求域名
      *
      * @param $filterArg string 配置项可以是 逗号隔开的 域名列表，或者数组，可以使用通配符如  *.abc.com
@@ -824,6 +841,9 @@ class CspRequest{
                 break;
         }
     }
+
+
+
     /**
      * 用户自定义的过滤器
      *
