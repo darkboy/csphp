@@ -24,6 +24,7 @@ class CspRouter{
      * @var array 路由信息说明
      */
     public $routeInfo = array(
+
         //原始的完整 uri 信息
         'uri'           =>'',
 
@@ -47,6 +48,8 @@ class CspRouter{
         'match_key'     =>'',
 
         'best_score'    =>0,
+        'time_use'      =>0,
+
         //解释结果，最终要执行的 路由信息
         'parse_rst'     =>array(
             'controler' =>null,
@@ -329,9 +332,10 @@ class CspRouter{
 
 
     /**
-     * 解释当前请求 路由
+     * 解释当前请求 路由 ，从请求信息中分析目标出目标路由，并解释目标路由中的变量引用，解释路由变更
      */
     public function parseRoute(){
+        $st = microtime(true);
         $findRst = $this->findRoute();
         foreach($findRst as $k=>$v){
             if($k==='route_var'){
@@ -340,6 +344,7 @@ class CspRouter{
                 $this->routeInfo[$k] = $v;
             }
         }
+        $this->routeInfo['time_use'] = sprintf("%.3fms",1000*(microtime(true) - $st));
         //路由解释完成事件
         Csphp::fireEvent(Csphp::EVENT_CORE_AFTER_ROUTE);
         return true;
@@ -355,6 +360,7 @@ class CspRouter{
      * );
      */
     public function findRoute(){
+
         //当前请求路由
         $sourceReqRoute = $this->getRequestRoute();
 
