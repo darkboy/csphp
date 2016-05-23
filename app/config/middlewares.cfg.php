@@ -33,19 +33,19 @@ use Csp\core\CspRequest;
  *      @libs/middleware/middlewareDemo:1,2
  *      @libs/middleware/middlewareDemo::handler:1,2
  *
- *      //使用自定义的处理方法 @libs/middleware/ 可以省略不写,如下两种定义是一样的
+ *      //使用自定义的处理方法 前缀 @libs/middleware/ 可以省略不写,如下两种定义是一样的
  *      @libs/middleware/middlewareDemo::customHandler:1,2
  *      middlewareDemo::customHandler:1,2
  *
  *      function (CspRequest $request, Closure $next){}
  *  如果需要自定义过滤器 或者初始化选项，则配置为数组
  *      [
- *          filter  =>   过滤器，在什么条件执行这个中间件
+ *          filter  =>   过滤器，可选配置，在什么条件执行这个中间件
  *          target  =>   中间件需要执行的目标逻辑 ,也可以直接写一个闭包,可能的形式如下:
  *                          @libs/middleware/demo
  *                          @libs/middleware/demo:1,2
  *                          function (CspRequest $request, Closure $next){}
- *          options =>   中间件的初始化选项，是可选的,如果配置了，刚会在实例化中间件时先执行: middlerWareObj->{$options[method]}($args);
+ *          options =>   中间件的初始化选项，是可选的配置，在实例化后执行: middlerWareObj->{$options[method]}($args);
  *      ]
  *
  */

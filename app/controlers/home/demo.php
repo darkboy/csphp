@@ -10,7 +10,7 @@ class demo extends CspBaseControler{
         parent::__construct();
 
         //-----------------------------------------------------
-        //中间件示例
+        //运行时 中间件示例
         $runtimeMiddleware = [
             function(CspRequest $request, $next){
                 echo '<pre>middleware runtime 1-start',"\n";
@@ -25,7 +25,7 @@ class demo extends CspBaseControler{
                 return $r;
             }
         ];
-        //注册一个只在 middleware 中执行的 中间件
+        //注册一个只在 middleware action 中执行的 中间件
         $this->useMiddleware($runtimeMiddleware, 'middleware');
         //-----------------------------------------------------
     }
