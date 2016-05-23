@@ -231,6 +231,7 @@ class CspLog {
                 throw new CspException('Can not write log file: ' . $logFile . " log info is " . htmlspecialchars($logInfoText));
             }
         }
+        //clear log buffer
         self::$logInfoCache = [];
         self::$hasFlush = true;
         return $this;
