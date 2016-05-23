@@ -48,9 +48,9 @@ return [
 
     //配置示例2: 全局的 闭包中间件
     function(CspRequest $request, $next){
-        echo "BeforeAction2";
+        echo "BeforeAction in closure middleware";
         $response = $next();
-        echo "AfterAction2";
+        echo "AfterAction2 in closure middleware";
         return $response;
     },
 
