@@ -259,7 +259,7 @@ class Csphp {
             fastcgi_finish_request();//echo 'fastcgi_finish_request';
         }
         $isExit=true;
-        self::log()->logInfo('exitCsphp on '.date("Y-m-d H:i:s")." TimeUse:".self::getTimeUse(), $_REQUEST, 'access')->flush();
+        self::log()->logInfo('exitCsphp on '.date("Y-m-d H:i:s")." TimeUse:".self::getTimeUse(4), $_REQUEST, 'access')->flush();
         self::fireEvent(self::EVENT_CORE_EXIT);
         exit();
     }
