@@ -325,6 +325,7 @@ class Csphp {
                     if(!self::request()->isMatch($aclFilter)){
                         throw new CspException("Access deny by acl conifg {$aclName}::{$aclType}  filter:".json_encode($aclFilter), 401, CspException::ACL_DENY_EXCEPTION);
                     }
+                    break;
                 }
                 if(strtolower($aclType)==='deny'){
                     if(self::request()->isMatch($aclFilter)){
