@@ -79,7 +79,8 @@ class demo extends CspBaseControler{
 
     //路由配置示例用的控制器
     public function actionForRouteDemo(CspRequest $request){
-        echo '<pre>路由解释示例,当前命中的路由信息如下:',"\n";print_r(Csphp::router()->getRouteInfo());
+        $actionName = $this->getActionName();
+        echo '<pre>路由解释示例,forRouteDemo 当前命中的路由['.$actionName.']解释信息如下:',"\n";print_r(Csphp::router()->getRouteInfo());
     }
 
     public function actionFunc(){
@@ -88,7 +89,8 @@ class demo extends CspBaseControler{
     }
 
     public function noActionPrefix(){
-        echo '<pre>路由解释示例,forRouteDemo 当前命中的路由信息如下:',"\n";print_r(Csphp::router()->getRouteInfo());
+        $actionName = $this->getActionName();
+        echo '<pre>路由解释示例,forRouteDemo 当前命中的路由['.$actionName.']解释信息如下:',"\n";print_r(Csphp::router()->getRouteInfo());
     }
 
     public function actionComp(){

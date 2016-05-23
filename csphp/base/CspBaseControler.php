@@ -5,10 +5,18 @@ use Csphp;
 
 class CspBaseControler {
 
+    //使用JSONP时的 JS调用方法名
     private $jsonpCallbackName  = 'cspCallback';
 
     public function __construct(){
 
+    }
+    //--------------------------------------------------------------------------------
+    /**
+     * 获取当前 请求的 Action 名称 是全名
+     */
+    public function getActionName(){
+        return Csphp::router()->getActionName();
     }
     //--------------------------------------------------------------------------------
     /**

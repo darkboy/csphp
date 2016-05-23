@@ -1,8 +1,8 @@
 <?php
-//slave 的配置将会 与 主配置进行合并后作为从机的配置
+//slave 的配置将会 与 主配置进行合并后作为从机的配置 dsnName=>$dbConfig
 return array(
 
-    'db_name'=>array(
+    'default'=>array(
         'is_default'=>true,
         'master'=>array(
             'charset'   =>'utf8',

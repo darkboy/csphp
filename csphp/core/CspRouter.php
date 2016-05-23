@@ -141,13 +141,15 @@ class CspRouter{
     public function getActionName(){
 
         $parseRst = $this->getParseRst();
-        if(is_object($parseRst['closure'])){
-            return '-';
+        switch($this->getActionType()){
+            case 'closure':
+                return '-';
+            case 'class':
+                return $parseRst['action'];
+            case 'uri':
+                return $this->wrapActionName($parseRst['action']);
         }
-        if( is_array($parseRst) && isset($parseRst['action']) ){
-            return $parseRst['action'];
-        }
-        return '';
+        return '?';
     }
 
     /**
