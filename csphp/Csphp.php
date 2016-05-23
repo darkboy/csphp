@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Class Csphp core mgr class
  */
