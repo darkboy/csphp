@@ -1,7 +1,16 @@
 <?php
 /**
- * Class Csphp core mgr class
+ * Csphp 框架核心类
+ *
+ * @category  Csphp
+ * @package   core
+ * @author    Darkboy <yxh3906261@gmail.com>
+ * @copyright Copyright (c) 2016
+ * @license   http://opensource.org/licenses/gpl-3.0.html GNU Public License
+ * @link      https://github.com/darkboy/csphp
+ * @version   1.0-master
  */
+
 use Csp\core\CspRequest;
 use Csp\core\CspResponse;
 use Csp\core\CspLog;
