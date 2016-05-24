@@ -22,8 +22,9 @@ class CspCompDBConnection extends CspBaseComponent {
 
     /**
      * 获取一个数据库连接
-     * @param string $dsnName
-     * @param string $dbConfig
+     * 默认使用 配置为 is_default 的数据库配置，无法找到时 使用第一个
+     * @param string $dsnName       需要连接的 dsn 名称
+     *
      * @return CspCompDBMysqli
      */
     public static function getConnection($dsnName=null){

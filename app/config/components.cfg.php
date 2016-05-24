@@ -37,9 +37,9 @@ return [
     //这个 key 供后续在应用中可以通过 Csphp::comp($access_key) 引用组件
     'DB' => [
         'is_singleton'  => true,
-        //使用数据库配置默认 生产数据库链接
+        //使用数据库默认配置 生产数据库链接
         'class'         => function(){
-            return \Csp\comp\db\CspCompDBConnection::getConnection('default');
+            return \Csp\comp\db\CspCompDBConnection::getConnection();
         }
     ],
 
