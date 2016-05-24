@@ -23,6 +23,7 @@ class CspCompDBConnection extends CspBaseComponent {
     /**
      * 获取一个数据库连接
      * 默认使用 配置为 is_default 的数据库配置，无法找到时 使用第一个
+     *
      * @param string $dsnName       需要连接的 dsn 名称
      *
      * @return CspCompDBMysqli
@@ -48,7 +49,8 @@ class CspCompDBConnection extends CspBaseComponent {
     }
 
     /**
-     * 获取默认的数据库 DSN 配置 配置为 is_default 的第一个，
+     * 获取默认的数据库 DSN 配置
+     * 配置为 is_default 的数据库配置，无法找到时 使用第一个
      *
      * @return array ['name'=>$n,'cfg'=>$v];
      */
@@ -63,7 +65,6 @@ class CspCompDBConnection extends CspBaseComponent {
         foreach($mysqlConfig as $n=>$v){
             if(isset($v['is_default']) && $v['is_default']){
                 $defaultDsnName = $n;
-                print_r($v);
                 return ['name'=>$n,'cfg'=>$v];
             }
             if(!$firstName){
