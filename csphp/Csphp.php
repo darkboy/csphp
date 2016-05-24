@@ -424,13 +424,20 @@ class Csphp {
      *
      */
     private static function doActionUsePipeline(){
-        //使用 pipeline 执行所有的 中间件
-        self::pipeline()
-            ->send(self::request())
-            ->through(self::getAllMiddlewarePipes())
-            ->then(function(CspRequest $request){
-                Csphp::router()->doAction($request);
-            });
+        $middleware = self::getAllMiddlewarePipes();
+        //存在中间件时 使用 pipeline 执行，否则 直接执行 action
+        if(!empty($middleware)){
+            self::pipeline()
+                ->send(self::request())
+                ->through($middleware)
+                ->then(function(CspRequest $request){
+                    Csphp::router()->doAction($request);
+                });
+        }else{
+            //没有中间件，直接执行Action
+            Csphp::router()->doAction(self::request());
+        }
+
     }
     /**
      * 获取当前请求需要执行的所有 中间件 并标准化为如下闭包形式:
@@ -466,6 +473,10 @@ class Csphp {
                 $allMiddlewarePipes[] = $v;
                 continue;
             }else{
+                //过滤器检查不通过的直接跳过
+                if(is_array($v) && isset($v['filter']) && !self::request()->isMatch($v['filter'])){
+                   continue;
+                }
                 //配置项 $v 可能是 string 或者 数组配置
                 $allMiddlewarePipes[] = function(CspRequest $request, Closure $next) use ($v){
                     //将字符串 式的 中间件配置 转成标准的数组 配置
@@ -475,10 +486,7 @@ class Csphp {
 
                     //['filter'=>,'target'=>,'options'=>,]
 
-                    //过滤器 检查不通过 则 直接忽略 执行下一个中间件
-                    if(isset($v['filter']) && !empty($v['filter']) && !$request->isMatch($v['filter'])){
-                        return $next($request);
-                    }
+
 
                     if(!isset($v['target'])){
                         throw new CspException("Error middleware config ".json_encode($v));

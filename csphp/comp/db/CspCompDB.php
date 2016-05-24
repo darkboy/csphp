@@ -13,4 +13,8 @@ class CspCompDBMysql extends CspBaseComponent {
     }
 
 
+    public function getConnection($dsnName, $link='auto'){
+
+    }
+
 }

@@ -14,12 +14,23 @@ class CspException extends \Exception{
     const RUNTIME_EXCEPTION         = 'RUNTIME_EXCEPTION';
 
     /**
-     * 异常类别
+     * 当前异常类别
      * @var string
      */
     public $exceptionType           = 'RUNTIME_EXCEPTION';
+
     private $msgData = null;
-    public function __construct($message, $code = 0,$type='RUNTIME_EXCEPTION'){
+    private $msg        = null;
+    private $code       = null;
+    private $context    = null;
+
+    /**
+     * 异常构造函数
+     * @param string $message
+     * @param int    $code
+     * @param string $type
+     */
+    public function __construct($message, $code = 0, $type='RUNTIME_EXCEPTION'){
         $this->msgData = $message;
 
         if(is_array($message)) {
@@ -54,7 +65,10 @@ class CspException extends \Exception{
     }
     // 自定义字符串输出的样式
     public function __toString() {
-        echo '<pre style="color: darkblue;">',Csphp::trace($this->getTrace()); print_r(Csphp::router()->routeInfo);
+        echo '<pre style="color: darkblue;">',Csphp::trace($this->getTrace());
+        if($this->exceptionType==self::NOT_FOUND_EXCEPTION){
+            print_r(Csphp::router()->routeInfo);
+        }
         return "{$this->exceptionType} Exception; Code is: [{$this->code}]; Msg: {$this->message}";
     }
 
