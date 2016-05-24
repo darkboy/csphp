@@ -1,20 +1,30 @@
 <?php
 namespace Csp\comp\db;
-use \Csp\base\CspBaseControler;
-use \Csp\base\CspBaseComponent;
-use \Csphp;
+use Csp\base\CspBaseComponent;
+use Csp\comp\db\CspcompDBMysqli;
+
+use Csphp;
 
 
 
-class CspCompDBMysql extends CspBaseComponent {
+class CspCompDBConnection extends CspBaseComponent {
+
+    public static  $mysqlConnectionPoll = [];
 
     public function __construct() {
         parent::__construct();
     }
 
-
-    public function getConnection($dsnName, $link='auto'){
-
+    /**
+     *
+     * @param string $dsnName
+     * @param string $dbConfig
+     */
+    public static function getConnection($dsnName='default', $dbConfig=[]){
+        if(!isset(self::$mysqlConnectionPoll[$dsnName])){
+            self::$mysqlConnectionPoll[$dsnName] = new CspcompDBMysqli($dbConfig);
+        }
+        return self::$mysqlConnectionPoll[$dsnName];
     }
 
 }

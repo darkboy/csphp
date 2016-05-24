@@ -229,6 +229,10 @@ class CspCompDBMysqli extends CspBaseComponent {
     const  CONNECT_TYPE_WRITE   = 'w';
     const  CONNECT_TYPE_READ    = 'r';
     const  CONNECT_TYPE_AUTO    = 'auto';
+    /**
+     * 应用主动设置连接类型
+     * @var string
+     */
     public $cnnTypeSelect       = 'auto';
 
     public function useWriteConnect(){
@@ -302,6 +306,25 @@ class CspCompDBMysqli extends CspBaseComponent {
     }
 
     /**
+     * A method of returning the static instance to allow access to the
+     * instantiated object from within another class.
+     * Inheriting this class would require reloading connection info.
+     *
+     * @uses $db = CspCompDBMysqli::getInstance();
+     *
+     * @return CspCompDBMysqli Returns the current instance.
+     */
+    public static function getInstance($dbCfgName) {
+        if(!isset(self::$_instance[$dbCfgName])){
+
+            //self::$_instance[$dbCfgName] = new self();
+            //self::$_instance[$dbCfgName]
+        }
+
+        return self::$_instance[$dbCfgName];
+    }
+
+    /**
      * A method to connect to the database
      *
      * @throws Exception
@@ -335,24 +358,6 @@ class CspCompDBMysqli extends CspBaseComponent {
         return $this->_mysqli;
     }
 
-    /**
-     * A method of returning the static instance to allow access to the
-     * instantiated object from within another class.
-     * Inheriting this class would require reloading connection info.
-     *
-     * @uses $db = CspCompDBMysqli::getInstance();
-     *
-     * @return CspCompDBMysqli Returns the current instance.
-     */
-    public static function getInstance($dbCfgName) {
-        if(!isset(self::$_instance[$dbCfgName])){
-
-            //self::$_instance[$dbCfgName] = new self();
-            //self::$_instance[$dbCfgName]
-        }
-
-        return self::$_instance[$dbCfgName];
-    }
     //----------------------------------------------------------------------------
     /**
      * Reset states after an execution

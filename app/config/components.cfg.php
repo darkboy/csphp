@@ -37,7 +37,10 @@ return [
     //这个 key 供后续在应用中可以通过 Csphp::comp($access_key) 引用组件
     'DB' => [
         //目标类，可以是类别名路由 类名 闭包
-        'class'         => '@comp/demoComp',
+        'class'         => function(){
+            $dbConfig = Csphp::appCfg('mysql/default',[]);
+            return new \Csp\comp\db\CspcompDB::getConnection($dbConfig);
+        },
         'is_singleton'  => true,
         // 用于初始化选项的成员方法，默认为  setInitOptions
         'option_method' => 'setInitOptions',
