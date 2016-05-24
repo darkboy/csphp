@@ -1,8 +1,7 @@
 <?php
-namespace Csp\comp;
-use \Csp\base\CspBaseControler;
-use \Csp\base\CspBaseComponent;
-use \Csphp;
+namespace Csp\comp\auth;
+use Csp\base\CspBaseComponent;
+use Csphp;
 
 
 /**
