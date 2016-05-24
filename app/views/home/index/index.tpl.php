@@ -12,7 +12,7 @@
     <body>
         <h1 style="text-align: center; margin-top: 180px;color: darkblue;">Hello Csphp ...</h1>
         <div style="text-align: center;">
-            <a href="/demo/tpl">See demo</a>
+            <a href="/demo">See demo</a>
         </div>
     </body>
 </html>

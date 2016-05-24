@@ -32,6 +32,14 @@ class demo extends CspBaseControler{
 
     public function actionIndex(CspRequest $request){
         echo '<h1 style="text-align: center;margin-top: 100px;color: darkblue;">Hello Csphp demo... </h1>';
+        echo '<hr><div style="padding: 100px;"> ';
+        $methods = get_class_methods(__CLASS__);
+        foreach($methods as $fn){
+            if(substr($fn,0,6)!=='action'){continue;}
+            $action = lcfirst(substr($fn,6));
+            echo '<div style="float: left;padding:2px;margin: 5px; display: inline;"><a href="/demo/'.$action.'">'.$action.'</a></div>';
+        }
+        echo '</div> ';
     }
 
     //日志使用示例
