@@ -1,16 +1,15 @@
 <?php
-namespace Csp\comp;
-use \Csp\base\CspBaseControler;
-use \Csp\base\CspBaseComponent;
-use \Csphp;
+namespace Csp\comp\utils;
+use Csp\base\CspBaseComponent;
+use Csphp;
 
 
 /**
  *
- * Class CspCompApiDocker
+ * Class CspCompHtml
  * @package Csp\comp
  */
-class CspCompApiDocker extends CspBaseComponent {
+class CspCompHtml extends CspBaseComponent {
 
     public function __construct() {
         parent::__construct();
