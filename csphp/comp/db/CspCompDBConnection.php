@@ -27,5 +27,4 @@ class CspCompDBConnection extends CspBaseComponent {
         }
         return self::$mysqlConnectionPoll[$dsnName];
     }
-
 }
