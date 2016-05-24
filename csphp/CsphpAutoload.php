@@ -10,11 +10,13 @@ class CsphpAutoload{
 
     public function __construct(){
     }
+
     /**
      * 注册一个命名空间，及其
-     * @param $path      不以 / 结尾
-     * @param $nsPrefix  命名空间前缀
-     * @param $fileExt   默认的文件扩展名
+     *
+     * @param string $path      不以 / 结尾
+     * @param string $nsPrefix  命名空间前缀
+     * @param string $fileExt   默认的文件扩展名
      */
     public static function addNamespace($path, $nsPrefix, $fileExt='.php'){
         $nsPrefix = trim($nsPrefix, '\\').'\\';
@@ -41,7 +43,6 @@ class CsphpAutoload{
                 if(file_exists($filePath)){
                     require $filePath;
                 }else{
-                    //echo "Not exists file ".$filePath;
                     return false;
                 }
             }
@@ -49,6 +50,6 @@ class CsphpAutoload{
         return false;
     }
 }
-///注册 auto loader
+//注册 auto loader
 spl_autoload_register(function ($className) { CsphpAutoload::load($className);});
 

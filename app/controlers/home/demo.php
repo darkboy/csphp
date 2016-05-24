@@ -37,7 +37,7 @@ class demo extends CspBaseControler{
         foreach($methods as $fn){
             if(substr($fn,0,6)!=='action'){continue;}
             $action = lcfirst(substr($fn,6));
-            echo '<div style="float: left;padding:2px;margin: 5px; display: inline;"><a href="/demo/'.$action.'">'.$action.'</a></div>';
+            echo '<span style="float: left;padding:2px;margin: 5px;"><a href="/demo/'.$action.'">'.$action.'</a></span>';
         }
         echo '</div> ';
     }
