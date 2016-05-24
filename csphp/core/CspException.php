@@ -21,7 +21,7 @@ class CspException extends \Exception{
 
     private $msgData = null;
     private $msg        = null;
-    private $code       = null;
+    protected  $code       = null;
     private $context    = null;
 
     /**
@@ -69,7 +69,7 @@ class CspException extends \Exception{
         if($this->exceptionType==self::NOT_FOUND_EXCEPTION){
             print_r(Csphp::router()->routeInfo);
         }
-        return "{$this->exceptionType} Exception; Code is: [{$this->code}]; Msg: {$this->message}";
+        return "{$this->exceptionType} ; Code is: [{$this->code}]; Msg is: {$this->message} Ctx is:".json_encode($this->context);
     }
 
     /**
