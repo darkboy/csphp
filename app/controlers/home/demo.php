@@ -91,11 +91,11 @@ class demo extends CspBaseControler{
     //用户输入 与 输入验证 示例
     public function actionInput(CspRequest $request){
         $input = [
-            'num'   => $request->get('num', 1, 'require,num'),
-            'email' => $request->get('email', 1, 'require,email'),
-            'ip'    => $request->get('ip', 1, 'norequire,ip'),
-            'phone' => $request->get('phone', 1, 'norequire,phone'),
-            'pcard' => $request->get('pcard', 1, 'norequire,pcard'),
+            'num'   => $request->get('num', null,   'require,num'),
+            'email' => $request->get('email', null, 'require,email'),
+            'ip'    => $request->get('ip', '',    'norequire,ip'),
+            'phone' => $request->get('phone', '', 'norequire,phone'),
+            'pcard' => $request->get('pcard', '', 'norequire,pcard'),
         ];
         Csphp::dump($input);
     }
