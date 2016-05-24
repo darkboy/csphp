@@ -813,9 +813,6 @@ class Csphp {
         if(is_string($compClassName) && !class_exists($compClassName)){
             throw new CspException("Error config, can not find component config  or component class: [$accessKey] => {$compClassName}");
         }
-        if($compClassName instanceof Closure && !is_string($compClassName)){
-            throw new CspException("Error config, can not find component config  or component class: [$accessKey] ");
-        }
 
         $compObj = is_string($compClassName) ? new $compClassName : $compClassName();
 
@@ -823,7 +820,7 @@ class Csphp {
         if(isset($compCfg['options']) && !empty($compCfg['options'])){
             $optionMethod = isset($compCfg['option_method']) ? $compCfg['option_method'] : 'setInitOptions';
             if(!method_exists($compObj, $optionMethod)){
-                throw CspException("Cant find comp[".get_class($compObj)."] options method {$optionMethod}");
+                throw new CspException("Cant find comp[".get_class($compObj)."] options method {$optionMethod}");
             }
             $compObj->$optionMethod($compCfg['options']);
         }

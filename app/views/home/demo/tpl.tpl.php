@@ -1,4 +1,14 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<?php
+/**
+ * 方便使用IDE自动提示，可修改
+ *
+ * @var $this \Csp\core\CspTemplate
+ *
+ * @var $controler \Csp\base\CspBaseControler
+ *
+ */
+
+?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 
@@ -78,6 +88,7 @@
 <div>Full url : <?php echo Csphp::request()->getFullRequestUri();?></div><br>
 <div><?php printf("TimeUse: %.4fms ", Csphp::getTimeUse()*1000);;?></div><br>
 <hr>
+
 <!-- 加载子模板的几种方式 -->
 <!-- 当前控制器的模板目录 可以用 . 表示 -->
 <?php $this->widget('.widget',                array('by'=>'tpl_1')); $ti=2;?>

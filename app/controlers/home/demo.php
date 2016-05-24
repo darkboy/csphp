@@ -150,6 +150,15 @@ class demo extends CspBaseControler{
     }
 
     //----------------------------------------------------------
+    public function actionDb(){
+        /**
+         *@var $db \Csp\comp\db\CspcompDBMysqli
+         */
+        $db = Csphp::comp('DB');
+        echo '<pre>';print_r($db);
+
+    }
+    //----------------------------------------------------------
 
 
 
