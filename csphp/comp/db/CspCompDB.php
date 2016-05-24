@@ -20,8 +20,9 @@ class CspCompDBConnection extends CspBaseComponent {
      * @param string $dsnName
      * @param string $dbConfig
      */
-    public static function getConnection($dsnName='default', $dbConfig=[]){
+    public static function getConnection($dsnName='default'){
         if(!isset(self::$mysqlConnectionPoll[$dsnName])){
+            $dbConfig = Csphp::appCfg('mysql/'.$dsnName, []);
             self::$mysqlConnectionPoll[$dsnName] = new CspcompDBMysqli($dbConfig);
         }
         return self::$mysqlConnectionPoll[$dsnName];

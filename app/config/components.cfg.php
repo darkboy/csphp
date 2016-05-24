@@ -38,8 +38,7 @@ return [
     'DB' => [
         //目标类，可以是类别名路由 类名 闭包
         'class'         => function(){
-            $dbConfig = Csphp::appCfg('mysql/default',[]);
-            return new \Csp\comp\db\CspcompDB::getConnection($dbConfig);
+            return new \Csp\comp\db\CspCompDBConnection::getConnection('default');
         },
         'is_singleton'  => true,
         // 用于初始化选项的成员方法，默认为  setInitOptions
