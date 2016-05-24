@@ -222,6 +222,7 @@ class Csphp {
 
         //load sys config
         self::$sysCfg = include(self::$coreRootPath.'/CspCfg.php');
+
         //ower write system config
         if(isset(self::$appCfg['system_config_over_write']) && is_array(self::$appCfg['system_config_over_write'])){
             foreach(self::$appCfg['system_config_over_write'] as $k=>$v){
