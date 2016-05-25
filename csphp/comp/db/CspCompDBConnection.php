@@ -10,6 +10,7 @@ use Csphp;
 
 class CspCompDBConnection extends CspBaseComponent {
 
+
     /**
      * mysqli 实例对象池
      * @var array
