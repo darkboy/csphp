@@ -2,7 +2,6 @@
 namespace Csp\comp\db;
 
 use Csp\base\CspBaseComponent;
-use Csp\comp\db\CspCompDBMysqli;
 use Csp\core\CspException;
 use Csphp;
 
