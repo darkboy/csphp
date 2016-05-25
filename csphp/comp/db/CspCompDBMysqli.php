@@ -17,7 +17,6 @@ use Exception;
  *
  * todo...
  * 增加主从，读写分离，支持
- * 增加 多库 支持
  * 增加 find 函数
  * 增加 数组 条件构造器 $cond
  * fix andy bug
@@ -189,51 +188,50 @@ class CspCompDBMysqli extends CspBaseComponent {
 
 
     //---------------------------------------------------------------------------------
-    /**
-     * mysqli 链接池
-     *          [dbName][r]=>mysqliObj
-     *          [dbName][w]=>mysqliObj
-     * @var array
-     */
-    public static $mysqliObjPoll = array();
-    public static $mysqlCfg      = array();
-
-    /**
-     * 通过主从配置初始化数据库连接，配置 格式如下
-     * array(
-     *  'db_name'=>array(
-     *
-     *      'master'=>array(
-     *              'charset'   =>'utf8',
-     *              'user'      =>'root',
-     *              'pwd'       =>'123456',
-     *              'port'      =>'3306',
-     *              'db_name'   =>'test',
-     *              'tb_prefix' =>'csp_'
-     *      ),
-     *
-     *      'slaves'=>array(
-     *              array('host'=>'slave1.db.host'),
-     *              array('host'=>'slave2.db.host'),
-     *      ),
-     *  ),
-     *
-     * );
-     * @param $dbCfg
-     */
-    public function setInitOptions($dbCfg){
-        self::$mysqlCfg = $dbCfg;
-    }
-
-    //连接类型
+    //hack begin
+    //连接类型 w r auto
     const  CONNECT_TYPE_WRITE   = 'w';
     const  CONNECT_TYPE_READ    = 'r';
     const  CONNECT_TYPE_AUTO    = 'auto';
+
+    //@var array 数据库配置
+    public $mysqlCfg      = array();
     /**
      * 应用主动设置连接类型
      * @var string
      */
     public $cnnTypeSelect       = 'auto';
+    /**
+     * @var null 最后一次使用的MYSQL连接
+     */
+    public $lastMysqliLink      = null;
+    /**
+     *
+     * slave 的配置将会 与 主配置进行合并后作为从机的配置
+     *
+     * 配置示例 :
+     *
+     *    array(
+     *       'is_default' => true,
+     *       'master'     => array(
+     *           'host'      => 'utf8',
+     *           'port'      => '3306',
+     *           'charset'   => 'utf8',
+     *           'username'  => 'root',
+     *           'password'  => '123456',
+     *           'db_name'   => 'test',
+     *           'tb_prefix' => 'csp_'
+     *       ),
+     *       'slaves'     => array(
+     *           array('host' => 'slave1.db.host'),
+     *           array('host' => 'slave2.db.host'),
+     *       )
+     *   ),
+     *
+     */
+    public function setInitOptions($dbCfg){
+        $this->mysqlCfg = $dbCfg;
+    }
 
     public function useWriteConnect(){
         $this->cnnTypeSelect = self::CONNECT_TYPE_WRITE;
@@ -263,8 +261,12 @@ class CspCompDBMysqli extends CspBaseComponent {
         return ($sql === '' || !in_array(strtolower($sql[0]), $wCmds)) ? self::CONNECT_TYPE_READ : self::CONNECT_TYPE_WRITE;
     }
 
-    public function getConnect(){
-
+    public function getConnect($type){
+        static $connectionPool=[];
+        switch($type){
+            case 'w' :
+                break;
+        }
     }
     //---------------------------------------------------------------------------------
 
@@ -276,7 +278,20 @@ class CspCompDBMysqli extends CspBaseComponent {
      * @param int $port
      * @param string $charset
      */
-    public function __construct($host = null, $username = null, $password = null, $db = null, $port = null, $charset = 'utf8') {
+    public function __construct($dbConfig) {
+        $this->mysqlCfg = $dbConfig;
+        self::$_instance[$this->getDsnName()] = $this;
+    }
+
+    /**
+     * 获取当前的数据源名称
+     * @return mixed
+     */
+    public function getDsnName(){
+        return $this->mysqlCfg['dsn_name'];
+    }
+    public function initDB() {
+        /*
         $isSubQuery = false;
         // if params were passed as array
         if (is_array($host)) {
@@ -303,6 +318,7 @@ class CspCompDBMysqli extends CspBaseComponent {
             $this->setPrefix($prefix);
         }
         self::$_instance = $this;
+        */
     }
 
     /**
@@ -314,14 +330,15 @@ class CspCompDBMysqli extends CspBaseComponent {
      *
      * @return CspCompDBMysqli Returns the current instance.
      */
-    public static function getInstance($dbCfgName) {
-        if(!isset(self::$_instance[$dbCfgName])){
+    public static function getInstance($dsnName) {
+        //is need?
+        if(!isset(self::$_instance[$dsnName])){
 
             //self::$_instance[$dbCfgName] = new self();
             //self::$_instance[$dbCfgName]
         }
 
-        return self::$_instance[$dbCfgName];
+        return self::$_instance[$dsnName];
     }
 
     /**
@@ -358,6 +375,47 @@ class CspCompDBMysqli extends CspBaseComponent {
         return $this->_mysqli;
     }
 
+    /**
+     * Method to set a prefix
+     *
+     * @param string $prefix Contains a tableprefix
+     *
+     * @return CspCompDBMysqli
+     */
+    public function setPrefix($prefix = '') {
+        self::$prefix = $prefix;
+        return $this;
+    }
+
+    public function getTbPrefix(){
+        return self::$prefix;
+    }
+
+    /**
+     *
+     * @param      $tableName
+     * @param bool $usePrefix
+     *
+     * @return $this
+     */
+    public function setTableName($tableName, $usePrefix = true) {
+        if($usePrefix){
+            $tableName = self::$prefix.$tableName;
+        }
+        $this->_tableName = $tableName;
+        return $this;
+    }
+
+    /**
+     * 获取当前表名
+     * @return string
+     */
+    public function getTableName(){
+        return $this->_tableName;
+    }
+
+
+    //----------------------------------------------------------------------------
     //----------------------------------------------------------------------------
     /**
      * Reset states after an execution
@@ -374,16 +432,16 @@ class CspCompDBMysqli extends CspBaseComponent {
         $this->_orderBy = array();
         $this->_groupBy = array();
         $this->_bindParams = array(''); // Create the empty 0 index
-        $this->_query = null;
+        $this->_query = NULL;
         $this->_queryOptions = array();
         $this->returnType = 'array';
         $this->_nestJoin = false;
         $this->_forUpdate = false;
         $this->_lockInShareMode = false;
         $this->_tableName = '';
-        $this->_lastInsertId = null;
-        $this->_updateColumns = null;
-        $this->_mapKey = null;
+        $this->_lastInsertId = NULL;
+        $this->_updateColumns = NULL;
+        $this->_mapKey = NULL;
     }
 
     /**
@@ -414,18 +472,6 @@ class CspCompDBMysqli extends CspBaseComponent {
      */
     public function objectBuilder() {
         $this->returnType = 'object';
-        return $this;
-    }
-
-    /**
-     * Method to set a prefix
-     *
-     * @param string $prefix Contains a tableprefix
-     *
-     * @return CspCompDBMysqli
-     */
-    public function setPrefix($prefix = '') {
-        self::$prefix = $prefix;
         return $this;
     }
 
