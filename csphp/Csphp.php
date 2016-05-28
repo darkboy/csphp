@@ -1259,7 +1259,7 @@ class Csphp {
         while ( $fk = array_shift($vKes) ) {
             if($v==null){
                 if( isset($inputData[$vType][$fk]) ){
-                    $v = $inputData[$vType][$fk];
+                    $v = &$inputData[$vType][$fk];
                 }else{
                     $noFound = true;
                     $v = $def;
@@ -1268,7 +1268,7 @@ class Csphp {
                 }
             }else{
                 if(isset($v[$fk])){
-                    $v = $v[$fk];
+                    $v = &$v[$fk];
                 }else{
                     $noFound = true;
                     $v = $def;

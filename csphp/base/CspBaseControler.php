@@ -3,7 +3,7 @@ namespace Csp\base;
 use Csp\core\CspException;
 use Csphp;
 
-class CspBaseControler {
+class CspBaseControler extends CspBaseObject {
 
     //使用JSONP时的 JS调用方法名
     private $jsonpCallbackName  = 'cspCallback';

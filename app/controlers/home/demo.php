@@ -1,5 +1,6 @@
 <?php
 namespace App\controlers\home;
+use App\models\modelDemo;
 use \Csp\base\CspBaseControler;
 use \Csp\core\CspRequest;
 use \Csphp;
@@ -161,9 +162,48 @@ class demo extends CspBaseControler{
     public function actionDb(){
         /**
          *@var $db \Csp\comp\db\CspcompDBMysqli
+         *@var $db \App\models\modelDemo
          */
         $db = Csphp::comp('DB');
         echo '<pre>';print_r($db);
+
+
+        $obj = modelDemo::getInstance();
+        $obj["f1"] = '';
+        $obj["f2"] = '';
+        $obj["f3"] = '';
+        $id = $obj->save();
+        $id = $obj->delete();
+
+        $data=[];
+        $data["f1"] = '';
+        $data["f2"] = '';
+        $data["f3"] = '';
+        $id = modelDemo::save($data=null);
+        $id = modelDemo::create($data=null);
+        $id = modelDemo::insert($data=null);
+
+
+
+        $id = modelDemo::update($data=null, $condOrPk=null);
+        $id = modelDemo::delete($condOrPk=null);
+
+
+        $opt=null;
+
+        $demo = modelDemo::withQueryOption($opt)->get(1);
+        $demo = modelDemo::withCount($opt)->get(1);
+
+        $demo = modelDemo::withCache($opt)->gets([1,2]);
+        $demo = modelDemo::withFormat($opt)->get(1);
+        $demo = modelDemo::withFields($opt)->get(1);
+
+        $demo = modelDemo::withXhprof($opt)->get(1);
+        $demo = modelDemo::withTime($opt)->get(1);
+        $demo = modelDemo::withTrace($opt)->get(1);
+
+        modelDemo::where()->withCache()->find();
+        modelDemo::where()->withNoCache()->find();
 
     }
     //----------------------------------------------------------

@@ -5,7 +5,7 @@ use Csphp;
 //use Csp\comp\db\;
 use ArrayAccess;
 
-class CspBaseModel implements ArrayAccess {
+class CspBaseModel extends CspBaseObject implements ArrayAccess {
 
     /**
      * 减少模型基类属性，将基类要用到的属性封装在一个总配置中
@@ -43,6 +43,9 @@ class CspBaseModel implements ArrayAccess {
         )
     );
 
+    //当前实例
+    protected static $instance = null;
+
     /**
      * @param string    $tbName
      * @param string    $pkName
@@ -51,7 +54,7 @@ class CspBaseModel implements ArrayAccess {
      *
      * @throws \Csp\core\CspException
      */
-    public function initModel($tbName, $pkName='id', $useCache=false, $dsnName = 'default' ) {
+    public function initModel($tbName, $pkName='id', $useCache=false, $dsnName = null) {
         $this->setOption('pk', $pkName);
         $this->setOption('tb', $tbName);
         $this->setOption('db', Csphp::comp('DB')->getConnection($dsnName));
@@ -59,6 +62,19 @@ class CspBaseModel implements ArrayAccess {
         $this->setOption('cache_prefix',    $useCache);
 
         return $this;
+    }
+
+    public function callByCache($cacheOpt){
+
+    }
+    public function callByXhporf($cacheOpt){
+
+    }
+    public function callByTime($cacheOpt){
+
+    }
+    public function callByTrace($cacheOpt){
+
     }
 
 
@@ -161,41 +177,126 @@ class CspBaseModel implements ArrayAccess {
     }
     //--------------------------------------------------------------------
 
+    /**
+     * 获取模型的一个实例
+     *
+     * @param bool $newInstance
+     *
+     * @return static
+     */
+    public static function getInstance($newInstance=false){
+        if($newInstance){
+            return new static();
+        }
+        if(self::$instance===null){
+            self::$instance = new static();
+        }
+        return self::$instance;
+    }
 
-    protected function checkModelData(){
+    public static function reset(){
 
     }
 
-    protected function withMap($k=null){
+    //-------------------------------------------------------------------------
+    /**
+     * @param null $keyField
+     */
+    public static function withMap($keyField=null){
+        return self::getBuilderInstance();
+    }
+
+    public static function withXhprof($k=null){
+        return self::getBuilderInstance();
+    }
+
+    public static function withCache($cacheOpt=null){
+
+        return self::getBuilderInstance();
+    }
+    public static function withNoCache($cacheOpt=null){
+
+        return self::getBuilderInstance();
+    }
+
+    public static function withFormat($formatName){
+
+        return self::getBuilderInstance();
+    }
+
+    public static function withFields($fieldStrOrArr){
+
+        return self::getBuilderInstance();
+    }
+
+    public static function withTime(){
+        return self::getBuilderInstance();
+    }
+
+    public static function withTrace(){
+        return self::getBuilderInstance();
+    }
+
+    public static function withCount($cntField){
+        return self::getBuilderInstance();
+    }
+
+    public static function withQueryOption($opt){
+
+        return self::getBuilderInstance();
+    }
+
+    /**
+     * @return static
+     */
+    public static function getBuilderInstance(){
+        return new static();
+    }
+    //-------------------------------------------------------------------------
+
+
+
+    public static function toJson($data=null){}
+
+    /**
+     * 使用验证器，检查 模型数据, 如果 不传递参数，则验证当前模型
+     *
+     * @param null|array    $data
+     * @param bool          $isMulti
+     */
+    public static function checkModelData($data=null, $isMulti=false){
 
     }
 
+    /**
+     * 如果参数为 0 个当成实例调用, 如果
+     * @param null $data
+     */
+    public static function insert($data=null){}
+    public static function create($data=null){}
+
+    public static function batchInsert($data){}
+    public static function batchCreate($data){}
+    public static function batchSave($data){}
+
+    public static function save($data=null){}
+    public static function update($data=null){}
+
+    public static function delete($condOrPk=null){}
+    public static function pks($cond){}
+
+    public static function get($condOrPk){}
+    public static function gets($condOrPks){}
+
+    public static function find($cond, $page, $pageSize){}
+    public static function where($field=null, $value=null, $opt=null){}
 
 
-    public function toJson($data=null){}
+    public static function formatGet($fk, $condOrPk){}
+    public static function formatGets($fk, $pks){}
+    public static function formatFind($fk, $cond, $page,$pageSize){}
 
-    public function save($data=null){}
-    public function insert($data=null){}
-    public function create($data=null){}
-
-    public function batchInsert($data){}
-    public function batchCreate($data){}
-    public function batchSave($data){}
-
-    public function update($data=null){}
-    public function delete($condOrPk){}
-    public function pks($cond){}
-
-    public function get($condOrPk){}
-    public function gets($condOrPks){}
-    public function formatGet($fk, $condOrPk){}
-    public function formatGets($fk, $pks){}
-
-
-    public function find($cond, $page, $pageSize){}
-    public function formatFind($fk, $cond, $page,$pageSize){}
-
-    public function dataFormater($data, $isMulti=false){}
+    public function dataFormat($data, $isMulti=false){}
 
 
     /**
@@ -218,27 +319,33 @@ class CspBaseModel implements ArrayAccess {
      */
     public function __call(){}
 
+
     /**
-     * __udt__ 开头的成员方法是 用户自定义类型的系列化 和 反系列化方法
+     * __type__ 开头的成员方法是 用户自定义类型的系列化 和 反系列化方法
      *
-     * __udt__<typeName>_encode
-     * __udt__<typeName>_decode
+     * __type__<typeName>_encode
+     * __type__<typeName>_decode
      *
      * @param $v
      */
-    final protected function __udt__list_encode($v){}
-    final protected function __udt__list_decode($str){}
+    final protected function __type__list_encode($v){}
+    final protected function __type__list_decode($v){}
 
-
-    final protected function __udt__json_encode($str){}
-    final protected function __udt__json_decode($str){}
+    /**
+     * json 数据
+     * @param $v
+     */
+    final protected function __type__json_encode($v){}
+    final protected function __type__json_decode($v){}
 
     /**
      * secret 类型为 加解密类型，某些场景下 需要将内容进行加密后存进数据库
      * @param $str
      */
-    final protected function __udt__secret_encode($str){}
-    final protected function __udt__secret_decode($str){}
+
+    final protected function __type__secret_encode($v){}
+    final protected function __type__secret_decode($v){}
+    
 
     //-------------------------------------------------------------------------------
     /**

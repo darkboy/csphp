@@ -28,7 +28,7 @@ class CspCompDBMysqli extends CspBaseComponent {
      * Static instance of self
      * @var CspCompDBMysqli
      */
-    protected static $_instance;
+    protected static $_instance=[];
     /**
      * Table prefix
      * @var string
@@ -227,12 +227,15 @@ class CspCompDBMysqli extends CspBaseComponent {
      *           array('host' => 'slave2.db.host'),
      *       )
      *   ),
-     *
+     * @param $dbConfig
      */
-    public function setInitOptions($dbCfg){
-        $this->mysqlCfg = $dbCfg;
+
+    public function __construct($dbConfig) {
+        $this->mysqlCfg = $dbConfig;
+        self::$_instance[$this->getDsnName()] = $this;
     }
 
+    //三个
     public function useWriteConnect(){
         $this->cnnTypeSelect = self::CONNECT_TYPE_WRITE;
     }
@@ -263,24 +266,45 @@ class CspCompDBMysqli extends CspBaseComponent {
 
     public function getConnect($type){
         static $connectionPool=[];
-        switch($type){
-            case 'w' :
-                break;
+        if(isset($connectionPool[$type])){
+            return $connectionPool[$type];
         }
+        $cfg = $this->getDbConfig($type);
+
+        if ($this->isSubQuery) {
+            return;
+        }
+        if (empty($this->host)) {
+            throw new Exception('MySQL host is not set');
+        }
+        $this->_mysqli = new mysqli($this->host, $this->username, $this->password, $this->db, $this->port);
+        if ($this->_mysqli->connect_error) {
+            throw new Exception('Connect Error ' . $this->_mysqli->connect_errno . ': ' . $this->_mysqli->connect_error);
+        }
+        if ($this->charset) {
+            $this->_mysqli->set_charset($this->charset);
+        }
+
     }
-    //---------------------------------------------------------------------------------
 
     /**
-     * @param string $host
-     * @param string $username
-     * @param string $password
-     * @param string $db
-     * @param int $port
-     * @param string $charset
+     *
+     * @param $type
+     *
+     * @return array
      */
-    public function __construct($dbConfig) {
-        $this->mysqlCfg = $dbConfig;
-        self::$_instance[$this->getDsnName()] = $this;
+    public function getDbConfig($type){
+        $cfg = $this->mysqlCfg;
+        if($type===self::CONNECT_TYPE_READ){
+            $cnt = count($cfg['slaves']);
+            $slave = $cfg['slaves'][rand(0,$cnt-1)];
+            foreach($slave as $k=>$v){
+                $cfg[$k]=$v;
+            }
+        }
+
+        unset($cfg['slaves']);
+        return $cfg;
     }
 
     /**

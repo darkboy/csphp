@@ -207,7 +207,51 @@ class CspValidator{
 
         return self::__chk_limit($argValue, $ruleArg, '数值大小');
     }
-    //检查值是否在某个范围
+
+    private static function __chk_is($argValue, $ruleArg=''){
+        switch(strtolower($ruleArg)){
+            case 'i':
+            case 'int':
+                if(!is_int($argValue)){
+                    return self::voidInfo(40002,"参数必须是一个整数(Int)，当前值 $argValue 不是一个整数(Int)");
+                }
+                break;
+            case '+int':
+                if(!is_int($argValue) || $argValue<0){
+                    return self::voidInfo(40002,"参数必须是一个非负整数(Int)，当前值 $argValue 不是一个非负整数(Int)");
+                }
+                break;
+            case 'd':
+            case 'f':
+            case 'float':
+            case 'double':
+                if(!is_float($argValue)){
+                    return self::voidInfo(40002,"参数必须是一个浮点数，当前值 $argValue 不是一个浮点数");
+                }
+                break;
+            case '+f':
+            case '+d':
+            case '+float':
+            case '+double':
+                if(!is_float($argValue) || $argValue<0){
+                    return self::voidInfo(40002,"参数必须是一个非负浮点数，当前值 $argValue 不是一个非负浮点数");
+                }
+                break;
+            case 'b':
+            case 'bool':
+                if(!is_bool($argValue)){
+                    return self::voidInfo(40002,"参数必须是一个布尔值，当前值不是一个布乐值");
+                }
+                break;
+            default:
+                throw new CspException("Error arge for 'is validator '[$ruleArg] ");
+                break;
+        }
+        return true;
+    }
+
+
+        //检查值是否在某个范围
     private final static function __chk_limit($argValue, $ruleArg='', $typeStr='数值大小'){
         if(empty($ruleArg)) return true;
         $ruleArg = trim($ruleArg);
