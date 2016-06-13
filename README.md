@@ -1,6 +1,10 @@
 Csphp Framework
 =====
+<<<<<<< HEAD
 A Concise but not Simple PHP framework v1.0.6
+=======
+A Concise but not Simple PHP framework v1.0.3
+>>>>>>> parent of 01ef3d6... test 4
 
 ------------------------------------------------------------------
 
