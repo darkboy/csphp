@@ -5,7 +5,7 @@ A Concise but not Simple PHP framework
 
 ------------------------------------------------------------------
 
-Plan
+Plan.1.0
 =====
 
     1. cli  route input and out support
