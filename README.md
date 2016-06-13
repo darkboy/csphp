@@ -1,7 +1,7 @@
 Csphp Framework
 =====
 
-A Concise but not Simple PHP framework 
+A Concise but not Simple PHP framework v1.0.1
 
 ------------------------------------------------------------------
 
