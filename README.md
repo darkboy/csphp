@@ -1,11 +1,6 @@
 Csphp Framework
 =====
-
-<<<<<<< HEAD
 A Concise but not Simple PHP framework v1.0.3
-=======
-A Concise but not Simple PHP framework v1.0.1
->>>>>>> parent of 86e4af8... add ioc container and model desc
 
 ------------------------------------------------------------------
 
