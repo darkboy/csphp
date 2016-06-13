@@ -7,7 +7,7 @@ use Closure;
 use ArrayAccess;
 
 /**
- * 简易的 IOC 容器，实现 构造器依赖注入
+ * IOC 容器，实现 构造器依赖注入
  *
  *
  * Class CspIocContainer
@@ -72,6 +72,7 @@ class CspIocContainer {
      * 自动绑定（Autowiring）自动解析（Automatic Resolution）
      *
      * @param string $className
+     * @param string $constructParams 传递给构造函数的参数，数字索引表示第几个参数，名称索引则表示参数名
      *
      * @return object
      * @throws CspException

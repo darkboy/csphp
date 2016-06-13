@@ -21,6 +21,7 @@ use Csp\core\CspTemplate;
 use Csp\core\CspValidator;
 use Csp\core\CspException;
 use Csp\core\CspPipeline;
+use Csp\core\CspIocContainer;
 use Csp\CsphpAutoload;
 
 //设置当前的运行环境
@@ -49,12 +50,12 @@ class Csphp {
     /**
      * 核心架构 准备完毕事件，已完成 配置，初始化
      */
-    const EVENT_CORE_AFTER_INIT         = 'event.core.init';
+    const EVENT_CORE_AFTER_INIT         = 'event.core.after.init';
 
     /**
      * 路由解释 结束
      */
-    const EVENT_CORE_AFTER_ROUTE        = 'event.core.route.alfter';
+    const EVENT_CORE_AFTER_ROUTE        = 'event.core.route.after';
 
     /**
      * 用户以 及 系统配置的 组件初始化完成，即：已调用完他们的 start 方法
@@ -97,7 +98,7 @@ class Csphp {
     /**
      * 应用退出，即将结束PHP 进程
      */
-    const EVENT_CORE_EXIT               = 'envent.core.app.exit';
+    const EVENT_CORE_EXIT               = 'event.core.app.exit';
 
 
     /**
@@ -141,13 +142,13 @@ class Csphp {
     );
 
     /**
-     * 当前运行的模块数据
+     * 当前运行的模块配置数据
      * @var array
      */
     public  static $curModule = array();
 
     /**
-     * 系统别名 字典，可以在配置路径 或者 的时候，使用 @aliasname 代表相应的目录
+     * 系统别名 字典，可以在配置路径 或者 类名的时候，使用 @aliasname 代表相应的目录 和 命名空间前缀
      * @var array
      */
     private static $aliasMap = array();
@@ -167,18 +168,19 @@ class Csphp {
 
     /**
      * 存储系统的执行标签与时间
+     * key_name=>float_time
      * @var array
      */
     private static $bankmarkData = array();
 
 
     /**
-     * 当前项目是否在debug模式
+     * 当前应用是否在debug模式
      * @var bool
      */
     private static $isDebug     = false;
     /**
-     * 当前的运行环境
+     * 当前的运行环境 可能是:  prod test dev
      * @var string
      */
     private static $runningEnv  = self::ENV_TYPE_PROD;
@@ -615,6 +617,8 @@ class Csphp {
 
         self::$aliasMap['@app'] = array($appRoot,$appNs);
         self::$aliasMap['@sys'] = array($sysRoot,'\\Csp');
+        self::$aliasMap['@core'] = array($sysRoot.'/core','\\Csp\\core');
+        self::$aliasMap['@base'] = array($sysRoot.'/base','\\Csp\\base');
 
         self::$aliasMap['@lib']    = array($appRoot.'/libs', $appNs.'\\libs');
         self::$aliasMap['@middleware']    = array($appRoot.'/libs/middlewares', $appNs.'\\libs\\middlewares');
@@ -752,7 +756,7 @@ class Csphp {
      * @throws \Csp\core\CspException
      */
     private static function initComponentsByCfg($compCfgArr){
-        //检查应用中的
+        //检查应用中的组件配置并且
         foreach($compCfgArr as $accessKey=>$comp){
             if( isset($comp['pre_init']) && $comp['pre_init'] ) {
                 self::createComponent($accessKey, $comp);
@@ -764,30 +768,38 @@ class Csphp {
 
     /**
      * 生产 或者 获取一个 组件对象，组件的初始化配置 在 components 配置中
-     * @param string $accessKey
+     *
+     * @param string $aliasOrClassOrCompCfg
+     *
      * @return  object
      */
-    public static function comp($accessKey){
+    public static function comp($aliasOrClassOrCompCfg, $constructArgs=null){
+        $compCfg = $aliasOrClassOrCompCfg;
+        if(!is_array($aliasOrClassOrCompCfg)){
+            self::container($compCfg);
+        }
+
+
         //已经初始化过的 组件 直接返回
-        if(isset(self::$compSingletonObjPool[$accessKey])){
-            return self::$compSingletonObjPool[$accessKey];
+        if(isset(self::$compSingletonObjPool[$aliasOrClassOrCompCfg])){
+            return self::$compSingletonObjPool[$aliasOrClassOrCompCfg];
         }
 
         $compCfg = null;
         //别名路径
-        if($accessKey[0]=='@' || $accessKey[0]==='\\'){
-            $accessKey = self::getNamespaceByRoute($accessKey);
+        if ($aliasOrClassOrCompCfg[0]==='@' || $aliasOrClassOrCompCfg[0]==='\\'){
+            $aliasOrClassOrCompCfg = self::getNamespaceByRoute($aliasOrClassOrCompCfg);
 
         }else{
             //未初始化的组件，尝试查找配置
-            $k = 'components/'.$accessKey;
+            $k = 'components/' . $aliasOrClassOrCompCfg;
             $compCfg = self::sysCfg($k,  null);
             if(!$compCfg){
                 $compCfg = self::appCfg($k, null);
             }
         }
 
-        return self::createComponent($accessKey, $compCfg);
+        return self::createComponent($aliasOrClassOrCompCfg, $compCfg);
 
     }
 
@@ -1006,63 +1018,6 @@ class Csphp {
 
     }
 
-    //-------------------------------------------------------------------
-    /**
-     * @param $obj
-     * @param null $options
-     */
-    public static function initObjectOptions($obj, $options=null){
-        if(!empty($options) && is_array($options)){
-            foreach ($options as $k=>$v){
-                $obj->$k = $v;
-            }
-        }
-        return $obj;
-    }
-    /**
-     * 实例化一个对象
-     * @param $oRoute mixed 可以是如下值的一个
-     *          实际的类名字符串，如： App\controlers\index
-     *          一个对象，当传递一个对象时，实际上只进行 $opts 的属性赋值
-     * @param array $opts
-     * @return object
-     */
-    public static function newClass($oRoute, $opts=array(), $isSingleton=true){
-        static $objs = array();
-
-        $staticsKey = null;
-        if(is_string($oRoute)){
-            $staticsKey = $oRoute;
-            if(isset($objs[$staticsKey]) && $isSingleton){
-                return $objs[$staticsKey];
-            }
-            //获取类名
-            $realNamespace = self::getNamespaceByRoute($oRoute);
-
-            if(!class_exists($realNamespace)){
-                throw new CspException("Error class oRoute, can not find calss {$oRoute} => {$realNamespace} ");
-            }
-
-            if($isSingleton){
-                $objs[$staticsKey] = self::initObjectOptions(new $realNamespace(), $opts);
-                return $objs[$staticsKey];
-            }else{
-                return self::initObjectOptions(new $realNamespace(), $opts);
-            }
-
-        }else{
-            if(is_object($oRoute)){
-                $staticsKey = get_class($oRoute);
-                if($staticsKey=='Closure'){
-                    throw new CspException("Error class oRoute, can not be Closure");
-                }else{
-                    return self::initObjectOptions($oRoute, $opts);
-                }
-            }else{
-                throw new CspException("Error class oRoute, unknow type");
-            }
-        }
-    }
     //-------------------------------------------------------------------
 
 
