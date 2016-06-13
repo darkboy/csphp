@@ -11,7 +11,7 @@ Plan.1.0
     2. assets  publish statics resources
     3. implement 4  base:  obj ctrl  comp mod
     4. template  support，async (pipe ajax)  feature
-    5. js css manger in tpl
+    5. js,css manger in tpl
     6. url  creator considering for migration
     7. log review and debug
     8. event review and debug
