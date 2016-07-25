@@ -687,7 +687,7 @@ class Csphp {
         $mName = self::$curModule['name'];
         self::$aliasMap['@m-ctrl']  = [$appRoot.'/controlers/'.$mName, $appNs.'\\controlers\\'.$mName];
         self::$aliasMap['@m-view']  = [$appRoot.'/views/'.$mName, $appNs.'\\views\\'.$mName];
-
+        //echo '<pre>';print_r(self::$curModule);
         return self::$curModule;
     }
 

@@ -760,10 +760,7 @@ class CspRouter{
             return $checkCache[$cacheKey];
         }
         //------------------
-
-
-
-        //echo $ctrlFile;
+        //echo " targetRoute $targetRoute";
 
         //控制器检测结果 上下文信息
         $context = [
@@ -811,6 +808,7 @@ class CspRouter{
             //Csphp::dump($paths);exit;
             $action     = array_pop($paths);
             $classRoute = join('/', $paths);
+
             $ctrlFile   = Csphp::getPathByRoute($classRoute, '.php');
             $context['ctrl_file']   = $ctrlFile;
             $context['file_exists'] = file_exists($ctrlFile);

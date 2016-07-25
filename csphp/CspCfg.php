@@ -42,7 +42,8 @@ $systemConfig=array(
     //用户可以指定 获取ip的尝试顺序，注，在使用 反向代理后，一般不能使用 REMOTE_ADDR ，不同的服务器，可能设置为不同的KEY
     'ip_keys_order'     =>array(
         'HTTP_X_REAL_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP',
-        'HTTP_X_CLIENT_IP', 'HTTP_X_CLUSTER_CLIENT_IP', 'REMOTE_ADDR'),
+        'HTTP_X_CLIENT_IP', 'HTTP_X_CLUSTER_CLIENT_IP', 'REMOTE_ADDR'
+    ),
 
     //系统内置的中间件
     'sys_middleware'=>array(

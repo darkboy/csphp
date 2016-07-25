@@ -26,7 +26,24 @@ return array(
         'filter'=>array(
             //这条规则表示只在 www.csphp.com 下使用该模块
             //'host'=>'www.csphp.com'
-            'host'=>'*'//这条规则表示 任意域名
+            '!host'=>'api.*,admin.*'//这条规则表示 任意域名
+        ),
+        //'host'          => '*',
+        //默认的控制器，即首页
+        'default_route' =>'index',
+
+
+    ),
+    'api'=>array(
+        //模块名，不能重复，模块名用于 访问控制 或者 过滤器, 建议与 key 一致
+        'name'   =>'api',
+        //是否默认模块
+        'is_default'    => true,
+        //模块识别过滤器，系统 在什么条件下 识别为正在访问该模块，通常是域名，或者URL前缀
+        'filter'=>array(
+            //这条规则表示只在 www.csphp.com 下使用该模块
+            //'host'=>'www.csphp.com'
+            'host'=>'api.*'//这条规则表示 任意域名
         ),
         //'host'          => '*',
         //默认的控制器，即首页

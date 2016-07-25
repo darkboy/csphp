@@ -19,7 +19,7 @@ $appMainCfg = require(CSPHP_PROJECT_ROOT.'/app/main.cfg.php');
 //加载 框架引导文件
 require(CSPHP_PROJECT_ROOT.'/csphp/Startup.php');
 
-//可以使用 xhporf 进行 性能分析，你也可以显式的调用使用 Csphp::xhporfEnd(); 结束 xhprof 来分析特定区块
+//使用 xhporf 进行 性能分析，你也可以显式的调用 Csphp::xhporfEnd(); 结束来分析特定代码块
 Csphp::xhprofEnable(false);
 
 //使用配置信息，创建并运行一个运用
